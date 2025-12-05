@@ -1,0 +1,1 @@
+# idOS Staking app.
