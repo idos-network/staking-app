@@ -1,4 +1,9 @@
-import { type AppKitNetwork, arbitrum, mainnet } from "@reown/appkit/networks";
+import {
+  type AppKitNetwork,
+  arbitrum,
+  arbitrumSepolia,
+  mainnet,
+} from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,7 +22,11 @@ const metadata = {
   icons: ["/favicon.svg"],
 };
 
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, arbitrum];
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [
+  mainnet,
+  arbitrum,
+  arbitrumSepolia,
+];
 
 const wagmiAdapter = new WagmiAdapter({
   networks,
