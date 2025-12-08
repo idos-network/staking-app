@@ -1,7 +1,7 @@
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { ConnectWallet } from "@/components/connect-wallet";
-import { Staking } from "@/components/staking";
+import { Staking } from "@/components/staking/staking";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 

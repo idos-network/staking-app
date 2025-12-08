@@ -67,8 +67,8 @@
   --card-foreground: var(--color-zinc-800);
   --popover: var(--color-white);
   --popover-foreground: var(--color-zinc-800);
-  --primary: var(--color-zinc-800);
-  --primary-foreground: var(--color-zinc-50);
+  --primary: oklch(0.8857 0.1873 164.56);
+  --primary-foreground: var(--color-zinc-950);
   --secondary: --alpha(var(--color-black) / 4%);
   --secondary-foreground: var(--color-zinc-800);
   --muted: --alpha(var(--color-black) / 4%);
@@ -116,8 +116,8 @@
   --card-foreground: var(--color-zinc-200);
   --popover: color-mix(in srgb, var(--background) 96%, var(--color-white));
   --popover-foreground: var(--color-zinc-200);
-  --primary: var(--color-zinc-200);
-  --primary-foreground: var(--color-zinc-800);
+  --primary: oklch(0.8857 0.1873 164.56);
+  --primary-foreground: var(--color-zinc-950);
   --secondary: --alpha(var(--color-white) / 6%);
   --secondary-foreground: var(--color-zinc-200);
   --muted: --alpha(var(--color-white) / 6%);
