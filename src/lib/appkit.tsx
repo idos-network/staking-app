@@ -15,10 +15,14 @@ const queryClient = new QueryClient();
 const projectId =
   import.meta.env.VITE_APPKIT_PROJECT_ID || "b56e18d47c72ab683b10814fe9495694";
 
+const url = import.meta.env.DEV
+  ? "http://localhost:5173"
+  : "https://idos-staking-app.vercel.app/";
+
 const metadata = {
   name: "idOS Staking",
   description: "idOS Staking app",
-  url: "http://localhost:5173", // origin must match your domain & subdomain
+  url, // origin must match your domain & subdomain
   icons: ["/favicon.svg"],
 };
 
