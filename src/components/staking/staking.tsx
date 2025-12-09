@@ -6,13 +6,13 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-  IDOS_NODE_STAKING_ABI,
-  IDOS_NODE_STAKING_ABI_ADDRESS,
-  IDOS_TOKEN_ABI,
-  IDOS_TOKEN_ABI_ADDRESS,
-} from "@/lib/abi";
+import { IDOS_TOKEN_ABI_ADDRESS } from "@/lib/abi";
 import { formatCurrency, formatTokenAmount } from "@/lib/format";
+import {
+  balanceOfParams,
+  getUserStakeParams,
+  withdrawableRewardParams,
+} from "@/lib/query-options";
 import { useTokenPrice } from "@/lib/use-token-price";
 import { Unstake } from "./unstake";
 
@@ -85,27 +85,18 @@ export function Staking() {
 
   const { data: tokenPrice } = useTokenPrice(IDOS_TOKEN_ABI_ADDRESS);
 
-  const { data: balance, isLoading: isBalanceLoading } = useReadContract({
-    address: IDOS_TOKEN_ABI_ADDRESS,
-    abi: IDOS_TOKEN_ABI,
-    functionName: "balanceOf",
-    args: address ? [address as `0x${string}`] : undefined,
-  });
+  const { data: balance, isLoading: isBalanceLoading } = useReadContract(
+    balanceOfParams(address as `0x${string}` | undefined)
+  );
 
-  const { data: userStake, isLoading: isUserStakeLoading } = useReadContract({
-    address: IDOS_NODE_STAKING_ABI_ADDRESS,
-    abi: IDOS_NODE_STAKING_ABI,
-    functionName: "getUserStake",
-    args: address ? [address as `0x${string}`] : undefined,
-  });
+  const { data: userStake, isLoading: isUserStakeLoading } = useReadContract(
+    getUserStakeParams(address as `0x${string}` | undefined)
+  );
 
   const { data: withdrawableReward, isLoading: isRewardLoading } =
-    useReadContract({
-      address: IDOS_NODE_STAKING_ABI_ADDRESS,
-      abi: IDOS_NODE_STAKING_ABI,
-      functionName: "withdrawableReward",
-      args: address ? [address as `0x${string}`] : undefined,
-    });
+    useReadContract(
+      withdrawableRewardParams(address as `0x${string}` | undefined)
+    );
 
   // Calculate total staked: activeStake + slashedStake
   // Note: If you want to exclude slashed stake from the total, change this to only use `userStake[0]`

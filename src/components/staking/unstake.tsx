@@ -1,8 +1,7 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { parseUnits } from "viem";
-import { useConfig, useWriteContract } from "wagmi";
-import { readContractQueryOptions } from "wagmi/query";
+import { useWriteContract } from "wagmi";
 import {
   StakingForm,
   type StakingFormSubmitData,
@@ -10,14 +9,11 @@ import {
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
-  IDOS_TOKEN_ABI,
-  IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Unstake() {
   const { address } = useAppKitAccount();
-  const config = useConfig();
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
 
@@ -43,38 +39,22 @@ export function Unstake() {
       },
       {
         onSuccess: () => {
-          // Refetch balance, userStake, and withdrawableReward queries
-          if (address) {
-            // Refetch balance
-            queryClient.refetchQueries({
-              queryKey: readContractQueryOptions(config, {
-                address: IDOS_TOKEN_ABI_ADDRESS,
-                abi: IDOS_TOKEN_ABI,
-                functionName: "balanceOf",
-                args: [address as `0x${string}`],
-              }).queryKey,
-            });
+          // Invalidate all readContract queries to ensure fresh data
+          // This is more aggressive but ensures all related queries are updated
+          queryClient.invalidateQueries({
+            predicate: (query) => {
+              const queryKey = query.queryKey;
+              // Match all readContract queries
+              return (
+                Array.isArray(queryKey) &&
+                queryKey.length > 0 &&
+                queryKey[0] === "readContract"
+              );
+            },
+          });
 
-            // Refetch user stake
-            queryClient.refetchQueries({
-              queryKey: readContractQueryOptions(config, {
-                address: IDOS_NODE_STAKING_ABI_ADDRESS,
-                abi: IDOS_NODE_STAKING_ABI,
-                functionName: "getUserStake",
-                args: [address as `0x${string}`],
-              }).queryKey,
-            });
-
-            // Refetch withdrawable reward
-            queryClient.refetchQueries({
-              queryKey: readContractQueryOptions(config, {
-                address: IDOS_NODE_STAKING_ABI_ADDRESS,
-                abi: IDOS_NODE_STAKING_ABI,
-                functionName: "withdrawableReward",
-                args: [address as `0x${string}`],
-              }).queryKey,
-            });
-          }
+          // Refetch all stale queries in the background (non-blocking)
+          queryClient.refetchQueries({ stale: true });
 
           showSuccessToast(
             "Unstaking Successful",

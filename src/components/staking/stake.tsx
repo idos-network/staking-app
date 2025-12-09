@@ -25,6 +25,11 @@ import {
   IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
 import { formatEthereumAddress, formatTokenAmount } from "@/lib/format";
+import {
+  balanceOfParams,
+  getUserStakeParams,
+  withdrawableRewardParams,
+} from "@/lib/query-options";
 import { showErrorToast } from "@/lib/toast";
 
 type StakingSuccessDialogProps = {
@@ -41,36 +46,33 @@ function StakingSuccessDialog({
   onOpenChange,
 }: StakingSuccessDialogProps) {
   // Fetch balance
+  const balanceParams = balanceOfParams(address);
   const { data: balance, isFetching: isBalanceFetching } = useReadContract({
-    address: IDOS_TOKEN_ABI_ADDRESS,
-    abi: IDOS_TOKEN_ABI,
-    functionName: "balanceOf",
-    args: [address],
+    ...balanceParams,
     query: {
       enabled: open,
+      refetchOnMount: "always",
     },
   });
 
   // Fetch user stake to get the staked amount
+  const userStakeParams = getUserStakeParams(address);
   const { data: userStake, isFetching: isUserStakeFetching } = useReadContract({
-    address: IDOS_NODE_STAKING_ABI_ADDRESS,
-    abi: IDOS_NODE_STAKING_ABI,
-    functionName: "getUserStake",
-    args: [address],
+    ...userStakeParams,
     query: {
       enabled: open,
+      refetchOnMount: "always",
     },
   });
 
   // Fetch withdrawable reward for total rewards
+  const rewardParams = withdrawableRewardParams(address);
   const { data: withdrawableReward, isFetching: isRewardFetching } =
     useReadContract({
-      address: IDOS_NODE_STAKING_ABI_ADDRESS,
-      abi: IDOS_NODE_STAKING_ABI,
-      functionName: "withdrawableReward",
-      args: [address],
+      ...rewardParams,
       query: {
         enabled: open,
+        refetchOnMount: "always",
       },
     });
 
@@ -209,23 +211,21 @@ export function Stake() {
             },
             {
               onSuccess: () => {
-                // Mark relevant queries as stale and trigger refetch
+                // Invalidate all readContract queries to ensure fresh data
+                // This is more aggressive but ensures all related queries are updated
                 queryClient.invalidateQueries({
                   predicate: (query) => {
                     const queryKey = query.queryKey;
-                    // Invalidate queries for token balance and staking contract reads
+                    // Match all readContract queries
                     return (
                       Array.isArray(queryKey) &&
-                      queryKey.some(
-                        (key) =>
-                          key === IDOS_TOKEN_ABI_ADDRESS ||
-                          key === IDOS_NODE_STAKING_ABI_ADDRESS
-                      )
+                      queryKey.length > 0 &&
+                      queryKey[0] === "readContract"
                     );
                   },
                 });
 
-                // Refetch all stale queries (non-blocking - dialog will show skeletons)
+                // Refetch all stale queries in the background (non-blocking)
                 queryClient.refetchQueries({ stale: true });
 
                 setSelectedProvider(data.provider);

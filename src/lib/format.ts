@@ -11,16 +11,6 @@ export function formatTokenAmount(value: number): string {
 }
 
 /**
- * Formats a number as a decimal without forced decimal places
- * Used for compact display (e.g., "1,234" or "1,234.5")
- */
-export function formatTokenAmountCompact(value: number): string {
-  return Intl.NumberFormat("en-US", {
-    style: "decimal",
-  }).format(value);
-}
-
-/**
  * Formats a number as USD currency
  * Used for USD value display (e.g., "$1,234.56")
  */
