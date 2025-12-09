@@ -9,7 +9,11 @@ function App() {
   const { status } = useAppKitAccount();
   const { disconnect } = useDisconnect();
 
-  if (status === "reconnecting") {
+  if (
+    status === "reconnecting" ||
+    status === "connecting" ||
+    status === undefined
+  ) {
     return (
       <div className="grid h-svh place-content-center">
         <Spinner className="size-6" />
