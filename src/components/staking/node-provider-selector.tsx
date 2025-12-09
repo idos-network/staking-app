@@ -29,7 +29,7 @@ export const nodeProviders: NodeProvider[] = [
     assets: "ETH",
     expectedIdos: "206.25 IDOS",
     assetIcon: (
-      <div className="flex size-8 items-center justify-center rounded-full bg-[#2c5ff6]">
+      <div className="flex size-5 items-center justify-center rounded-full bg-[#2c5ff6]">
         <TokenETH className="size-4" />
       </div>
     ),
