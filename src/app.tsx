@@ -1,4 +1,5 @@
-import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
+import { useDisconnect } from "@reown/appkit/react";
+import { useConnection } from "wagmi";
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { Staking } from "@/components/staking/staking";
@@ -6,15 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
 function App() {
-  const { address, status } = useAppKitAccount();
+  const { address, isConnected, isConnecting, isReconnecting } =
+    useConnection();
   const { disconnect } = useDisconnect();
 
-  if (
-    status === "reconnecting" ||
-    status === "connecting" ||
-    status === undefined ||
-    (status === "disconnected" && address !== undefined)
-  ) {
+  if (isReconnecting || isConnecting) {
     return (
       <div className="grid h-svh place-content-center">
         <Spinner className="size-6" />
@@ -22,7 +19,7 @@ function App() {
     );
   }
 
-  if (status === "disconnected") {
+  if (!(isConnected && address)) {
     return <ConnectWallet />;
   }
 
