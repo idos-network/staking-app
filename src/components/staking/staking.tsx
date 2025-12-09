@@ -2,7 +2,6 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
 import { ClaimRewards } from "@/components/staking/claim-rewards";
 import { Stake } from "@/components/staking/stake";
-import { StakingForm } from "@/components/staking/staking-form";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
@@ -14,6 +13,7 @@ import {
   IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
 import { useTokenPrice } from "@/lib/use-token-price";
+import { Unstake } from "./unstake";
 
 type IDOSBalanceProps = {
   value: bigint | undefined;
@@ -139,35 +139,35 @@ export function Staking() {
             <div className="flex w-1/2 flex-col gap-5">
               <p className="h-10 text-neutral-950 text-sm">Available Balance</p>
               <div className="flex h-14 flex-col gap-2">
-                <p className="text-lg text-neutral-950">
+                <div className="text-lg text-neutral-950">
                   <IDOSBalance isLoading={isBalanceLoading} value={balance} />
-                </p>
-                <p className="text-neutral-950 text-sm">
+                </div>
+                <div className="text-neutral-950 text-sm">
                   <USDBalance
                     isLoading={isBalanceLoading}
                     tokenPrice={tokenPrice}
                     value={balance}
                   />
-                </p>
+                </div>
               </div>
             </div>
             <Separator className="bg-neutral-400" orientation="vertical" />
             <div className="flex w-1/2 flex-col gap-5">
               <p className="h-10 text-neutral-950 text-sm">Total Staked</p>
               <div className="flex h-14 flex-col gap-2">
-                <p className="text-lg text-neutral-950">
+                <div className="text-lg text-neutral-950">
                   <IDOSBalance
                     isLoading={isUserStakeLoading}
                     value={totalStaked}
                   />
-                </p>
-                <p className="text-neutral-950 text-sm">
+                </div>
+                <div className="text-neutral-950 text-sm">
                   <USDBalance
                     isLoading={isUserStakeLoading}
                     tokenPrice={tokenPrice}
                     value={totalStaked}
                   />
-                </p>
+                </div>
               </div>
             </div>
           </div>
@@ -179,19 +179,19 @@ export function Staking() {
                 Total Rewards
               </p>
               <div className="flex h-14 flex-col gap-2">
-                <p className="text-lg">
+                <div className="text-lg">
                   <IDOSBalance
                     isLoading={isRewardLoading}
                     value={totalRewards}
                   />
-                </p>
-                <p className="text-muted-foreground text-sm">
+                </div>
+                <div className="text-muted-foreground text-sm">
                   <USDBalance
                     isLoading={isRewardLoading}
                     tokenPrice={tokenPrice}
                     value={totalRewards}
                   />
-                </p>
+                </div>
               </div>
             </div>
             <Separator className="bg-neutral-700" orientation="vertical" />
@@ -233,11 +233,7 @@ export function Staking() {
             <Stake />
           </TabsPanel>
           <TabsPanel value="unstake">
-            <StakingForm
-              mode="unstake"
-              onSubmit={console.log}
-              pending={false}
-            />
+            <Unstake />
           </TabsPanel>
           <TabsPanel value="claim">
             <ClaimRewards />
