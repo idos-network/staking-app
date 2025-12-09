@@ -1,8 +1,10 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
 import { ClaimRewards } from "@/components/staking/claim-rewards";
+import { Stake } from "@/components/staking/stake";
 import { StakingForm } from "@/components/staking/staking-form";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -15,9 +17,14 @@ import { useTokenPrice } from "@/lib/use-token-price";
 
 type IDOSBalanceProps = {
   value: bigint | undefined;
+  isLoading?: boolean;
 };
 
-function IDOSBalance({ value }: IDOSBalanceProps) {
+function IDOSBalance({ value, isLoading }: IDOSBalanceProps) {
+  if (isLoading) {
+    return <Skeleton className="h-6 w-24 bg-muted" />;
+  }
+
   // Format the token amount
   if (!value || value === 0n) {
     return <span>0.00 IDOS</span>;
@@ -55,9 +62,14 @@ function IDOSBalance({ value }: IDOSBalanceProps) {
 type USDBalanceProps = {
   value: bigint | undefined;
   tokenPrice: number | null | undefined;
+  isLoading?: boolean;
 };
 
-function USDBalance({ value, tokenPrice }: USDBalanceProps) {
+function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
+  if (isLoading) {
+    return <Skeleton className="h-4 w-20 bg-muted" />;
+  }
+
   // Format the USD amount
   if (!value || value === 0n || !tokenPrice) {
     return <span>$0.00</span>;
@@ -81,31 +93,27 @@ export function Staking() {
 
   const { data: tokenPrice } = useTokenPrice(IDOS_TOKEN_ABI_ADDRESS);
 
-  const { data: balance } = useReadContract({
+  const { data: balance, isLoading: isBalanceLoading } = useReadContract({
     address: IDOS_TOKEN_ABI_ADDRESS,
     abi: IDOS_TOKEN_ABI,
     functionName: "balanceOf",
     args: address ? [address as `0x${string}`] : undefined,
   });
 
-  console.log({
-    balance,
-    balanceRaw: balance ? Number(balance) / 10 ** 18 : null,
-  });
-
-  const { data: userStake } = useReadContract({
+  const { data: userStake, isLoading: isUserStakeLoading } = useReadContract({
     address: IDOS_NODE_STAKING_ABI_ADDRESS,
     abi: IDOS_NODE_STAKING_ABI,
     functionName: "getUserStake",
     args: address ? [address as `0x${string}`] : undefined,
   });
 
-  const { data: withdrawableReward } = useReadContract({
-    address: IDOS_NODE_STAKING_ABI_ADDRESS,
-    abi: IDOS_NODE_STAKING_ABI,
-    functionName: "withdrawableReward",
-    args: address ? [address as `0x${string}`] : undefined,
-  });
+  const { data: withdrawableReward, isLoading: isRewardLoading } =
+    useReadContract({
+      address: IDOS_NODE_STAKING_ABI_ADDRESS,
+      abi: IDOS_NODE_STAKING_ABI,
+      functionName: "withdrawableReward",
+      args: address ? [address as `0x${string}`] : undefined,
+    });
 
   // Calculate total staked: activeStake + slashedStake
   // Note: If you want to exclude slashed stake from the total, change this to only use `userStake[0]`
@@ -130,24 +138,35 @@ export function Staking() {
           <div className="flex items-center gap-5">
             <div className="flex w-1/2 flex-col gap-5">
               <p className="h-10 text-neutral-950 text-sm">Available Balance</p>
-              <div className="flex flex-col gap-2">
+              <div className="flex h-14 flex-col gap-2">
                 <p className="text-lg text-neutral-950">
-                  <IDOSBalance value={balance} />
+                  <IDOSBalance isLoading={isBalanceLoading} value={balance} />
                 </p>
                 <p className="text-neutral-950 text-sm">
-                  <USDBalance tokenPrice={tokenPrice} value={balance} />
+                  <USDBalance
+                    isLoading={isBalanceLoading}
+                    tokenPrice={tokenPrice}
+                    value={balance}
+                  />
                 </p>
               </div>
             </div>
             <Separator className="bg-neutral-400" orientation="vertical" />
             <div className="flex w-1/2 flex-col gap-5">
               <p className="h-10 text-neutral-950 text-sm">Total Staked</p>
-              <div className="flex flex-col gap-2">
+              <div className="flex h-14 flex-col gap-2">
                 <p className="text-lg text-neutral-950">
-                  <IDOSBalance value={totalStaked} />
+                  <IDOSBalance
+                    isLoading={isUserStakeLoading}
+                    value={totalStaked}
+                  />
                 </p>
                 <p className="text-neutral-950 text-sm">
-                  <USDBalance tokenPrice={tokenPrice} value={totalStaked} />
+                  <USDBalance
+                    isLoading={isUserStakeLoading}
+                    tokenPrice={tokenPrice}
+                    value={totalStaked}
+                  />
                 </p>
               </div>
             </div>
@@ -159,12 +178,19 @@ export function Staking() {
               <p className="h-10 text-muted-foreground text-sm">
                 Total Rewards
               </p>
-              <div className="flex flex-col gap-2">
+              <div className="flex h-14 flex-col gap-2">
                 <p className="text-lg">
-                  <IDOSBalance value={totalRewards} />
+                  <IDOSBalance
+                    isLoading={isRewardLoading}
+                    value={totalRewards}
+                  />
                 </p>
                 <p className="text-muted-foreground text-sm">
-                  <USDBalance tokenPrice={tokenPrice} value={totalRewards} />
+                  <USDBalance
+                    isLoading={isRewardLoading}
+                    tokenPrice={tokenPrice}
+                    value={totalRewards}
+                  />
                 </p>
               </div>
             </div>
@@ -204,10 +230,14 @@ export function Staking() {
             </TabsTab>
           </TabsList>
           <TabsPanel value="stake">
-            <StakingForm onSubmit={console.log} />
+            <Stake />
           </TabsPanel>
           <TabsPanel value="unstake">
-            <StakingForm mode="unstake" onSubmit={console.log} />
+            <StakingForm
+              mode="unstake"
+              onSubmit={console.log}
+              pending={false}
+            />
           </TabsPanel>
           <TabsPanel value="claim">
             <ClaimRewards />

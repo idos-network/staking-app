@@ -2,50 +2,68 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
 import { useReadContract } from "wagmi";
+import {
+  type NodeProvider,
+  NodeProviderSelector,
+  nodeProviders,
+} from "@/components/staking/node-provider-selector";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { IDOS_TOKEN_ABI, IDOS_TOKEN_ABI_ADDRESS } from "@/lib/abi";
 import {
   AmountField,
   AmountFieldGroup,
   AmountFieldInput,
 } from "./amount-field";
-import {
-  type NodeProvider,
-  NodeProviderSelector,
-  nodeProviders,
-} from "./node-provider-selector";
 
 type BalanceDisplayProps = {
   balance: number;
+  isLoading?: boolean;
 };
-function BalanceDisplay({ balance }: BalanceDisplayProps) {
+function BalanceDisplay({ balance, isLoading }: BalanceDisplayProps) {
   return (
     <div className="flex items-center gap-2">
       <WalletMinimalIcon className="size-5 text-muted-foreground" />
-      <span className="text-muted-foreground text-sm">
-        <span className="font-semibold">Balance:</span>{" "}
-        {Intl.NumberFormat("en-US", {
-          style: "decimal",
-        }).format(balance)}{" "}
-        IDOS
-      </span>
+      {isLoading ? (
+        <Skeleton className="h-4 w-32" />
+      ) : (
+        <span className="text-muted-foreground text-sm">
+          <span className="font-semibold">Balance:</span>{" "}
+          {Intl.NumberFormat("en-US", {
+            style: "decimal",
+          }).format(balance)}{" "}
+          IDOS
+        </span>
+      )}
     </div>
   );
 }
 
+function SubmitButtonText({ mode }: { mode: "stake" | "unstake" }) {
+  return mode === "stake" ? "Stake" : "Unstake";
+}
+export type StakingFormSubmitData = {
+  amount: number;
+  provider: `0x${string}`;
+  mode: "stake" | "unstake";
+};
+
 type StakingFormProps = {
   mode?: "stake" | "unstake";
-  onSubmit: () => void;
+  pending: boolean;
+  onSubmit: (data: StakingFormSubmitData) => void;
 };
 export function StakingForm({
   mode = "stake",
-  onSubmit: _onSubmit,
+  onSubmit,
+  pending,
 }: StakingFormProps) {
   const { address } = useAppKitAccount();
 
-  const { data: balanceRaw } = useReadContract({
+  const { data: balanceRaw, isLoading: isBalanceLoading } = useReadContract({
     address: IDOS_TOKEN_ABI_ADDRESS,
     abi: IDOS_TOKEN_ABI,
     functionName: "balanceOf",
@@ -79,8 +97,18 @@ export function StakingForm({
       ? hasValidAmount && !hasStakeAmountError && checked
       : hasValidAmount && !hasStakeAmountError;
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    onSubmit({
+      amount: stakeAmount ?? 0,
+      provider: selectedProvider.address,
+      mode,
+    });
+  };
+
   return (
-    <form className="flex flex-col items-center gap-8">
+    <form className="flex flex-col items-center gap-8" onSubmit={handleSubmit}>
       <NodeProviderSelector
         onOpenChange={setIsProviderDialogOpen}
         onProviderChange={setSelectedProvider}
@@ -99,7 +127,7 @@ export function StakingForm({
           <Label className="font-semibold text-base" htmlFor="amount-to-stake">
             Amount to Stake
           </Label>
-          <BalanceDisplay balance={balance} />
+          <BalanceDisplay balance={balance} isLoading={isBalanceLoading} />
         </div>
         <div className="flex w-full flex-col gap-2">
           <AmountFieldGroup
@@ -148,8 +176,17 @@ export function StakingForm({
         </p>
       ) : null}
 
-      <Button className="w-full lg:w-2xs" disabled={!isValid} size="lg">
-        {mode === "stake" ? "Stake" : "Unstake"}
+      <Button
+        className="w-full lg:w-2xs"
+        disabled={!isValid || pending}
+        size="lg"
+        type="submit"
+      >
+        {pending ? (
+          <Spinner className="size-5" />
+        ) : (
+          <SubmitButtonText mode={mode} />
+        )}
       </Button>
     </form>
   );
