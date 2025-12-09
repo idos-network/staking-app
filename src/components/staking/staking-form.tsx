@@ -1,8 +1,11 @@
+import { useAppKitAccount } from "@reown/appkit/react";
 import { WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
+import { useReadContract } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { IDOS_TOKEN_ABI, IDOS_TOKEN_ABI_ADDRESS } from "@/lib/abi";
 import {
   AmountField,
   AmountFieldGroup,
@@ -40,7 +43,18 @@ export function StakingForm({
   mode = "stake",
   onSubmit: _onSubmit,
 }: StakingFormProps) {
-  const balance = 2450;
+  const { address } = useAppKitAccount();
+
+  const { data: balanceRaw } = useReadContract({
+    address: IDOS_TOKEN_ABI_ADDRESS,
+    abi: IDOS_TOKEN_ABI,
+    functionName: "balanceOf",
+    args: address ? [address as `0x${string}`] : undefined,
+  });
+
+  // Convert bigint balance to number (dividing by 10^18 for 18 decimals)
+  const balance = balanceRaw ? Number(balanceRaw) / 10 ** 18 : 0;
+
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [isProviderDialogOpen, setIsProviderDialogOpen] = useState(false);
