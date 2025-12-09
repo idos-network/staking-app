@@ -22,11 +22,16 @@ import {
 
 type BalanceDisplayProps = {
   balance: number;
+  className?: string;
   isLoading?: boolean;
 };
-function BalanceDisplay({ balance, isLoading }: BalanceDisplayProps) {
+function BalanceDisplay({
+  balance,
+  className,
+  isLoading,
+}: BalanceDisplayProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${className ?? ""}`}>
       <WalletMinimalIcon className="size-5 text-muted-foreground" />
       {isLoading ? (
         <Skeleton className="h-4 w-32" />
@@ -116,11 +121,18 @@ export function StakingForm({
         }}
         value={stakeAmount}
       >
-        <div className="flex w-full items-center justify-between gap-5">
-          <Label className="font-semibold text-base" htmlFor="amount-to-stake">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+          <BalanceDisplay
+            balance={balance}
+            className="order-1 sm:order-2"
+            isLoading={isBalanceLoading}
+          />
+          <Label
+            className="order-2 font-semibold text-base sm:order-1"
+            htmlFor="amount-to-stake"
+          >
             Amount to Stake
           </Label>
-          <BalanceDisplay balance={balance} isLoading={isBalanceLoading} />
         </div>
         <div className="flex w-full flex-col gap-2">
           <AmountFieldGroup
