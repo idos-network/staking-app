@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 
 function App() {
-  const { status } = useAppKitAccount();
+  const { address, status } = useAppKitAccount();
   const { disconnect } = useDisconnect();
 
   if (
     status === "reconnecting" ||
     status === "connecting" ||
-    status === undefined
+    status === undefined ||
+    (status === "disconnected" && address !== undefined)
   ) {
     return (
       <div className="grid h-svh place-content-center">
