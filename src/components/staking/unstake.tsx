@@ -7,29 +7,13 @@ import {
   StakingForm,
   type StakingFormSubmitData,
 } from "@/components/staking/staking-form";
-import { toastManager } from "@/components/ui/toast";
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
   IDOS_TOKEN_ABI,
   IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
-
-function showErrorToast(title: string, description: string) {
-  toastManager.add({
-    type: "error",
-    title,
-    description,
-  });
-}
-
-function showSuccessToast(title: string, description: string) {
-  toastManager.add({
-    type: "success",
-    title,
-    description,
-  });
-}
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Unstake() {
   const { address } = useAppKitAccount();
@@ -55,7 +39,7 @@ export function Unstake() {
         address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
         functionName: "unstake",
-        args: [data.provider, amountInWei],
+        args: [data.provider.address, amountInWei],
       },
       {
         onSuccess: () => {

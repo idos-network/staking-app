@@ -12,6 +12,7 @@ import {
   IDOS_TOKEN_ABI,
   IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
+import { formatCurrency, formatTokenAmount } from "@/lib/format";
 import { useTokenPrice } from "@/lib/use-token-price";
 import { Unstake } from "./unstake";
 
@@ -32,11 +33,7 @@ function IDOSBalance({ value, isLoading }: IDOSBalanceProps) {
 
   const divisor = 10 ** 18;
   const numericValue = Number(value) / divisor;
-  const formatted = Intl.NumberFormat("en-US", {
-    style: "decimal",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(numericValue);
+  const formatted = formatTokenAmount(numericValue);
 
   // Show full value if it's 100 or less, otherwise show first 3 digits
   // e.g., "0.00" -> "0.00 IDOS", "10.00" -> "10.00 IDOS", "1,234.56" -> "123... IDOS"
@@ -78,12 +75,7 @@ function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
   const divisor = 10 ** 18;
   const tokenValue = Number(value) / divisor;
   const usdValue = tokenValue * tokenPrice;
-  const formatted = Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(usdValue);
+  const formatted = formatCurrency(usdValue);
 
   return <span>{formatted}</span>;
 }

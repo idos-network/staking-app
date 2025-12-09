@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { IDOS_TOKEN_ABI, IDOS_TOKEN_ABI_ADDRESS } from "@/lib/abi";
+import { formatTokenAmountCompact } from "@/lib/format";
 import {
   AmountField,
   AmountFieldGroup,
@@ -32,10 +33,7 @@ function BalanceDisplay({ balance, isLoading }: BalanceDisplayProps) {
       ) : (
         <span className="text-muted-foreground text-sm">
           <span className="font-semibold">Balance:</span>{" "}
-          {Intl.NumberFormat("en-US", {
-            style: "decimal",
-          }).format(balance)}{" "}
-          IDOS
+          {formatTokenAmountCompact(balance)} IDOS
         </span>
       )}
     </div>
@@ -47,7 +45,7 @@ function SubmitButtonText({ mode }: { mode: "stake" | "unstake" }) {
 }
 export type StakingFormSubmitData = {
   amount: number;
-  provider: `0x${string}`;
+  provider: NodeProvider;
   mode: "stake" | "unstake";
 };
 
@@ -87,9 +85,7 @@ export function StakingForm({
   const hasStakeAmountError = stakeAmount !== null && stakeAmount > balance;
   const hasValidAmount = stakeAmount !== null && stakeAmount > 0;
   const errorMessage = hasStakeAmountError
-    ? `Amount exceeds available balance of ${Intl.NumberFormat("en-US", {
-        style: "decimal",
-      }).format(balance)} IDOS`
+    ? `Amount exceeds available balance of ${formatTokenAmountCompact(balance)} IDOS`
     : undefined;
 
   const isValid =
@@ -102,7 +98,7 @@ export function StakingForm({
 
     onSubmit({
       amount: stakeAmount ?? 0,
-      provider: selectedProvider.address,
+      provider: selectedProvider,
       mode,
     });
   };
