@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { formatTokenAmount } from "@/lib/format";
-import { balanceOfParams } from "@/lib/query-options";
+import { balanceOfParams } from "@/lib/queries/query-options";
 import {
   AmountField,
   AmountFieldGroup,

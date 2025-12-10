@@ -12,8 +12,8 @@ import {
   balanceOfParams,
   getUserStakeParams,
   withdrawableRewardParams,
-} from "@/lib/query-options";
-import { useTokenPrice } from "@/lib/use-token-price";
+} from "@/lib/queries/query-options";
+import { useTokenPrice } from "@/lib/queries/use-token-price";
 import { Unstake } from "./unstake";
 import { WithdrawUnstake } from "./withdraw-unstake";
 

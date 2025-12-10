@@ -5,7 +5,7 @@ import {
   IDOS_NODE_STAKING_ABI_ADDRESS,
   IDOS_TOKEN_ABI,
   IDOS_TOKEN_ABI_ADDRESS,
-} from "./abi";
+} from "@/lib/abi";
 
 /**
  * Contract parameters for fetching token balance

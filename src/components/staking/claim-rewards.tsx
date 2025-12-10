@@ -8,7 +8,10 @@ import {
   IDOS_NODE_STAKING_ABI_ADDRESS,
 } from "@/lib/abi";
 import { formatTokenAmount } from "@/lib/format";
-import { balanceOfParams, withdrawableRewardParams } from "@/lib/query-options";
+import {
+  balanceOfParams,
+  withdrawableRewardParams,
+} from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function ClaimRewards() {

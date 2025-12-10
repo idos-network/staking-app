@@ -29,7 +29,7 @@ import {
   balanceOfParams,
   getUserStakeParams,
   withdrawableRewardParams,
-} from "@/lib/query-options";
+} from "@/lib/queries/query-options";
 import { showErrorToast } from "@/lib/toast";
 
 type StakingSuccessDialogProps = {
