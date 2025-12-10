@@ -1,6 +1,7 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useWriteContract } from "wagmi";
+import { useConfig, useWriteContract } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -15,6 +16,7 @@ export function WithdrawUnstake() {
   const { address } = useAppKitAccount();
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
+  const config = useConfig();
 
   const { withdrawableAmount, isLoading: isBalanceLoading } =
     useWithdrawableUnstaked(address as `0x${string}` | undefined);
@@ -24,7 +26,7 @@ export function WithdrawUnstake() {
     ? Number(withdrawableAmount) / 10 ** 18
     : 0;
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
@@ -37,45 +39,46 @@ export function WithdrawUnstake() {
       return;
     }
 
-    // Withdraw unstaked tokens (withdrawUnstaked takes no args, withdraws all available)
-    writeContract.mutate(
-      {
+    try {
+      // Withdraw unstaked tokens (withdrawUnstaked takes no args, withdraws all available)
+      const withdrawTx = await writeContract.mutateAsync({
         address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
         functionName: "withdrawUnstaked",
         args: [],
-      },
-      {
-        onSuccess: () => {
-          // Invalidate all readContract queries to ensure fresh data
-          queryClient.invalidateQueries({
-            predicate: (query) => {
-              const queryKey = query.queryKey;
-              // Match all readContract queries
-              return (
-                Array.isArray(queryKey) &&
-                queryKey.length > 0 &&
-                queryKey[0] === "readContract"
-              );
-            },
-          });
+      });
 
-          // Refetch all stale queries in the background (non-blocking)
-          queryClient.refetchQueries({ stale: true });
+      await waitForTransactionReceipt(config, {
+        hash: withdrawTx,
+      });
 
-          showSuccessToast(
-            "Withdrawal Successful",
-            `Successfully withdrew ${formatTokenAmount(balance)} IDOS tokens.`
+      // Invalidate all readContract queries to ensure fresh data
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          // Match all readContract queries
+          return (
+            Array.isArray(queryKey) &&
+            queryKey.length > 0 &&
+            queryKey[0] === "readContract"
           );
         },
-        onError: () => {
-          showErrorToast(
-            "Withdrawal Failed",
-            "An unexpected error occurred. Please try again."
-          );
-        },
-      }
-    );
+      });
+
+      // Refetch all stale queries in the background (non-blocking)
+      queryClient.refetchQueries({ stale: true });
+
+      showSuccessToast(
+        "Withdrawal Successful",
+        `Successfully withdrew ${formatTokenAmount(balance)} IDOS tokens.`
+      );
+    } catch (error) {
+      console.error(error);
+      showErrorToast(
+        "Withdrawal Failed",
+        "An unexpected error occurred. Please try again."
+      );
+    }
   };
 
   return (
