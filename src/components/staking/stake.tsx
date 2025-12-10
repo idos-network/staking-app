@@ -3,7 +3,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CheckIcon } from "lucide-react";
 import { useState } from "react";
 import { parseUnits } from "viem";
-import { useReadContract, useWriteContract } from "wagmi";
+import { useConfig, useReadContract, useWriteContract } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import {
   StakingForm,
@@ -170,12 +171,13 @@ export function Stake() {
   const { address } = useAppKitAccount();
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<NodeProvider | null>(
     null
   );
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const config = useConfig();
 
-  const handleSubmit = (data: StakingFormSubmitData) => {
+  const handleSubmit = async (data: StakingFormSubmitData) => {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
@@ -187,67 +189,54 @@ export function Stake() {
     // Convert amount from token units to wei (18 decimals) using parseUnits for precision
     const amountInWei = parseUnits(data.amount.toString(), 18);
 
-    // First, approve the staking contract to spend tokens
-    writeContract.mutate(
-      {
+    setSelectedProvider(data.provider);
+
+    try {
+      const approvalTx = await writeContract.mutateAsync({
         address: IDOS_TOKEN_ABI_ADDRESS,
         abi: IDOS_TOKEN_ABI,
         functionName: "approve",
         args: [IDOS_NODE_STAKING_ABI_ADDRESS, amountInWei],
-      },
-      {
-        onSuccess: () => {
-          // After approval succeeds, stake the tokens
-          writeContract.mutate(
-            {
-              address: IDOS_NODE_STAKING_ABI_ADDRESS,
-              abi: IDOS_NODE_STAKING_ABI,
-              functionName: "stake",
-              args: [
-                address as `0x${string}`,
-                data.provider.address,
-                amountInWei,
-              ],
-            },
-            {
-              onSuccess: () => {
-                // Invalidate all readContract queries to ensure fresh data
-                // This is more aggressive but ensures all related queries are updated
-                queryClient.invalidateQueries({
-                  predicate: (query) => {
-                    const queryKey = query.queryKey;
-                    // Match all readContract queries
-                    return (
-                      Array.isArray(queryKey) &&
-                      queryKey.length > 0 &&
-                      queryKey[0] === "readContract"
-                    );
-                  },
-                });
+      });
 
-                // Refetch all stale queries in the background (non-blocking)
-                queryClient.refetchQueries({ stale: true });
+      await waitForTransactionReceipt(config, {
+        hash: approvalTx,
+      });
 
-                setSelectedProvider(data.provider);
-                setIsSuccessDialogOpen(true);
-              },
-              onError: () => {
-                showErrorToast(
-                  "Staking Failed",
-                  "An unexpected error occurred. Please try again."
-                );
-              },
-            }
+      const stakeTx = await writeContract.mutateAsync({
+        address: IDOS_NODE_STAKING_ABI_ADDRESS,
+        abi: IDOS_NODE_STAKING_ABI,
+        functionName: "stake",
+        args: [address as `0x${string}`, data.provider.address, amountInWei],
+      });
+
+      await waitForTransactionReceipt(config, {
+        hash: stakeTx,
+      });
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          // Match all readContract queries
+          return (
+            Array.isArray(queryKey) &&
+            queryKey.length > 0 &&
+            queryKey[0] === "readContract"
           );
         },
-        onError: () => {
-          showErrorToast(
-            "Approval Failed",
-            "An unexpected error occurred. Please try again."
-          );
-        },
-      }
-    );
+      });
+
+      // Refetch all stale queries in the background (non-blocking)
+      queryClient.refetchQueries({ stale: true });
+      setShowSuccessDialog(true);
+    } catch (error) {
+      console.error(error);
+      showErrorToast(
+        "Staking Failed",
+        "An unexpected error occurred. Please try again."
+      );
+      return;
+    }
   };
 
   return (
@@ -255,8 +244,8 @@ export function Stake() {
       <StakingForm onSubmit={handleSubmit} pending={writeContract.isPending} />
       <StakingSuccessDialog
         address={address as `0x${string}`}
-        onOpenChange={setIsSuccessDialogOpen}
-        open={isSuccessDialogOpen}
+        onOpenChange={setShowSuccessDialog}
+        open={showSuccessDialog}
         provider={selectedProvider}
       />
     </>
