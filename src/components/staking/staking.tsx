@@ -15,6 +15,7 @@ import {
 } from "@/lib/query-options";
 import { useTokenPrice } from "@/lib/use-token-price";
 import { Unstake } from "./unstake";
+import { WithdrawUnstake } from "./withdraw-unstake";
 
 type IDOSBalanceProps = {
   value: bigint | undefined;
@@ -207,6 +208,12 @@ export function Staking() {
             </TabsTab>
             <TabsTab
               className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
+              value="withdraw-unstake"
+            >
+              Withdraw Unstake
+            </TabsTab>
+            <TabsTab
+              className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
               value="claim"
             >
               Claim Rewards
@@ -217,6 +224,9 @@ export function Staking() {
           </TabsPanel>
           <TabsPanel value="unstake">
             <Unstake />
+          </TabsPanel>
+          <TabsPanel value="withdraw-unstake">
+            <WithdrawUnstake />
           </TabsPanel>
           <TabsPanel value="claim">
             <ClaimRewards />

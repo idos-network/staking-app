@@ -72,3 +72,63 @@ export function withdrawableRewardQueryOptions(
 ) {
   return readContractQueryOptions(config, withdrawableRewardParams(address));
 }
+
+/**
+ * Contract parameters for fetching UNSTAKE_DELAY constant
+ */
+export function unstakeDelayParams() {
+  return {
+    address: IDOS_NODE_STAKING_ABI_ADDRESS as `0x${string}`,
+    abi: IDOS_NODE_STAKING_ABI,
+    functionName: "UNSTAKE_DELAY" as const,
+    args: [] as const,
+  };
+}
+
+/**
+ * Query options for fetching UNSTAKE_DELAY (for use with queryClient)
+ */
+export function unstakeDelayQueryOptions(config: Config) {
+  return readContractQueryOptions(config, unstakeDelayParams());
+}
+
+/**
+ * Contract parameters for fetching unstake record at a specific index
+ */
+export function unstakeByUserAtIndexParams(
+  address: `0x${string}` | undefined,
+  index: number
+) {
+  return {
+    address: IDOS_NODE_STAKING_ABI_ADDRESS as `0x${string}`,
+    abi: IDOS_NODE_STAKING_ABI,
+    functionName: "unstakesByUser" as const,
+    args: address ? ([address, BigInt(index)] as const) : undefined,
+  };
+}
+
+/**
+ * Query options for fetching unstake record at a specific index (for use with queryClient)
+ */
+export function unstakeByUserAtIndexQueryOptions(
+  config: Config,
+  address: `0x${string}` | undefined,
+  index: number
+) {
+  const params = unstakeByUserAtIndexParams(address, index);
+  const baseOptions = readContractQueryOptions(config, params);
+
+  // Override query key to use serializable format (number instead of BigInt)
+  // This prevents BigInt serialization errors in React Query
+  return {
+    ...baseOptions,
+    queryKey: [
+      "readContract",
+      {
+        ...params,
+        // Use number in query key for serialization, BigInt is only in actual args
+        args: params.args ? [params.args[0], index] : undefined,
+      },
+    ] as typeof baseOptions.queryKey,
+  };
+}
