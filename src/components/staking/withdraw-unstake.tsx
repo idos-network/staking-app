@@ -7,7 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
+  IDOS_TOKEN_ABI,
 } from "@/lib/abi";
+import { decodeTransactionError } from "@/lib/decode-error";
 import { formatTokenAmount } from "@/lib/format";
 import { useWithdrawableUnstaked } from "@/lib/queries/use-withdrawable-unstaked";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
@@ -74,10 +76,12 @@ export function WithdrawUnstake() {
       );
     } catch (error) {
       console.error(error);
-      showErrorToast(
-        "Withdrawal Failed",
-        "An unexpected error occurred. Please try again."
-      );
+      // Try both ABIs since errors can come from token contract (ERC20) or staking contract
+      const decodedError = decodeTransactionError(error, [
+        IDOS_TOKEN_ABI,
+        IDOS_NODE_STAKING_ABI,
+      ]);
+      showErrorToast("Withdrawal Failed", decodedError.message);
     }
   };
 

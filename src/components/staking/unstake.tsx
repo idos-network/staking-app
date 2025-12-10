@@ -10,7 +10,9 @@ import {
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
+  IDOS_TOKEN_ABI,
 } from "@/lib/abi";
+import { decodeTransactionError } from "@/lib/decode-error";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Unstake() {
@@ -66,10 +68,12 @@ export function Unstake() {
       );
     } catch (error) {
       console.error(error);
-      showErrorToast(
-        "Unstaking Failed",
-        "An unexpected error occurred. Please try again."
-      );
+      // Try both ABIs since errors can come from token contract (ERC20) or staking contract
+      const decodedError = decodeTransactionError(error, [
+        IDOS_TOKEN_ABI,
+        IDOS_NODE_STAKING_ABI,
+      ]);
+      showErrorToast("Unstaking Failed", decodedError.message);
     }
   };
 

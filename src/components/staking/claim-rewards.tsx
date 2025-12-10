@@ -1,12 +1,15 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useReadContract, useWriteContract } from "wagmi";
+import { useConfig, useReadContract, useWriteContract } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
+  IDOS_TOKEN_ABI,
 } from "@/lib/abi";
+import { decodeTransactionError } from "@/lib/decode-error";
 import { formatTokenAmount } from "@/lib/format";
 import {
   balanceOfParams,
@@ -18,6 +21,7 @@ export function ClaimRewards() {
   const { address } = useAppKitAccount();
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
+  const config = useConfig();
 
   const { data: withdrawableReward, isLoading: isRewardLoading } =
     useReadContract(
@@ -40,7 +44,7 @@ export function ClaimRewards() {
   // Convert bigint balance to number (dividing by 10^18 for 18 decimals)
   const currentBalance = balance ? Number(balance) / 10 ** 18 : 0;
 
-  const handleClaim = () => {
+  const handleClaim = async () => {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
@@ -53,45 +57,48 @@ export function ClaimRewards() {
       return;
     }
 
-    // Claim rewards (withdrawReward takes no args)
-    writeContract.mutate(
-      {
+    try {
+      // Claim rewards (withdrawReward takes no args)
+      const claimTx = await writeContract.mutateAsync({
         address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
         functionName: "withdrawReward",
         args: [],
-      },
-      {
-        onSuccess: () => {
-          // Invalidate all readContract queries to ensure fresh data
-          queryClient.invalidateQueries({
-            predicate: (query) => {
-              const queryKey = query.queryKey;
-              // Match all readContract queries
-              return (
-                Array.isArray(queryKey) &&
-                queryKey.length > 0 &&
-                queryKey[0] === "readContract"
-              );
-            },
-          });
+      });
 
-          // Refetch all stale queries in the background (non-blocking)
-          queryClient.refetchQueries({ stale: true });
+      await waitForTransactionReceipt(config, {
+        hash: claimTx,
+      });
 
-          showSuccessToast(
-            "Rewards Claimed",
-            `Successfully claimed ${formatTokenAmount(rewardAmount)} IDOS rewards.`
+      // Invalidate all readContract queries to ensure fresh data
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          // Match all readContract queries
+          return (
+            Array.isArray(queryKey) &&
+            queryKey.length > 0 &&
+            queryKey[0] === "readContract"
           );
         },
-        onError: () => {
-          showErrorToast(
-            "Claim Failed",
-            "An unexpected error occurred. Please try again."
-          );
-        },
-      }
-    );
+      });
+
+      // Refetch all stale queries in the background (non-blocking)
+      queryClient.refetchQueries({ stale: true });
+
+      showSuccessToast(
+        "Rewards Claimed",
+        `Successfully claimed ${formatTokenAmount(rewardAmount)} IDOS rewards.`
+      );
+    } catch (error) {
+      console.error(error);
+      // Try both ABIs since errors can come from token contract (ERC20) or staking contract
+      const decodedError = decodeTransactionError(error, [
+        IDOS_TOKEN_ABI,
+        IDOS_NODE_STAKING_ABI,
+      ]);
+      showErrorToast("Claim Failed", decodedError.message);
+    }
   };
 
   return (

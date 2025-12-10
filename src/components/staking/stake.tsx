@@ -25,6 +25,7 @@ import {
   IDOS_TOKEN_ABI,
   IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
+import { decodeTransactionError } from "@/lib/decode-error";
 import { formatEthereumAddress, formatTokenAmount } from "@/lib/format";
 import {
   balanceOfParams,
@@ -231,10 +232,12 @@ export function Stake() {
       setShowSuccessDialog(true);
     } catch (error) {
       console.error(error);
-      showErrorToast(
-        "Staking Failed",
-        "An unexpected error occurred. Please try again."
-      );
+      // Try both ABIs since errors can come from token contract (ERC20) or staking contract
+      const decodedError = decodeTransactionError(error, [
+        IDOS_TOKEN_ABI,
+        IDOS_NODE_STAKING_ABI,
+      ]);
+      showErrorToast("Staking Failed", decodedError.message);
       return;
     }
   };
