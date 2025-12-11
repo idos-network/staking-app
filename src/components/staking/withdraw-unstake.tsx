@@ -87,8 +87,8 @@ export function WithdrawUnstake() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-10">
-      <div className="flex w-full flex-col gap-4">
+    <div className="flex flex-col items-center gap-8">
+      <div className="flex w-full flex-col gap-3">
         <p className="font-semibold">Withdraw Unstaked</p>
         <div className="flex flex-col gap-2 rounded-xl bg-secondary p-6">
           {isBalanceLoading ? (
@@ -115,7 +115,7 @@ export function WithdrawUnstake() {
         }}
         trigger={
           <Button
-            className="w-2xs"
+            className="w-full sm:w-2xs"
             disabled={balance === 0 || writeContract.isPending}
             size="lg"
           >

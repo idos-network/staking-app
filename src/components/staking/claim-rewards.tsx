@@ -104,7 +104,7 @@ export function ClaimRewards() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-10">
+    <div className="flex flex-col items-center gap-8">
       <div className="flex w-full flex-col gap-4">
         <p className="font-semibold">Claim Rewards</p>
         <div className="flex flex-col gap-2 rounded-xl bg-secondary p-6">
@@ -131,7 +131,7 @@ export function ClaimRewards() {
         onConfirm={handleClaim}
         trigger={
           <Button
-            className="w-2xs"
+            className="w-full sm:w-2xs"
             disabled={rewardAmount === 0 || writeContract.isPending}
             size="lg"
           >

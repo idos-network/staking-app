@@ -36,8 +36,8 @@ function App() {
           Disconnect
         </Button>
       </header>
-      <main className="p-5">
-        <div className="mx-auto flex w-full max-w-[678px] flex-col gap-10">
+      <main className="min-w-0 p-5">
+        <div className="mx-auto flex w-full min-w-0 max-w-[678px] flex-col gap-10">
           <div className="flex flex-col gap-3">
             <h2 className="text-2xl">IDOS Staking</h2>
             <p className="text-muted-foreground">

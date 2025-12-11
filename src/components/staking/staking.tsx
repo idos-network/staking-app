@@ -170,34 +170,36 @@ export function Staking() {
   return (
     <div className="flex flex-col gap-5">
       <StakingBalances />
-      <div className="rounded-[20px] bg-muted p-6">
+      <div className="min-w-0 rounded-[20px] bg-muted p-6">
         <Tabs className="gap-10" defaultValue="stake">
-          <TabsList className="h-11 w-full rounded-full p-1 [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:bg-neutral-950">
-            <TabsTab
-              className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
-              value="stake"
-            >
-              Stake
-            </TabsTab>
-            <TabsTab
-              className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
-              value="unstake"
-            >
-              Unstake
-            </TabsTab>
-            <TabsTab
-              className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
-              value="withdraw-unstake"
-            >
-              Withdraw Unstake
-            </TabsTab>
-            <TabsTab
-              className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
-              value="claim"
-            >
-              Claim Rewards
-            </TabsTab>
-          </TabsList>
+          <div className="scrollbar-hide min-w-0 overflow-x-auto rounded-full [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <TabsList className="h-11 w-fit min-w-full flex-nowrap rounded-full p-1 [&>*]:shrink-0 [&>*]:whitespace-nowrap [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:bg-neutral-950">
+              <TabsTab
+                className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
+                value="stake"
+              >
+                Stake
+              </TabsTab>
+              <TabsTab
+                className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
+                value="unstake"
+              >
+                Unstake
+              </TabsTab>
+              <TabsTab
+                className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
+                value="withdraw-unstake"
+              >
+                Withdraw Unstake
+              </TabsTab>
+              <TabsTab
+                className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
+                value="claim"
+              >
+                Claim Rewards
+              </TabsTab>
+            </TabsList>
+          </div>
           <TabsPanel value="stake">
             <Stake />
           </TabsPanel>
