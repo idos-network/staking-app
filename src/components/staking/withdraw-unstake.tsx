@@ -5,6 +5,7 @@ import { waitForTransactionReceipt } from "wagmi/actions";
 import { ConfirmWithdrawUnstake } from "@/components/staking/confirm-withdraw-unstake";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
@@ -119,7 +120,11 @@ export function WithdrawUnstake() {
             disabled={balance === 0 || writeContract.isPending}
             size="lg"
           >
-            {writeContract.isPending ? "Withdrawing..." : "Withdraw"}
+            {writeContract.isPending ? (
+              <Spinner className="size-4" />
+            ) : (
+              "Withdraw"
+            )}
           </Button>
         }
       />
