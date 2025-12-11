@@ -1,15 +1,15 @@
 import { TokenETH, TokenNEAR, TokenXRP, TokenXTZ } from "@web3icons/react";
-import { ChevronRightIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogHeader,
   DialogPanel,
   DialogPopup,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -140,6 +140,7 @@ type NodeProviderSelectorProps = {
   providers: NodeProvider[];
   selectedProvider: NodeProvider;
   onProviderChange: (provider: NodeProvider) => void;
+  trigger: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
@@ -148,6 +149,7 @@ export function NodeProviderSelector({
   providers,
   selectedProvider,
   onProviderChange,
+  trigger,
   open,
   onOpenChange,
 }: NodeProviderSelectorProps) {
@@ -160,25 +162,7 @@ export function NodeProviderSelector({
     <div className="flex w-full flex-col gap-4">
       <p className="font-semibold">Node Provider</p>
       <Dialog onOpenChange={onOpenChange} open={open}>
-        <DialogTrigger
-          render={
-            <Button
-              className="h-14 w-full justify-between rounded-xl px-4 text-xl"
-              variant="secondary"
-            >
-              <span className="flex items-center gap-3">
-                <div>{selectedProvider.providerIcon}</div>
-                <span>{selectedProvider.name}</span>
-              </span>
-              <span className="flex items-center gap-5">
-                <Badge size="lg" variant="success">
-                  {selectedProvider.apy}% APY
-                </Badge>
-                <ChevronRightIcon className="size-6" />
-              </span>
-            </Button>
-          }
-        />
+        {trigger}
         <DialogPopup className="gap-6 sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>Choose a Node Provider</DialogTitle>
@@ -188,13 +172,18 @@ export function NodeProviderSelector({
             role="listbox"
           >
             {providers.map((provider) => (
-              <NodeProviderButton
-                isSelected={selectedProvider.name === provider.name}
+              <DialogClose
                 key={provider.name}
-                onClick={() => {
-                  handleProviderSelect(provider);
-                }}
-                provider={provider}
+                render={
+                  <NodeProviderButton
+                    isSelected={selectedProvider.name === provider.name}
+                    key={provider.name}
+                    onClick={() => {
+                      handleProviderSelect(provider);
+                    }}
+                    provider={provider}
+                  />
+                }
               />
             ))}
           </DialogPanel>

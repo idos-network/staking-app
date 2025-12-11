@@ -178,6 +178,14 @@ export function Stake() {
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const config = useConfig();
 
+  // Fetch available balance
+  const { data: balance, isLoading: isBalanceLoading } = useReadContract(
+    balanceOfParams(address as `0x${string}` | undefined)
+  );
+
+  // Calculate available balance
+  const availableBalance = balance ? Number(balance) / 10 ** 18 : 0;
+
   const handleSubmit = async (data: StakingFormSubmitData) => {
     if (!address) {
       showErrorToast(
@@ -244,7 +252,13 @@ export function Stake() {
 
   return (
     <>
-      <StakingForm onSubmit={handleSubmit} pending={writeContract.isPending} />
+      <StakingForm
+        balance={availableBalance}
+        isBalanceLoading={isBalanceLoading}
+        mode="stake"
+        onSubmit={handleSubmit}
+        pending={writeContract.isPending}
+      />
       <StakingSuccessDialog
         address={address as `0x${string}`}
         onOpenChange={setShowSuccessDialog}

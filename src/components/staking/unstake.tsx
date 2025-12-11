@@ -91,7 +91,6 @@ export function Unstake() {
   return (
     <StakingForm
       balance={stakedBalance}
-      balanceLabel="Staked Balance"
       isBalanceLoading={isStakedBalanceLoading}
       mode="unstake"
       onSubmit={handleSubmit}

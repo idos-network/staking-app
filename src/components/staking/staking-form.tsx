@@ -1,37 +1,36 @@
-import { useAppKitAccount } from "@reown/appkit/react";
-import { WalletMinimalIcon } from "lucide-react";
+import { ChevronRightIcon, WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
-import { useReadContract } from "wagmi";
+import {
+  AmountField,
+  AmountFieldGroup,
+  AmountFieldInput,
+} from "@/components/staking/amount-field";
 import {
   type NodeProvider,
   NodeProviderSelector,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { formatTokenAmount } from "@/lib/format";
-import { balanceOfParams } from "@/lib/queries/query-options";
-import {
-  AmountField,
-  AmountFieldGroup,
-  AmountFieldInput,
-} from "./amount-field";
 
 type BalanceDisplayProps = {
   balance: number;
   className?: string;
   isLoading?: boolean;
-  label?: string;
+  mode: "stake" | "unstake";
 };
 function BalanceDisplay({
   balance,
   className,
   isLoading,
-  label = "Balance",
+  mode,
 }: BalanceDisplayProps) {
+  const label = mode === "stake" ? "Available Balance" : "Staked Balance";
   return (
     <div className={`flex items-center gap-2 ${className ?? ""}`}>
       <WalletMinimalIcon className="size-5 text-muted-foreground" />
@@ -49,19 +48,6 @@ function BalanceDisplay({
 
 function SubmitButtonText({ mode }: { mode: "stake" | "unstake" }) {
   return mode === "stake" ? "Stake" : "Unstake";
-}
-
-function calculateBalance(
-  providedBalance: number | undefined,
-  balanceRaw: bigint | undefined
-): number {
-  if (providedBalance !== undefined) {
-    return providedBalance;
-  }
-  if (balanceRaw) {
-    return Number(balanceRaw) / 10 ** 18;
-  }
-  return 0;
 }
 
 function validateStakeAmount(
@@ -91,40 +77,98 @@ export type StakingFormSubmitData = {
   mode: "stake" | "unstake";
 };
 
+type StakeNodeProviderTriggerProps = {
+  provider: NodeProvider;
+  onClick: () => void;
+};
+
+function StakeNodeProviderTrigger({
+  provider,
+  ...props
+}: StakeNodeProviderTriggerProps) {
+  return (
+    <Button
+      className="h-14 w-full justify-between rounded-xl px-4 text-xl"
+      variant="secondary"
+      {...props}
+    >
+      <span className="flex items-center gap-3">
+        <div>{provider.providerIcon}</div>
+        <span>{provider.name}</span>
+      </span>
+      <span className="flex items-center gap-5">
+        <Badge size="lg" variant="success">
+          {provider.apy}% APY
+        </Badge>
+        <ChevronRightIcon className="size-6" />
+      </span>
+    </Button>
+  );
+}
+
+type UnstakeNodeProviderTriggerProps = {
+  provider: NodeProvider;
+  balance: number;
+  isBalanceLoading: boolean;
+  mode: "stake" | "unstake";
+  onClick: () => void;
+};
+
+function UnstakeNodeProviderTrigger({
+  provider,
+  balance,
+  isBalanceLoading,
+  mode,
+  ...props
+}: UnstakeNodeProviderTriggerProps) {
+  return (
+    <Button
+      className="h-20 w-full justify-between rounded-xl px-4 text-xl"
+      variant="secondary"
+      {...props}
+    >
+      <span className="flex items-center gap-3">
+        <div>{provider.providerIcon}</div>
+        <span>{provider.name}</span>
+      </span>
+      <span className="flex items-center gap-5">
+        <div className="flex flex-col items-end gap-2">
+          <Badge className="w-fit" size="lg" variant="success">
+            {provider.apy}% APY
+          </Badge>
+          <BalanceDisplay
+            balance={balance}
+            className="order-1 sm:order-2"
+            isLoading={isBalanceLoading}
+            mode={mode}
+          />
+        </div>
+        <ChevronRightIcon className="size-6" />
+      </span>
+    </Button>
+  );
+}
+
 type StakingFormProps = {
-  mode?: "stake" | "unstake";
+  mode: "stake" | "unstake";
   pending: boolean;
   onSubmit: (data: StakingFormSubmitData) => void;
-  balance?: number;
-  isBalanceLoading?: boolean;
-  balanceLabel?: string;
+  balance: number;
+  isBalanceLoading: boolean;
 };
 export function StakingForm({
-  mode = "stake",
+  mode,
   onSubmit,
   pending,
-  balance: providedBalance,
-  isBalanceLoading: providedIsBalanceLoading,
-  balanceLabel,
+  balance,
+  isBalanceLoading,
 }: StakingFormProps) {
-  const { address } = useAppKitAccount();
-
-  const { data: balanceRaw, isLoading: isBalanceLoading } = useReadContract(
-    balanceOfParams(address as `0x${string}` | undefined)
-  );
-
-  const balance = calculateBalance(providedBalance, balanceRaw);
-  const isBalanceLoadingState =
-    providedIsBalanceLoading !== undefined
-      ? providedIsBalanceLoading
-      : isBalanceLoading;
-
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
-  const [isProviderDialogOpen, setIsProviderDialogOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<NodeProvider>(
     nodeProviders[0]
   );
+  const [isProviderSelectorOpen, setIsProviderSelectorOpen] = useState(false);
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -151,11 +195,31 @@ export function StakingForm({
   return (
     <form className="flex flex-col items-center gap-8" onSubmit={handleSubmit}>
       <NodeProviderSelector
-        onOpenChange={setIsProviderDialogOpen}
+        onOpenChange={setIsProviderSelectorOpen}
         onProviderChange={setSelectedProvider}
-        open={isProviderDialogOpen}
+        open={isProviderSelectorOpen}
         providers={nodeProviders}
         selectedProvider={selectedProvider}
+        trigger={
+          mode === "stake" ? (
+            <StakeNodeProviderTrigger
+              onClick={() => {
+                setIsProviderSelectorOpen(true);
+              }}
+              provider={selectedProvider}
+            />
+          ) : (
+            <UnstakeNodeProviderTrigger
+              balance={balance}
+              isBalanceLoading={isBalanceLoading}
+              mode={mode}
+              onClick={() => {
+                setIsProviderSelectorOpen(true);
+              }}
+              provider={selectedProvider}
+            />
+          )
+        }
       />
       <AmountField
         className="flex flex-col gap-4"
@@ -165,12 +229,15 @@ export function StakingForm({
         value={stakeAmount}
       >
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
-          <BalanceDisplay
-            balance={balance}
-            className="order-1 sm:order-2"
-            isLoading={isBalanceLoadingState}
-            label={balanceLabel}
-          />
+          {mode === "stake" ? (
+            <BalanceDisplay
+              balance={balance}
+              className="order-1 sm:order-2"
+              isLoading={isBalanceLoading}
+              mode={mode}
+            />
+          ) : null}
+
           <Label
             className="order-2 font-semibold text-base sm:order-1"
             htmlFor="amount-to-stake"
