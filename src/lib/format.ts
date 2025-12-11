@@ -27,7 +27,9 @@ export function formatCurrency(value: number): string {
  * Formats an address as a shortened string
  * Used for displaying addresses in a compact format (e.g., "0x1234...5678")
  */
-export function formatEthereumAddress(address: string): string {
+export function formatEthereumAddress(
+  address: `0x${string}` | string | undefined
+): string {
   if (!address) {
     return "...";
   }

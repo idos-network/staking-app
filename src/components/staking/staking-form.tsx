@@ -5,6 +5,8 @@ import {
   AmountFieldGroup,
   AmountFieldInput,
 } from "@/components/staking/amount-field";
+import { ConfirmStake } from "@/components/staking/confirm-stake";
+import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
   type NodeProvider,
   NodeProviderSelector,
@@ -193,7 +195,12 @@ export function StakingForm({
   };
 
   return (
-    <form className="flex flex-col items-center gap-8" onSubmit={handleSubmit}>
+    <form
+      className="flex flex-col items-center gap-8"
+      id={mode}
+      name={mode}
+      onSubmit={handleSubmit}
+    >
       <NodeProviderSelector
         onOpenChange={setIsProviderSelectorOpen}
         onProviderChange={setSelectedProvider}
@@ -292,18 +299,45 @@ export function StakingForm({
         </p>
       ) : null}
 
-      <Button
-        className="w-full lg:w-2xs"
-        disabled={!isValid || pending}
-        size="lg"
-        type="submit"
-      >
-        {pending ? (
-          <Spinner className="size-5" />
-        ) : (
-          <SubmitButtonText mode={mode} />
-        )}
-      </Button>
+      {mode === "stake" ? (
+        <ConfirmStake
+          amount={stakeAmount ?? 0}
+          provider={selectedProvider}
+          trigger={
+            <Button
+              className="w-full lg:w-2xs"
+              disabled={!isValid || pending}
+              size="lg"
+              type="button"
+            >
+              {pending ? (
+                <Spinner className="size-5" />
+              ) : (
+                <SubmitButtonText mode={mode} />
+              )}
+            </Button>
+          }
+        />
+      ) : (
+        <ConfirmUnstake
+          amount={stakeAmount ?? 0}
+          provider={selectedProvider}
+          trigger={
+            <Button
+              className="w-full lg:w-2xs"
+              disabled={!isValid || pending}
+              size="lg"
+              type="button"
+            >
+              {pending ? (
+                <Spinner className="size-5" />
+              ) : (
+                <SubmitButtonText mode={mode} />
+              )}
+            </Button>
+          }
+        />
+      )}
     </form>
   );
 }
