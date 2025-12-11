@@ -1,8 +1,13 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { parseUnits } from "viem";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+import {
+  type NodeProvider,
+  nodeProviders,
+} from "@/components/staking/node-provider-selector";
 import {
   StakingForm,
   type StakingFormSubmitData,
@@ -13,7 +18,7 @@ import {
   IDOS_TOKEN_ABI,
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
-import { getUserStakeParams } from "@/lib/queries/query-options";
+import { stakeByNodeByUserParams } from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Unstake() {
@@ -22,15 +27,22 @@ export function Unstake() {
   const queryClient = useQueryClient();
   const config = useConfig();
 
-  // Fetch staked balance
-  const { data: userStake, isLoading: isStakedBalanceLoading } =
-    useReadContract(getUserStakeParams(address as `0x${string}` | undefined));
+  // Track selected provider to fetch balance for that specific node
+  const [selectedProvider, setSelectedProvider] = useState<NodeProvider>(
+    nodeProviders[0]
+  );
 
-  // Calculate total staked: activeStake + slashedStake
-  const stakedBalance =
-    userStake && Array.isArray(userStake) && userStake.length >= 2
-      ? Number(BigInt(userStake[0]) + BigInt(userStake[1])) / 10 ** 18
-      : 0;
+  // Fetch staked balance for the selected node provider
+  const { data: nodeStake, isLoading: isStakedBalanceLoading } =
+    useReadContract(
+      stakeByNodeByUserParams(
+        address as `0x${string}` | undefined,
+        selectedProvider.address
+      )
+    );
+
+  // Calculate staked balance for the selected node
+  const stakedBalance = nodeStake ? Number(nodeStake) / 10 ** 18 : 0;
 
   const handleSubmit = async (data: StakingFormSubmitData) => {
     if (!address) {
@@ -93,6 +105,7 @@ export function Unstake() {
       balance={stakedBalance}
       isBalanceLoading={isStakedBalanceLoading}
       mode="unstake"
+      onProviderChange={setSelectedProvider}
       onSubmit={handleSubmit}
       pending={writeContract.isPending}
     />

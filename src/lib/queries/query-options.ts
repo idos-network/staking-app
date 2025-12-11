@@ -132,3 +132,35 @@ export function unstakeByUserAtIndexQueryOptions(
     ] as typeof baseOptions.queryKey,
   };
 }
+
+/**
+ * Contract parameters for fetching stake amount by node and user
+ */
+export function stakeByNodeByUserParams(
+  userAddress: `0x${string}` | undefined,
+  nodeAddress: `0x${string}` | undefined
+) {
+  return {
+    address: IDOS_NODE_STAKING_ABI_ADDRESS as `0x${string}`,
+    abi: IDOS_NODE_STAKING_ABI,
+    functionName: "stakeByNodeByUser" as const,
+    args:
+      userAddress && nodeAddress
+        ? ([userAddress, nodeAddress] as const)
+        : undefined,
+  };
+}
+
+/**
+ * Query options for fetching stake amount by node and user (for use with queryClient)
+ */
+export function stakeByNodeByUserQueryOptions(
+  config: Config,
+  userAddress: `0x${string}` | undefined,
+  nodeAddress: `0x${string}` | undefined
+) {
+  return readContractQueryOptions(
+    config,
+    stakeByNodeByUserParams(userAddress, nodeAddress)
+  );
+}

@@ -157,6 +157,7 @@ type StakingFormProps = {
   onSubmit: (data: StakingFormSubmitData) => void;
   balance: number;
   isBalanceLoading: boolean;
+  onProviderChange?: (provider: NodeProvider) => void;
 };
 export function StakingForm({
   mode,
@@ -164,6 +165,7 @@ export function StakingForm({
   pending,
   balance,
   isBalanceLoading,
+  onProviderChange,
 }: StakingFormProps) {
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -171,6 +173,11 @@ export function StakingForm({
     nodeProviders[0]
   );
   const [isProviderSelectorOpen, setIsProviderSelectorOpen] = useState(false);
+
+  const handleProviderChange = (provider: NodeProvider) => {
+    setSelectedProvider(provider);
+    onProviderChange?.(provider);
+  };
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -203,7 +210,7 @@ export function StakingForm({
     >
       <NodeProviderSelector
         onOpenChange={setIsProviderSelectorOpen}
-        onProviderChange={setSelectedProvider}
+        onProviderChange={handleProviderChange}
         open={isProviderSelectorOpen}
         providers={nodeProviders}
         selectedProvider={selectedProvider}
