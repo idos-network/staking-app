@@ -88,7 +88,7 @@ export function WithdrawUnstake() {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <div className="flex w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-4">
         <p className="font-semibold">Withdraw Unstaked</p>
         <div className="flex flex-col gap-2 rounded-xl bg-secondary p-6">
           {isBalanceLoading ? (
