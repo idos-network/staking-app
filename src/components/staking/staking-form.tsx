@@ -24,11 +24,13 @@ type BalanceDisplayProps = {
   balance: number;
   className?: string;
   isLoading?: boolean;
+  label?: string;
 };
 function BalanceDisplay({
   balance,
   className,
   isLoading,
+  label = "Balance",
 }: BalanceDisplayProps) {
   return (
     <div className={`flex items-center gap-2 ${className ?? ""}`}>
@@ -37,7 +39,7 @@ function BalanceDisplay({
         <Skeleton className="h-4 w-32" />
       ) : (
         <span className="text-muted-foreground text-sm">
-          <span className="font-semibold">Balance:</span>{" "}
+          <span className="font-semibold">{label}:</span>{" "}
           {formatTokenAmount(balance)} IDOS
         </span>
       )}
@@ -48,6 +50,41 @@ function BalanceDisplay({
 function SubmitButtonText({ mode }: { mode: "stake" | "unstake" }) {
   return mode === "stake" ? "Stake" : "Unstake";
 }
+
+function calculateBalance(
+  providedBalance: number | undefined,
+  balanceRaw: bigint | undefined
+): number {
+  if (providedBalance !== undefined) {
+    return providedBalance;
+  }
+  if (balanceRaw) {
+    return Number(balanceRaw) / 10 ** 18;
+  }
+  return 0;
+}
+
+function validateStakeAmount(
+  stakeAmount: number | null,
+  balance: number,
+  mode: "stake" | "unstake",
+  checked: boolean
+): { isValid: boolean; errorMessage?: string } {
+  const hasStakeAmountError = stakeAmount !== null && stakeAmount > balance;
+  const hasValidAmount = stakeAmount !== null && stakeAmount > 0;
+
+  if (hasStakeAmountError) {
+    return {
+      errorMessage: `Amount exceeds available balance of ${formatTokenAmount(balance)} IDOS`,
+      isValid: false,
+    };
+  }
+
+  const isValid = mode === "stake" ? hasValidAmount && checked : hasValidAmount;
+
+  return { isValid };
+}
+
 export type StakingFormSubmitData = {
   amount: number;
   provider: NodeProvider;
@@ -58,11 +95,17 @@ type StakingFormProps = {
   mode?: "stake" | "unstake";
   pending: boolean;
   onSubmit: (data: StakingFormSubmitData) => void;
+  balance?: number;
+  isBalanceLoading?: boolean;
+  balanceLabel?: string;
 };
 export function StakingForm({
   mode = "stake",
   onSubmit,
   pending,
+  balance: providedBalance,
+  isBalanceLoading: providedIsBalanceLoading,
+  balanceLabel,
 }: StakingFormProps) {
   const { address } = useAppKitAccount();
 
@@ -70,8 +113,11 @@ export function StakingForm({
     balanceOfParams(address as `0x${string}` | undefined)
   );
 
-  // Convert bigint balance to number (dividing by 10^18 for 18 decimals)
-  const balance = balanceRaw ? Number(balanceRaw) / 10 ** 18 : 0;
+  const balance = calculateBalance(providedBalance, balanceRaw);
+  const isBalanceLoadingState =
+    providedIsBalanceLoading !== undefined
+      ? providedIsBalanceLoading
+      : isBalanceLoading;
 
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -84,16 +130,13 @@ export function StakingForm({
     setStakeAmount(balance);
   };
 
-  const hasStakeAmountError = stakeAmount !== null && stakeAmount > balance;
-  const hasValidAmount = stakeAmount !== null && stakeAmount > 0;
-  const errorMessage = hasStakeAmountError
-    ? `Amount exceeds available balance of ${formatTokenAmount(balance)} IDOS`
-    : undefined;
-
-  const isValid =
-    mode === "stake"
-      ? hasValidAmount && !hasStakeAmountError && checked
-      : hasValidAmount && !hasStakeAmountError;
+  const { isValid, errorMessage } = validateStakeAmount(
+    stakeAmount,
+    balance,
+    mode,
+    checked
+  );
+  const hasStakeAmountError = errorMessage !== undefined;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -125,13 +168,14 @@ export function StakingForm({
           <BalanceDisplay
             balance={balance}
             className="order-1 sm:order-2"
-            isLoading={isBalanceLoading}
+            isLoading={isBalanceLoadingState}
+            label={balanceLabel}
           />
           <Label
             className="order-2 font-semibold text-base sm:order-1"
             htmlFor="amount-to-stake"
           >
-            Amount to Stake
+            {mode === "unstake" ? "Amount to Unstake" : "Amount to Stake"}
           </Label>
         </div>
         <div className="flex w-full flex-col gap-2">

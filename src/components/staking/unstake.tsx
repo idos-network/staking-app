@@ -1,7 +1,7 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { parseUnits } from "viem";
-import { useConfig, useWriteContract } from "wagmi";
+import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import {
   StakingForm,
@@ -13,6 +13,7 @@ import {
   IDOS_TOKEN_ABI,
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
+import { getUserStakeParams } from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Unstake() {
@@ -20,6 +21,16 @@ export function Unstake() {
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
   const config = useConfig();
+
+  // Fetch staked balance
+  const { data: userStake, isLoading: isStakedBalanceLoading } =
+    useReadContract(getUserStakeParams(address as `0x${string}` | undefined));
+
+  // Calculate total staked: activeStake + slashedStake
+  const stakedBalance =
+    userStake && Array.isArray(userStake) && userStake.length >= 2
+      ? Number(BigInt(userStake[0]) + BigInt(userStake[1])) / 10 ** 18
+      : 0;
 
   const handleSubmit = async (data: StakingFormSubmitData) => {
     if (!address) {
@@ -79,6 +90,9 @@ export function Unstake() {
 
   return (
     <StakingForm
+      balance={stakedBalance}
+      balanceLabel="Staked Balance"
+      isBalanceLoading={isStakedBalanceLoading}
       mode="unstake"
       onSubmit={handleSubmit}
       pending={writeContract.isPending}
