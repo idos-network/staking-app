@@ -5,7 +5,6 @@ import { Stake } from "@/components/staking/stake";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 import { IDOS_TOKEN_ABI_ADDRESS } from "@/lib/abi";
 import { formatCurrency, formatTokenAmount } from "@/lib/format";
 import {
@@ -36,25 +35,7 @@ function IDOSBalance({ value, isLoading }: IDOSBalanceProps) {
   const numericValue = Number(value) / divisor;
   const formatted = formatTokenAmount(numericValue);
 
-  // Show full value if it's 100 or less, otherwise show first 3 digits
-  // e.g., "0.00" -> "0.00 IDOS", "10.00" -> "10.00 IDOS", "1,234.56" -> "123... IDOS"
-  if (numericValue <= 100) {
-    return <span>{formatted} IDOS</span>;
-  }
-
-  const numericDigits = formatted.replace(/[^0-9]/g, "");
-  const slice = numericDigits.slice(0, 3);
-  const displayValue = `${slice}... IDOS`;
-  const fullValue = `${formatted} IDOS`;
-
-  return (
-    <Tooltip>
-      <TooltipTrigger
-        render={<span className="cursor-help">{displayValue}</span>}
-      />
-      <TooltipPopup>{fullValue}</TooltipPopup>
-    </Tooltip>
-  );
+  return <span>{formatted} IDOS</span>;
 }
 
 type USDBalanceProps = {
@@ -81,7 +62,7 @@ function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
   return <span>{formatted}</span>;
 }
 
-export function Staking() {
+function StakingBalances() {
   const { address } = useAppKitAccount();
 
   const { data: tokenPrice } = useTokenPrice(IDOS_TOKEN_ABI_ADDRESS);
@@ -116,81 +97,79 @@ export function Staking() {
       : undefined;
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-5 md:flex-row lg:items-center">
-        <div className="h-42 flex-1 rounded-[20px] bg-green-300 p-6">
-          <div className="flex items-center gap-5">
-            <div className="flex w-1/2 flex-col gap-5">
-              <p className="h-10 text-neutral-950 text-sm">Available Balance</p>
-              <div className="flex h-14 flex-col gap-2">
-                <div className="text-lg text-neutral-950">
-                  <IDOSBalance isLoading={isBalanceLoading} value={balance} />
-                </div>
-                <div className="text-neutral-950 text-sm">
-                  <USDBalance
-                    isLoading={isBalanceLoading}
-                    tokenPrice={tokenPrice}
-                    value={balance}
-                  />
-                </div>
+    <div className="w-full rounded-[20px] bg-muted p-6">
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center gap-5">
+          <div className="flex w-1/2 flex-col gap-2">
+            <p className="text-muted-foreground text-sm">Available Balance</p>
+            <div className="flex h-14 flex-col gap-2">
+              <div className="text-lg">
+                <IDOSBalance isLoading={isBalanceLoading} value={balance} />
+              </div>
+              <div className="text-muted-foreground text-sm">
+                <USDBalance
+                  isLoading={isBalanceLoading}
+                  tokenPrice={tokenPrice}
+                  value={balance}
+                />
               </div>
             </div>
-            <Separator className="bg-neutral-400" orientation="vertical" />
-            <div className="flex w-1/2 flex-col gap-5">
-              <p className="h-10 text-neutral-950 text-sm">Total Staked</p>
-              <div className="flex h-14 flex-col gap-2">
-                <div className="text-lg text-neutral-950">
-                  <IDOSBalance
-                    isLoading={isUserStakeLoading}
-                    value={totalStaked}
-                  />
-                </div>
-                <div className="text-neutral-950 text-sm">
-                  <USDBalance
-                    isLoading={isUserStakeLoading}
-                    tokenPrice={tokenPrice}
-                    value={totalStaked}
-                  />
-                </div>
+          </div>
+          <div className="flex w-1/2 flex-col gap-2 text-right">
+            <p className="text-muted-foreground text-sm">Total Staked</p>
+            <div className="flex h-14 flex-col items-end gap-2">
+              <div className="text-lg">
+                <IDOSBalance
+                  isLoading={isUserStakeLoading}
+                  value={totalStaked}
+                />
+              </div>
+              <div className="text-muted-foreground text-sm">
+                <USDBalance
+                  isLoading={isUserStakeLoading}
+                  tokenPrice={tokenPrice}
+                  value={totalStaked}
+                />
               </div>
             </div>
           </div>
         </div>
-        <div className="h-42 flex-1 rounded-[20px] bg-muted p-6">
-          <div className="flex items-center gap-5">
-            <div className="flex w-1/2 flex-col gap-5">
-              <p className="h-10 text-muted-foreground text-sm">
-                Total Rewards
-              </p>
-              <div className="flex h-14 flex-col gap-2">
-                <div className="text-lg">
-                  <IDOSBalance
-                    isLoading={isRewardLoading}
-                    value={totalRewards}
-                  />
-                </div>
-                <div className="text-muted-foreground text-sm">
-                  <USDBalance
-                    isLoading={isRewardLoading}
-                    tokenPrice={tokenPrice}
-                    value={totalRewards}
-                  />
-                </div>
+        <Separator className="bg-neutral-700" orientation="horizontal" />
+        <div className="flex items-center gap-5">
+          <div className="flex w-1/2 flex-col gap-2">
+            <p className="text-muted-foreground text-sm">Total Rewards</p>
+            <div className="flex h-14 flex-col gap-2">
+              <div className="text-lg">
+                <IDOSBalance isLoading={isRewardLoading} value={totalRewards} />
+              </div>
+              <div className="text-muted-foreground text-sm">
+                <USDBalance
+                  isLoading={isRewardLoading}
+                  tokenPrice={tokenPrice}
+                  value={totalRewards}
+                />
               </div>
             </div>
-            <Separator className="bg-neutral-700" orientation="vertical" />
-            <div className="flex w-1/2 flex-col gap-5">
-              <p className="h-10 text-muted-foreground text-sm">
-                Expected Monthly Rewards
-              </p>
-              <div className="flex flex-col gap-2">
-                <p className="text-lg">0.00 IDOS</p>
-                <p className="text-muted-foreground text-sm">$0.00</p>
-              </div>
+          </div>
+          <div className="flex w-1/2 flex-col gap-2 text-right">
+            <p className="text-muted-foreground text-sm">
+              Expected Monthly Rewards
+            </p>
+            <div className="flex flex-col items-end gap-2">
+              <p className="text-lg">0.00 IDOS</p>
+              <p className="text-muted-foreground text-sm">$0.00</p>
             </div>
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function Staking() {
+  return (
+    <div className="flex flex-col gap-5">
+      <StakingBalances />
       <div className="rounded-[20px] bg-muted p-6">
         <Tabs className="gap-10" defaultValue="stake">
           <TabsList className="h-11 w-full rounded-full p-1 [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:bg-neutral-950">
