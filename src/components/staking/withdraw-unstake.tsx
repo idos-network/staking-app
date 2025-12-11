@@ -2,6 +2,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConfig, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+import { ConfirmWithdrawUnstake } from "@/components/staking/confirm-withdraw-unstake";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -107,14 +108,21 @@ export function WithdrawUnstake() {
           )}
         </div>
       </div>
-      <Button
-        className="w-2xs"
-        disabled={balance === 0 || writeContract.isPending}
-        onClick={handleWithdraw}
-        size="lg"
-      >
-        {writeContract.isPending ? "Withdrawing..." : "Withdraw"}
-      </Button>
+      <ConfirmWithdrawUnstake
+        amount={balance}
+        onConfirm={() => {
+          handleWithdraw();
+        }}
+        trigger={
+          <Button
+            className="w-2xs"
+            disabled={balance === 0 || writeContract.isPending}
+            size="lg"
+          >
+            {writeContract.isPending ? "Withdrawing..." : "Withdraw"}
+          </Button>
+        }
+      />
     </div>
   );
 }

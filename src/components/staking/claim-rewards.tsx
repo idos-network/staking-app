@@ -2,8 +2,10 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+import { ConfirmClaimReward } from "@/components/staking/confirm-claim-reward";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import {
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
@@ -123,14 +125,24 @@ export function ClaimRewards() {
           )}
         </div>
       </div>
-      <Button
-        className="w-2xs"
-        disabled={rewardAmount === 0 || writeContract.isPending}
-        onClick={handleClaim}
-        size="lg"
-      >
-        {writeContract.isPending ? "Claiming..." : "Claim now"}
-      </Button>
+
+      <ConfirmClaimReward
+        amount={rewardAmount}
+        onConfirm={handleClaim}
+        trigger={
+          <Button
+            className="w-2xs"
+            disabled={rewardAmount === 0 || writeContract.isPending}
+            size="lg"
+          >
+            {writeContract.isPending ? (
+              <Spinner className="size-5" />
+            ) : (
+              "Claim now"
+            )}
+          </Button>
+        }
+      />
     </div>
   );
 }
