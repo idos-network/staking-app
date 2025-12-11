@@ -79,15 +79,12 @@ export type StakingFormSubmitData = {
   mode: "stake" | "unstake";
 };
 
-type StakeNodeProviderTriggerProps = {
+type NodeProviderTriggerProps = {
   provider: NodeProvider;
   onClick: () => void;
 };
 
-function StakeNodeProviderTrigger({
-  provider,
-  ...props
-}: StakeNodeProviderTriggerProps) {
+function NodeProviderTrigger({ provider, ...props }: NodeProviderTriggerProps) {
   return (
     <Button
       className="h-14 w-full justify-between rounded-xl px-4 text-xl"
@@ -102,49 +99,6 @@ function StakeNodeProviderTrigger({
         <Badge size="lg" variant="success">
           {provider.apy}% APY
         </Badge>
-        <ChevronRightIcon className="size-6" />
-      </span>
-    </Button>
-  );
-}
-
-type UnstakeNodeProviderTriggerProps = {
-  provider: NodeProvider;
-  balance: number;
-  isBalanceLoading: boolean;
-  mode: "stake" | "unstake";
-  onClick: () => void;
-};
-
-function UnstakeNodeProviderTrigger({
-  provider,
-  balance,
-  isBalanceLoading,
-  mode,
-  ...props
-}: UnstakeNodeProviderTriggerProps) {
-  return (
-    <Button
-      className="h-20 w-full justify-between rounded-xl px-4 text-xl"
-      variant="secondary"
-      {...props}
-    >
-      <span className="flex items-center gap-3">
-        <div>{provider.providerIcon}</div>
-        <span>{provider.name}</span>
-      </span>
-      <span className="flex items-center gap-5">
-        <div className="flex flex-col items-end gap-2">
-          <Badge className="w-fit" size="lg" variant="success">
-            {provider.apy}% APY
-          </Badge>
-          <BalanceDisplay
-            balance={balance}
-            className="order-1 sm:order-2"
-            isLoading={isBalanceLoading}
-            mode={mode}
-          />
-        </div>
         <ChevronRightIcon className="size-6" />
       </span>
     </Button>
@@ -215,24 +169,12 @@ export function StakingForm({
         providers={nodeProviders}
         selectedProvider={selectedProvider}
         trigger={
-          mode === "stake" ? (
-            <StakeNodeProviderTrigger
-              onClick={() => {
-                setIsProviderSelectorOpen(true);
-              }}
-              provider={selectedProvider}
-            />
-          ) : (
-            <UnstakeNodeProviderTrigger
-              balance={balance}
-              isBalanceLoading={isBalanceLoading}
-              mode={mode}
-              onClick={() => {
-                setIsProviderSelectorOpen(true);
-              }}
-              provider={selectedProvider}
-            />
-          )
+          <NodeProviderTrigger
+            onClick={() => {
+              setIsProviderSelectorOpen(true);
+            }}
+            provider={selectedProvider}
+          />
         }
       />
       <AmountField
@@ -243,14 +185,12 @@ export function StakingForm({
         value={stakeAmount}
       >
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
-          {mode === "stake" ? (
-            <BalanceDisplay
-              balance={balance}
-              className="order-1 sm:order-2"
-              isLoading={isBalanceLoading}
-              mode={mode}
-            />
-          ) : null}
+          <BalanceDisplay
+            balance={balance}
+            className="-top-4 relative order-1 sm:relative sm:order-2 md:top-0"
+            isLoading={isBalanceLoading}
+            mode={mode}
+          />
 
           <Label
             className="order-2 font-semibold text-base sm:order-1"
