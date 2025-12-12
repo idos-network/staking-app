@@ -1,5 +1,4 @@
 import { useAppKitAccount } from "@reown/appkit/react";
-import type { ReactElement } from "react";
 import { useReadContract } from "wagmi";
 import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { formatEthereumAddress, formatTokenAmount } from "@/lib/format";
 import {
   balanceOfParams,
@@ -22,13 +22,15 @@ import {
 type ConfirmUnstakeProps = {
   amount: number;
   provider: NodeProvider | null;
-  trigger: ReactElement<Record<string, unknown>>;
+  isValid: boolean;
+  pending: boolean;
 };
 
 export function ConfirmUnstake({
   amount,
   provider,
-  trigger,
+  isValid,
+  pending,
 }: ConfirmUnstakeProps) {
   const { address } = useAppKitAccount();
 
@@ -59,7 +61,18 @@ export function ConfirmUnstake({
 
   return (
     <Dialog>
-      <DialogTrigger render={trigger} />
+      <DialogTrigger
+        render={
+          <Button
+            className="w-full lg:w-2xs"
+            disabled={!isValid || pending}
+            size="lg"
+            type="button"
+          >
+            {pending ? <Spinner className="size-5" /> : "Confirm"}
+          </Button>
+        }
+      />
       <DialogPopup className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">Unstake</DialogTitle>

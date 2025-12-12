@@ -1,5 +1,5 @@
 import { TokenETH, TokenNEAR, TokenXRP, TokenXTZ } from "@web3icons/react";
-import type { ReactNode } from "react";
+import { ChevronRightIcon } from "lucide-react";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import {
   DialogPanel,
   DialogPopup,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -90,6 +91,30 @@ export const nodeProviders: NodeProvider[] = [
   },
 ];
 
+type NodeProviderTriggerProps = {
+  provider: NodeProvider;
+};
+function NodeProviderTrigger({ provider, ...props }: NodeProviderTriggerProps) {
+  return (
+    <Button
+      className="h-14 w-full justify-between rounded-xl px-4 text-xl"
+      variant="secondary"
+      {...props}
+    >
+      <span className="flex items-center gap-3">
+        <div>{provider.providerIcon}</div>
+        <span>{provider.name}</span>
+      </span>
+      <span className="flex items-center gap-5">
+        <Badge size="lg" variant="success">
+          {provider.apy}% APY
+        </Badge>
+        <ChevronRightIcon className="size-6" />
+      </span>
+    </Button>
+  );
+}
+
 function NodeProviderButton({
   provider,
   onClick,
@@ -140,29 +165,23 @@ type NodeProviderSelectorProps = {
   providers: NodeProvider[];
   selectedProvider: NodeProvider;
   onProviderChange: (provider: NodeProvider) => void;
-  trigger: ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 };
-
 export function NodeProviderSelector({
   providers,
   selectedProvider,
   onProviderChange,
-  trigger,
-  open,
-  onOpenChange,
 }: NodeProviderSelectorProps) {
   const handleProviderSelect = (provider: NodeProvider) => {
     onProviderChange(provider);
-    onOpenChange?.(false);
   };
 
   return (
     <div className="flex w-full flex-col gap-4">
       <p className="font-semibold">Node Provider</p>
-      <Dialog onOpenChange={onOpenChange} open={open}>
-        {trigger}
+      <Dialog>
+        <DialogTrigger
+          render={<NodeProviderTrigger provider={selectedProvider} />}
+        />
         <DialogPopup className="gap-6 sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>Choose a Node Provider</DialogTitle>

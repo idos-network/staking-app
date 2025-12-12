@@ -1,4 +1,4 @@
-import { ChevronRightIcon, WalletMinimalIcon } from "lucide-react";
+import { WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
 import {
   AmountField,
@@ -12,12 +12,10 @@ import {
   NodeProviderSelector,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import { formatTokenAmount } from "@/lib/format";
 
 type BalanceDisplayProps = {
@@ -48,10 +46,6 @@ function BalanceDisplay({
   );
 }
 
-function SubmitButtonText({ mode }: { mode: "stake" | "unstake" }) {
-  return mode === "stake" ? "Stake" : "Unstake";
-}
-
 function validateStakeAmount(
   stakeAmount: number | null,
   balance: number,
@@ -79,30 +73,43 @@ export type StakingFormSubmitData = {
   mode: "stake" | "unstake";
 };
 
-type NodeProviderTriggerProps = {
+type ConfirmTransactionProps = {
+  mode: "stake" | "unstake";
+  amount: number;
   provider: NodeProvider;
-  onClick: () => void;
+  isValid: boolean;
+  pending: boolean;
 };
+function ConfirmTransaction({
+  mode,
+  amount,
+  provider,
+  isValid,
+  pending,
+}: ConfirmTransactionProps) {
+  if (mode === "stake") {
+    return (
+      <ConfirmStake
+        amount={amount}
+        isValid={isValid}
+        pending={pending}
+        provider={provider}
+      />
+    );
+  }
 
-function NodeProviderTrigger({ provider, ...props }: NodeProviderTriggerProps) {
-  return (
-    <Button
-      className="h-14 w-full justify-between rounded-xl px-4 text-xl"
-      variant="secondary"
-      {...props}
-    >
-      <span className="flex items-center gap-3">
-        <div>{provider.providerIcon}</div>
-        <span>{provider.name}</span>
-      </span>
-      <span className="flex items-center gap-5">
-        <Badge size="lg" variant="success">
-          {provider.apy}% APY
-        </Badge>
-        <ChevronRightIcon className="size-6" />
-      </span>
-    </Button>
-  );
+  if (mode === "unstake") {
+    return (
+      <ConfirmUnstake
+        amount={amount}
+        isValid={isValid}
+        pending={pending}
+        provider={provider}
+      />
+    );
+  }
+
+  return null;
 }
 
 type StakingFormProps = {
@@ -126,7 +133,6 @@ export function StakingForm({
   const [selectedProvider, setSelectedProvider] = useState<NodeProvider>(
     nodeProviders[0]
   );
-  const [isProviderSelectorOpen, setIsProviderSelectorOpen] = useState(false);
 
   const handleProviderChange = (provider: NodeProvider) => {
     setSelectedProvider(provider);
@@ -163,19 +169,9 @@ export function StakingForm({
       onSubmit={handleSubmit}
     >
       <NodeProviderSelector
-        onOpenChange={setIsProviderSelectorOpen}
         onProviderChange={handleProviderChange}
-        open={isProviderSelectorOpen}
         providers={nodeProviders}
         selectedProvider={selectedProvider}
-        trigger={
-          <NodeProviderTrigger
-            onClick={() => {
-              setIsProviderSelectorOpen(true);
-            }}
-            provider={selectedProvider}
-          />
-        }
       />
       <AmountField
         className="flex flex-col gap-4"
@@ -246,45 +242,13 @@ export function StakingForm({
         </p>
       ) : null}
 
-      {mode === "stake" ? (
-        <ConfirmStake
-          amount={stakeAmount ?? 0}
-          provider={selectedProvider}
-          trigger={
-            <Button
-              className="w-full lg:w-2xs"
-              disabled={!isValid || pending}
-              size="lg"
-              type="button"
-            >
-              {pending ? (
-                <Spinner className="size-5" />
-              ) : (
-                <SubmitButtonText mode={mode} />
-              )}
-            </Button>
-          }
-        />
-      ) : (
-        <ConfirmUnstake
-          amount={stakeAmount ?? 0}
-          provider={selectedProvider}
-          trigger={
-            <Button
-              className="w-full lg:w-2xs"
-              disabled={!isValid || pending}
-              size="lg"
-              type="button"
-            >
-              {pending ? (
-                <Spinner className="size-5" />
-              ) : (
-                <SubmitButtonText mode={mode} />
-              )}
-            </Button>
-          }
-        />
-      )}
+      <ConfirmTransaction
+        amount={stakeAmount ?? 0}
+        isValid={isValid}
+        mode={mode}
+        pending={pending}
+        provider={selectedProvider}
+      />
     </form>
   );
 }
