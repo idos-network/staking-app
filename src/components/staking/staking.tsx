@@ -2,6 +2,8 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
 import { ClaimRewards } from "@/components/staking/claim-rewards";
 import { Stake } from "@/components/staking/stake";
+import { Unstake } from "@/components/staking/unstake";
+import { WithdrawUnstake } from "@/components/staking/withdraw-unstake";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
@@ -13,8 +15,6 @@ import {
   withdrawableRewardParams,
 } from "@/lib/queries/query-options";
 import { useTokenPrice } from "@/lib/queries/use-token-price";
-import { Unstake } from "./unstake";
-import { WithdrawUnstake } from "./withdraw-unstake";
 
 type IDOSBalanceProps = {
   value: bigint | undefined;
