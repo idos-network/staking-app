@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { formatEthereumAddress, formatTokenAmount } from "@/lib/format";
+import {
+  formatEthereumAddress,
+  formatTokenAmount,
+  fromWei,
+} from "@/lib/format";
 import {
   balanceOfParams,
   getUserStakeParams,
@@ -53,10 +57,10 @@ export function ConfirmUnstake({
   });
 
   // Calculate values
-  const availableBalance = balance ? Number(balance) / 10 ** 18 : 0;
+  const availableBalance = fromWei(balance);
   const totalStaked =
     userStake && Array.isArray(userStake) && userStake.length >= 2
-      ? Number(BigInt(userStake[0]) + BigInt(userStake[1])) / 10 ** 18
+      ? fromWei(BigInt(userStake[0]) + BigInt(userStake[1]))
       : 0;
 
   return (

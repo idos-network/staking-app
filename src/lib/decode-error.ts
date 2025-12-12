@@ -48,12 +48,15 @@ function extractHexFromMessage(msg: string): `0x${string}` | undefined {
  * Formats decoded error arguments for display
  */
 function formatErrorArgs(args: readonly unknown[]): string {
+  // Import fromWei locally to avoid circular dependencies
+  const fromWei = (value: bigint): number => Number(value) / 10 ** 18;
+
   return args
     .map((arg) => {
       if (typeof arg === "bigint") {
         // Format large numbers nicely
         if (arg > BigInt(10 ** 18)) {
-          return `${(Number(arg) / 10 ** 18).toFixed(2)} tokens`;
+          return `${fromWei(arg).toFixed(2)} tokens`;
         }
         return arg.toString();
       }

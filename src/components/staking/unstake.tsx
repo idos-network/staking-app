@@ -18,6 +18,7 @@ import {
   IDOS_TOKEN_ABI,
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
+import { fromWei } from "@/lib/format";
 import { stakeByNodeByUserParams } from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
@@ -42,7 +43,7 @@ export function Unstake() {
     );
 
   // Calculate staked balance for the selected node
-  const stakedBalance = nodeStake ? Number(nodeStake) / 10 ** 18 : 0;
+  const stakedBalance = fromWei(nodeStake);
 
   const handleSubmit = async (data: StakingFormSubmitData) => {
     if (!address) {

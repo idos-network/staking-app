@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
 import { IDOS_TOKEN_ABI_ADDRESS } from "@/lib/abi";
-import { formatCurrency, formatTokenAmount } from "@/lib/format";
+import { formatCurrency, formatTokenAmount, fromWei } from "@/lib/format";
 import {
   balanceOfParams,
   getUserStakeParams,
@@ -31,8 +31,7 @@ function IDOSBalance({ value, isLoading }: IDOSBalanceProps) {
     return <span>0.00 IDOS</span>;
   }
 
-  const divisor = 10 ** 18;
-  const numericValue = Number(value) / divisor;
+  const numericValue = fromWei(value);
   const formatted = formatTokenAmount(numericValue);
 
   return <span>{formatted} IDOS</span>;
@@ -54,8 +53,7 @@ function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
     return <span>$0.00</span>;
   }
 
-  const divisor = 10 ** 18;
-  const tokenValue = Number(value) / divisor;
+  const tokenValue = fromWei(value);
   const usdValue = tokenValue * tokenPrice;
   const formatted = formatCurrency(usdValue);
 

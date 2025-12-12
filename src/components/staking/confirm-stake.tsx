@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { formatEthereumAddress, formatTokenAmount } from "@/lib/format";
+import {
+  formatEthereumAddress,
+  formatTokenAmount,
+  fromWei,
+} from "@/lib/format";
 import { balanceOfParams } from "@/lib/queries/query-options";
 
 type ConfirmStakeProps = {
@@ -41,7 +45,7 @@ export function ConfirmStake({
   });
 
   // Calculate values
-  const availableBalance = balance ? Number(balance) / 10 ** 18 : 0;
+  const availableBalance = fromWei(balance);
 
   return (
     <Dialog>

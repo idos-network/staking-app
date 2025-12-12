@@ -12,7 +12,7 @@ import {
   IDOS_TOKEN_ABI,
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
-import { formatTokenAmount } from "@/lib/format";
+import { formatTokenAmount, fromWei } from "@/lib/format";
 import {
   balanceOfParams,
   withdrawableRewardParams,
@@ -40,11 +40,11 @@ export function ClaimRewards() {
     withdrawableReward &&
     Array.isArray(withdrawableReward) &&
     withdrawableReward.length >= 1
-      ? Number(withdrawableReward[0]) / 10 ** 18
+      ? fromWei(withdrawableReward[0])
       : 0;
 
   // Convert bigint balance to number (dividing by 10^18 for 18 decimals)
-  const currentBalance = balance ? Number(balance) / 10 ** 18 : 0;
+  const currentBalance = fromWei(balance);
 
   const handleClaim = async () => {
     if (!address) {

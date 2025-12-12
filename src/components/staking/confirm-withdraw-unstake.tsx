@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatTokenAmount } from "@/lib/format";
+import { formatTokenAmount, fromWei } from "@/lib/format";
 import { balanceOfParams } from "@/lib/queries/query-options";
 
 type ConfirmWithdrawUnstakeProps = {
@@ -38,7 +38,7 @@ export function ConfirmWithdrawUnstake({
   });
 
   // Calculate values
-  const availableBalance = balance ? Number(balance) / 10 ** 18 : 0;
+  const availableBalance = fromWei(balance);
 
   return (
     <Dialog>

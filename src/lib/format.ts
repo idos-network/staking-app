@@ -24,6 +24,19 @@ export function formatCurrency(value: number): string {
 }
 
 /**
+ * Converts a bigint value from wei (or 18 decimals) to a JavaScript number
+ * Used for converting blockchain token amounts to human-readable numbers
+ * @param value - The bigint value to convert, or undefined/null
+ * @returns The converted number, or 0 if value is undefined/null
+ */
+export function fromWei(value: bigint | undefined | null): number {
+  if (!value) {
+    return 0;
+  }
+  return Number(value) / 10 ** 18;
+}
+
+/**
  * Formats an address as a shortened string
  * Used for displaying addresses in a compact format (e.g., "0x1234...5678")
  */

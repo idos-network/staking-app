@@ -12,7 +12,7 @@ import {
   IDOS_TOKEN_ABI,
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
-import { formatTokenAmount } from "@/lib/format";
+import { formatTokenAmount, fromWei } from "@/lib/format";
 import { useWithdrawableUnstaked } from "@/lib/queries/use-withdrawable-unstaked";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
@@ -26,9 +26,7 @@ export function WithdrawUnstake() {
     useWithdrawableUnstaked(address as `0x${string}` | undefined);
 
   // Convert bigint balance to number (dividing by 10^18 for 18 decimals)
-  const balance = withdrawableAmount
-    ? Number(withdrawableAmount) / 10 ** 18
-    : 0;
+  const balance = fromWei(withdrawableAmount);
 
   const handleWithdraw = async () => {
     if (!address) {

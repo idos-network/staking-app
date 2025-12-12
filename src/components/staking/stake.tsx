@@ -14,6 +14,7 @@ import {
   IDOS_TOKEN_ABI_ADDRESS,
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
+import { fromWei } from "@/lib/format";
 import { balanceOfParams } from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
@@ -30,7 +31,7 @@ export function Stake() {
   );
 
   // Calculate available balance
-  const availableBalance = balance ? Number(balance) / 10 ** 18 : 0;
+  const availableBalance = fromWei(balance);
 
   const handleSubmit = async (data: StakingFormSubmitData) => {
     if (!address) {
