@@ -9,7 +9,8 @@
       "**/index.html",
       "!**/reportWebVitals.ts",
       "!**/src/index.css",
-      "!**/src/components/ui/*.tsx"
+      "!**/src/components/ui/*.tsx",
+      "!**/routeTree.gen.ts"
     ]
   }
 }
