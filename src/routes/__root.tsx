@@ -1,6 +1,8 @@
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,7 @@ function Header() {
   const { disconnect } = useDisconnect();
 
   return (
-    <header className="flex items-center justify-between border-border border-b p-5">
+    <header className="sticky top-0 flex items-center justify-between border-border border-b bg-background p-5">
       <Link to="/">
         <img alt="idOS Logo" height={32} src={idOSLogo} width={100} />
       </Link>
@@ -80,7 +82,12 @@ function RootLayout() {
           </main>
         </div>
       </div>
-      <TanStackRouterDevtools position="bottom-right" />
+      <TanStackDevtools
+        plugins={[
+          { name: "TanStack Router", render: <TanStackRouterDevtoolsPanel /> },
+          { name: "TanStack Query", render: <ReactQueryDevtoolsPanel /> },
+        ]}
+      />
     </div>
   );
 }

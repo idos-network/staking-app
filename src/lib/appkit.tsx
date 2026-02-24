@@ -6,12 +6,8 @@ import {
 } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { PropsWithChildren } from "react";
 import { WagmiProvider } from "wagmi";
-
-const queryClient = new QueryClient();
 
 const projectId =
   import.meta.env.VITE_APPKIT_PROJECT_ID || "b56e18d47c72ab683b10814fe9495694";
@@ -53,11 +49,6 @@ createAppKit({
 
 export function AppKitProvider({ children }: PropsWithChildren) {
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-        <ReactQueryDevtools initialIsOpen={false} position="bottom" />
-      </QueryClientProvider>
-    </WagmiProvider>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>{children}</WagmiProvider>
   );
 }
