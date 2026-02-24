@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StakingRouteImport } from './routes/staking'
+import { Route as ClaimingRouteImport } from './routes/claiming'
 import { Route as IndexRouteImport } from './routes/index'
 
 const StakingRoute = StakingRouteImport.update({
   id: '/staking',
   path: '/staking',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClaimingRoute = ClaimingRouteImport.update({
+  id: '/claiming',
+  path: '/claiming',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/claiming': typeof ClaimingRoute
   '/staking': typeof StakingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/claiming': typeof ClaimingRoute
   '/staking': typeof StakingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/claiming': typeof ClaimingRoute
   '/staking': typeof StakingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/staking'
+  fullPaths: '/' | '/claiming' | '/staking'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/staking'
-  id: '__root__' | '/' | '/staking'
+  to: '/' | '/claiming' | '/staking'
+  id: '__root__' | '/' | '/claiming' | '/staking'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ClaimingRoute: typeof ClaimingRoute
   StakingRoute: typeof StakingRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/staking'
       fullPath: '/staking'
       preLoaderRoute: typeof StakingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/claiming': {
+      id: '/claiming'
+      path: '/claiming'
+      fullPath: '/claiming'
+      preLoaderRoute: typeof ClaimingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ClaimingRoute: ClaimingRoute,
   StakingRoute: StakingRoute,
 }
 export const routeTree = rootRouteImport
