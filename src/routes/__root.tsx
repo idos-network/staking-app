@@ -5,7 +5,6 @@ import { useConnection } from "wagmi";
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -30,16 +29,7 @@ function Header() {
 }
 
 function RootLayout() {
-  const { address, isConnected, isConnecting, isReconnecting } =
-    useConnection();
-
-  if (isReconnecting || isConnecting) {
-    return (
-      <div className="grid h-svh place-content-center">
-        <Spinner className="size-6" />
-      </div>
-    );
-  }
+  const { address, isConnected } = useConnection();
 
   if (!(isConnected && address)) {
     return <ConnectWallet />;
