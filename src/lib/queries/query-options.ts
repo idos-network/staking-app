@@ -1,10 +1,13 @@
 import type { Config } from "wagmi";
 import { readContractQueryOptions } from "wagmi/query";
 import {
+  APP_CHAIN_ID,
   IDOS_NODE_STAKING_ABI,
   IDOS_NODE_STAKING_ABI_ADDRESS,
   IDOS_TOKEN_ABI,
   IDOS_TOKEN_ABI_ADDRESS,
+  VESTING_ABI,
+  VESTING_TOKEN_ADDRESS,
 } from "@/lib/abi";
 
 /**
@@ -16,6 +19,7 @@ export function balanceOfParams(address: `0x${string}` | undefined) {
     abi: IDOS_TOKEN_ABI,
     functionName: "balanceOf" as const,
     args: address ? ([address] as const) : undefined,
+    chainId: APP_CHAIN_ID,
   };
 }
 
@@ -38,6 +42,7 @@ export function getUserStakeParams(address: `0x${string}` | undefined) {
     abi: IDOS_NODE_STAKING_ABI,
     functionName: "getUserStake" as const,
     args: address ? ([address] as const) : undefined,
+    chainId: APP_CHAIN_ID,
   };
 }
 
@@ -60,6 +65,7 @@ export function withdrawableRewardParams(address: `0x${string}` | undefined) {
     abi: IDOS_NODE_STAKING_ABI,
     functionName: "withdrawableReward" as const,
     args: address ? ([address] as const) : undefined,
+    chainId: APP_CHAIN_ID,
   };
 }
 
@@ -82,6 +88,7 @@ export function unstakeDelayParams() {
     abi: IDOS_NODE_STAKING_ABI,
     functionName: "UNSTAKE_DELAY" as const,
     args: [] as const,
+    chainId: APP_CHAIN_ID,
   };
 }
 
@@ -104,6 +111,7 @@ export function unstakeByUserAtIndexParams(
     abi: IDOS_NODE_STAKING_ABI,
     functionName: "unstakesByUser" as const,
     args: address ? ([address, BigInt(index)] as const) : undefined,
+    chainId: APP_CHAIN_ID,
   };
 }
 
@@ -148,6 +156,7 @@ export function stakeByNodeByUserParams(
       userAddress && nodeAddress
         ? ([userAddress, nodeAddress] as const)
         : undefined,
+    chainId: APP_CHAIN_ID,
   };
 }
 
@@ -163,4 +172,82 @@ export function stakeByNodeByUserQueryOptions(
     config,
     stakeByNodeByUserParams(userAddress, nodeAddress)
   );
+}
+
+export function vestingOwnerParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "owner" as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingStartParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "start" as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingEndParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "end" as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingCliffParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "cliff" as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingDurationParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "duration" as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingReleasedParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "released" as const,
+    args: [VESTING_TOKEN_ADDRESS] as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingReleasableParams(contractAddress: `0x${string}`) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "releasable" as const,
+    args: [VESTING_TOKEN_ADDRESS] as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function vestingVestedAmountParams(
+  contractAddress: `0x${string}`,
+  timestamp: number
+) {
+  return {
+    address: contractAddress,
+    abi: VESTING_ABI,
+    functionName: "vestedAmount" as const,
+    args: [VESTING_TOKEN_ADDRESS, BigInt(timestamp)] as const,
+    chainId: APP_CHAIN_ID,
+  };
 }

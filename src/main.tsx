@@ -1,9 +1,41 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Spinner } from "@/components/ui/spinner";
 import { AnchoredToastProvider, ToastProvider } from "@/components/ui/toast";
-import App from "./app";
-import { AppKitProvider } from "./lib/appkit";
+import { AppKitProvider } from "@/lib/appkit";
+import { routeTree } from "./routeTree.gen";
+
 import "./index.css";
+
+function hashQueryKey(queryKey: unknown): string {
+  return JSON.stringify(queryKey, (_key, value) =>
+    typeof value === "bigint" ? value.toString() : value
+  );
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { queryKeyHashFn: hashQueryKey },
+  },
+});
+
+const router = createRouter({
+  routeTree,
+  defaultPendingComponent: () => (
+    <div className="grid h-full place-content-center">
+      <Spinner className="size-6" />
+    </div>
+  ),
+});
+
+declare module "@tanstack/react-router" {
+  // biome-ignore lint/style/useConsistentTypeDefinitions: module augmentation requires interface
+  interface Register {
+    router: typeof router;
+  }
+}
 
 const rootElement = document.getElementById("root");
 
@@ -12,9 +44,11 @@ if (rootElement && !rootElement.innerHTML) {
     <StrictMode>
       <ToastProvider>
         <AnchoredToastProvider>
-          <AppKitProvider>
-            <App />
-          </AppKitProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppKitProvider>
+              <RouterProvider router={router} />
+            </AppKitProvider>
+          </QueryClientProvider>
         </AnchoredToastProvider>
       </ToastProvider>
     </StrictMode>

@@ -1,6 +1,6 @@
 "use client";
 
-import { NumberField as NumberFieldPrimitive } from "@base-ui-components/react/number-field";
+import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
 import { createContext, useContext, useId } from "react";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";

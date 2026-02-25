@@ -1,5 +1,4 @@
 import { useQueries } from "@tanstack/react-query";
-import { useMemo } from "react";
 import { useBlock, useConfig } from "wagmi";
 import { unstakeByUserAtIndexQueryOptions } from "./query-options";
 
@@ -125,7 +124,7 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
 
   // Process the results
   const { withdrawableAmount, pendingAmount, unstakeRecords, isLoading } =
-    useMemo(() => {
+    (() => {
       if (!(address && currentBlock)) {
         return {
           withdrawableAmount: 0n,
@@ -143,7 +142,7 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
         currentTimestamp,
         delaySeconds
       );
-    }, [address, currentBlock, unstakeQueries]);
+    })();
 
   return {
     withdrawableAmount,
