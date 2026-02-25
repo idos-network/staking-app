@@ -1,12 +1,12 @@
-# idOS Staking app
+# idOS Staking & Vesting App
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ (or Bun)
-- A Web3 wallet (MetaMask, WalletConnect, etc.)
-- Access to Arbitrum network (contracts are deployed on Arbitrum)
+- A Web3 wallet (MetaMask, Rabby, WalletConnect, etc.)
+- Access to Arbitrum Sepolia testnet
 
 ### Installation
 
@@ -18,7 +18,6 @@
 
 2. Install dependencies:
    ```bash
-   # Using Bun
    bun install
    ```
 
@@ -27,14 +26,13 @@
    ```env
    VITE_APPKIT_PROJECT_ID=your_project_id_here
    ```
-   
+
    If not provided, the app will use a default project ID for local development.
 
 ### Running Locally
 
 1. Start the development server:
-   ```bash   
-   # Using Bun
+   ```bash
    bun run dev
    ```
 
@@ -43,19 +41,14 @@
 3. Connect your wallet:
    - Click "Connect an EVM wallet"
    - Select your preferred wallet
-   - **Important**: Make sure you're connected to the **Arbitrum** network (contracts are deployed on Arbitrum, not mainnet)
+   - The app auto-switches to the correct chain on connect
 
 ### Building for Production
 
-1. Build the app:
-   ```bash
-   bun run build
-   ```
-
-2. Preview the production build:
-   ```bash
-   bun run preview
-   ```
+```bash
+bun run build
+bun run preview   # Preview the production build
+```
 
 ### Available Scripts
 
@@ -65,81 +58,130 @@
 - `bun run lint` - Check for linting errors
 - `bun run lint:fix` - Auto-fix linting errors
 
-## Hardcoded Values
+## Architecture
 
-This section documents all hardcoded values currently used in the application. These should be moved to environment variables or configuration files for production deployments.
+### Routing
 
-### Contract Addresses
+The app uses [TanStack Router](https://tanstack.com/router) with file-based routing:
 
-**Token Contract:**
-- Address: `0x4C85b9D56dC64276dADC1353ca94331097D351CA`
-- Location: `src/lib/abi.ts` → `IDOS_TOKEN_ABI_ADDRESS`
-- Network: Arbitrum
+- `src/routes/__root.tsx` — Root layout with wallet connection gating, header, navigation, and chain auto-switch
+- `src/routes/index.tsx` — Redirects to staking
+- `src/routes/staking.tsx` — Staking page
+- `src/routes/claiming.tsx` — Vesting/claiming page
 
-**Staking Contract:**
-- Address: `0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f`
-- Location: `src/lib/abi.ts` → `IDOS_NODE_STAKING_ABI_ADDRESS`
-- Network: Arbitrum
+### Chain Configuration
 
-### Node Provider Addresses
+The entire app runs on a single chain, configured via `APP_CHAIN_ID` in `src/lib/abi.ts`. The root layout automatically switches the wallet to this chain on connect. All contract reads and writes target this chain explicitly.
 
-All node providers are defined in `src/components/staking/node-provider-selector.tsx`:
+### Staking System
 
-1. **idOS Node**
-   - Address: `0x4Bfcc302AA00c8f9bD04eBfBbd8C28762285292a`
-   - APY: `10%` (hardcoded)
-   - Expected Rewards: `"206.25 IDOS"` (hardcoded)
+The staking page connects to an idOS Node Staking contract. Users can:
 
-2. **Near Node**
-   - Address: `0x1dafeB42aD85ECc7EBF80410d3a3F5ADA06d153A`
-   - APY: `10%` (hardcoded)
-   - Expected Rewards: `"206.25 IDOS"` (hardcoded)
+1. **Stake** — Approve + stake IDOS tokens to a selected node provider
+2. **Unstake** — Initiate unstaking (14-day delay)
+3. **Withdraw Unstake** — Withdraw after the delay period
+4. **Claim Rewards** — Withdraw accumulated staking rewards
 
-3. **Ripple Node**
-   - Address: `0x8Da270863C2fD726c28eCeB4C2763d0746e63920`
-   - APY: `10%` (hardcoded)
-   - Expected Rewards: `"206.25 IDOS"` (hardcoded)
+### Vesting System
 
-4. **Tezos Node**
-   - Address: `0x4DE22ae3e2AD8CE21d878c104C2bc9bE4f8529BB`
-   - APY: `10%` (hardcoded)
-   - Expected Rewards: `"206.25 IDOS"` (hardcoded)
+The claiming page integrates with per-beneficiary VestingWallet contracts:
 
-### Token Price
+1. **Contract Lookup** (`src/lib/queries/use-vesting.ts`) — Batch-calls `owner()` on all known vesting contracts to find the one matching the connected wallet.
+2. **Data Reads** — Fetches `start()`, `cliff()`, `duration()`, `released(token)`, `releasable(token)`, and `vestedAmount(token, timestamp)` in a single multicall.
+3. **Claiming** — Calls `release(token)` on the vesting contract to claim available tokens.
+4. **Claim History** — Queries `ERC20Released` events from the contract (last 50k blocks).
 
-- **Current Value**: `$3.06 USD` (hardcoded)
-- **Location**: `src/lib/queries/use-token-price.ts`
-- **Status**: CoinGecko API integration is commented out. The function currently returns a hardcoded price.
-- **TODO**: Replace with actual CoinGecko API call or similar (see commented code in the file)
+## Current Testnet Configuration
 
-### Staking Parameters
+All contracts are on **Arbitrum Sepolia** for development and testing.
 
-**Unstake Delay:**
-- Duration: `14 days` (1,209,600 seconds, matches the contract)
-- Location: `src/lib/queries/use-withdrawable-unstaked.ts`
-- Hardcoded constant: `UNSTAKE_DELAY_SECONDS`
+| What | Address | Location |
+|---|---|---|
+| App Chain | Arbitrum Sepolia (`421614`) | `src/lib/abi.ts` → `APP_CHAIN_ID` |
+| IDOS Token | `0xf73c63ee6574d7872391554178f47b0c4269638e` | `src/lib/abi.ts` → `IDOS_TOKEN_ABI_ADDRESS` |
+| Staking Contract | `0x800c5a1bc60dff5f6f5ec10502f8f88c6fbd5da9` | `src/lib/abi.ts` → `IDOS_NODE_STAKING_ABI_ADDRESS` |
+| Vesting Token | `0xb4Ffd469393C4C6A3255554D785Ab8E8A850c170` | `src/lib/abi.ts` → `VESTING_TOKEN_ADDRESS` |
+| Vesting Allocations | 42 contracts (10k–11.6M IDOS each) | `src/lib/queries/use-vesting.ts` → `VESTING_ALLOCATIONS` |
 
-**Token Decimals:**
-- Value: `18` (used throughout the app for calculations, matches the contract)
-- Used in: Multiple components for converting between wei and token units
+**Other hardcoded values:**
 
-### UI Display Values
+- **Node Providers** (`src/components/staking/node-provider-selector.tsx`): idOS Node, Near Node, Ripple Node, Tezos Node
+- **APY / Expected Rewards**: hardcoded at `10%` / `"206.25 IDOS"`
+- **Token Price**: `$3.06 USD` hardcoded in `src/lib/queries/use-token-price.ts` (CoinGecko API commented out)
+- **Etherscan Links**: currently point to `etherscan.io` (mainnet) in vesting components
+- **Vesting Type Label**: `"Linear (post-cliff)"`
 
-**USD Value Calculations:**
-- All USD values displayed throughout the app (balance, staked amount, rewards, etc.) are calculated using the hardcoded token price of `$3.06 USD`
-- Location: `src/lib/queries/use-token-price.ts`
-- Used in: All balance display components (`USDBalance` component in `src/components/staking/staking.tsx`)
-- Note: Since the token price is hardcoded, all USD conversions will reflect this static value until the CoinGecko API or similar integration is enabled
+## Deploying to Production
 
-**Expected Monthly Rewards:**
-- Value: `0.00 IDOS` / `$0.00` (hardcoded, not calculated)
-- Location: `src/components/staking/staking.tsx` (lines 154-162)
-- Status: Currently displays static "0.00" values. Should be calculated dynamically based on:
-  - User's total staked amount
-  - Current epoch reward from the staking contract (`epochReward` function)
-  - Epoch length from contract (`EPOCH_LENGTH` function)
-  - Monthly projection formula: `(stakedAmount * epochReward / totalStaked) * (30 days / epochLength)`
+When deploying against production (mainnet) contracts, all changes are isolated to a few files. Everything revolves around a single chain.
 
-**Default Placeholder Values:**
-- Stake/Unstake form placeholder: `"100.00 IDOS"`
-- Location: `src/components/staking/staking-form.tsx`
+### 1. Chain and Contract Addresses (`src/lib/abi.ts`)
+
+This is the main file to update. All chain and address configuration lives here.
+
+```typescript
+import { arbitrum } from "wagmi/chains";
+
+// Single chain for the entire app
+export const APP_CHAIN_ID = arbitrum.id;
+
+// Production IDOS token
+export const IDOS_TOKEN_ABI_ADDRESS =
+  "0x4C85b9D56dC64276dADC1353ca94331097D351CA";
+
+// Production staking contract
+export const IDOS_NODE_STAKING_ABI_ADDRESS =
+  "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f";
+
+// Production vesting token (same as IDOS token on mainnet)
+export const VESTING_TOKEN_ADDRESS =
+  "0x4C85b9D56dC64276dADC1353ca94331097D351CA" as `0x${string}`;
+```
+
+### 2. Vesting Allocations (`src/lib/queries/use-vesting.ts`)
+
+Replace the `VESTING_ALLOCATIONS` map with mainnet vesting contract addresses and their allocations. The addresses will be completely different on mainnet.
+
+### 3. Etherscan Links (`src/components/claiming/`)
+
+Update block explorer URLs in `vesting-details.tsx` and `claim-history.tsx`:
+- Arbitrum: `arbiscan.io`
+- Ethereum mainnet: `etherscan.io`
+
+### 4. Supported Networks (`src/lib/appkit.tsx`)
+
+Update the `networks` array to only include production networks:
+
+```typescript
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [
+  mainnet,
+  arbitrum,
+];
+```
+
+### 5. Token Price (`src/lib/queries/use-token-price.ts`)
+
+Uncomment the CoinGecko API integration and remove the hardcoded `$3.06` fallback.
+
+### 6. Node Providers (`src/components/staking/node-provider-selector.tsx`)
+
+Verify the node provider addresses are correct for mainnet.
+
+### 7. Production URL (`src/lib/appkit.tsx`)
+
+Update the deployment URL if the domain changes.
+
+### Production Checklist
+
+- [ ] `APP_CHAIN_ID` → production chain (e.g. `arbitrum.id`)
+- [ ] `IDOS_TOKEN_ABI_ADDRESS` → `0x4C85b9D56dC64276dADC1353ca94331097D351CA`
+- [ ] `IDOS_NODE_STAKING_ABI_ADDRESS` → `0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f`
+- [ ] `VESTING_TOKEN_ADDRESS` → mainnet IDOS token address
+- [ ] `VESTING_ALLOCATIONS` → mainnet contract addresses + allocations
+- [ ] Block explorer links → correct for target network
+- [ ] `appkit.tsx` networks → remove testnets
+- [ ] Token price → enable CoinGecko API
+- [ ] Node provider addresses → verify for mainnet
+- [ ] ABIs → verify they match the deployed mainnet contracts
+- [ ] `VITE_APPKIT_PROJECT_ID` → production WalletConnect project ID
+- [ ] Test all flows end-to-end before going live

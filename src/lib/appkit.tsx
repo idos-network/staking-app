@@ -3,6 +3,7 @@ import {
   arbitrum,
   arbitrumSepolia,
   mainnet,
+  sepolia,
 } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
@@ -26,6 +27,7 @@ const metadata = {
 const networks: [AppKitNetwork, ...AppKitNetwork[]] = [
   mainnet,
   arbitrum,
+  sepolia,
   arbitrumSepolia,
 ];
 

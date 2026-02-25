@@ -9,7 +9,17 @@ import { routeTree } from "./routeTree.gen";
 
 import "./index.css";
 
-const queryClient = new QueryClient();
+function hashQueryKey(queryKey: unknown): string {
+  return JSON.stringify(queryKey, (_key, value) =>
+    typeof value === "bigint" ? value.toString() : value
+  );
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { queryKeyHashFn: hashQueryKey },
+  },
+});
 
 const router = createRouter({
   routeTree,

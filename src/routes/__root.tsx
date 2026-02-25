@@ -3,9 +3,12 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { useEffect } from "react";
+import { useChainId, useSwitchChain } from "wagmi";
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { Button } from "@/components/ui/button";
+import { APP_CHAIN_ID } from "@/lib/abi";
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -51,8 +54,20 @@ function Navigation() {
   );
 }
 
+function useChainAutoSwitch() {
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+
+  useEffect(() => {
+    if (chainId !== APP_CHAIN_ID) {
+      switchChain({ chainId: APP_CHAIN_ID });
+    }
+  }, [chainId, switchChain]);
+}
+
 function RootLayout() {
   const { isConnected, status } = useAppKitAccount();
+  useChainAutoSwitch();
 
   if (status === "reconnecting" || status === "connecting") {
     return null;

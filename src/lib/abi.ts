@@ -1,6 +1,13 @@
-// idOS token contract address and ABI
+import { sepolia } from "wagmi/chains";
+
+// Mainnet: use `arbitrum` from "wagmi/chains"
+const appChain = sepolia;
+export const APP_CHAIN_ID = appChain.id;
+export const APP_BLOCK_EXPLORER_URL = appChain.blockExplorers.default.url;
+
+// Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (Ethereum mainnet IDOS token)
 export const IDOS_TOKEN_ABI_ADDRESS =
-  "0x4C85b9D56dC64276dADC1353ca94331097D351CA";
+  "0xf73c63ee6574d7872391554178f47b0c4269638e";
 
 export const IDOS_TOKEN_ABI = [
   {
@@ -268,9 +275,9 @@ export const IDOS_TOKEN_ABI = [
   { stateMutability: "payable", type: "receive" },
 ] as const;
 
-// idOS node staking contract address and ABI
+// Mainnet: "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f" (Arbitrum mainnet staking)
 export const IDOS_NODE_STAKING_ABI_ADDRESS =
-  "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f";
+  "0x800c5a1bc60dff5f6f5ec10502f8f88c6fbd5da9";
 
 export const IDOS_NODE_STAKING_ABI = [
   {
@@ -804,6 +811,223 @@ export const IDOS_NODE_STAKING_ABI = [
       { internalType: "uint256", name: "userStakeAcc", type: "uint256" },
       { internalType: "uint256", name: "totalStakeAcc", type: "uint256" },
     ],
+    stateMutability: "view",
+    type: "function",
+  },
+  { stateMutability: "payable", type: "receive" },
+] as const;
+
+// Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (same as IDOS_TOKEN_ABI_ADDRESS)
+export const VESTING_TOKEN_ADDRESS =
+  "0xb4Ffd469393C4C6A3255554D785Ab8E8A850c170" as `0x${string}`;
+
+export const VESTING_ABI = [
+  {
+    inputs: [
+      { internalType: "address", name: "beneficiary", type: "address" },
+      { internalType: "uint64", name: "startTimestamp", type: "uint64" },
+      { internalType: "uint64", name: "durationSeconds", type: "uint64" },
+      { internalType: "uint64", name: "cliffSeconds", type: "uint64" },
+    ],
+    stateMutability: "payable",
+    type: "constructor",
+  },
+  { inputs: [], name: "FailedCall", type: "error" },
+  {
+    inputs: [
+      { internalType: "uint256", name: "balance", type: "uint256" },
+      { internalType: "uint256", name: "needed", type: "uint256" },
+    ],
+    name: "InsufficientBalance",
+    type: "error",
+  },
+  {
+    inputs: [
+      { internalType: "uint64", name: "cliffSeconds", type: "uint64" },
+      { internalType: "uint64", name: "durationSeconds", type: "uint64" },
+    ],
+    name: "InvalidCliffDuration",
+    type: "error",
+  },
+  {
+    inputs: [{ internalType: "address", name: "owner", type: "address" }],
+    name: "OwnableInvalidOwner",
+    type: "error",
+  },
+  {
+    inputs: [{ internalType: "address", name: "account", type: "address" }],
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
+  },
+  {
+    inputs: [
+      { internalType: "uint8", name: "bits", type: "uint8" },
+      { internalType: "uint256", name: "value", type: "uint256" },
+    ],
+    name: "SafeCastOverflowedUintDowncast",
+    type: "error",
+  },
+  {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "SafeERC20FailedOperation",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "ERC20Released",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "EtherReleased",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "cliff",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "duration",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "end",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "releasable",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "releasable",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "release",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "release",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "released",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "released",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "start",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "newOwner", type: "address" }],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint64", name: "timestamp", type: "uint64" }],
+    name: "vestedAmount",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "token", type: "address" },
+      { internalType: "uint64", name: "timestamp", type: "uint64" },
+    ],
+    name: "vestedAmount",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
