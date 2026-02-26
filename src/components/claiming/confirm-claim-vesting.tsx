@@ -22,17 +22,19 @@ type ConfirmClaimVestingProps = {
   onConfirm: () => void;
   isPending: boolean;
   address: string | undefined;
-  claimableNow: bigint;
+  totalClaimable: bigint;
+  contractCount: number;
 };
 
 export function ConfirmClaimVesting({
   onConfirm,
   isPending,
   address,
-  claimableNow,
+  totalClaimable,
+  contractCount,
 }: ConfirmClaimVestingProps) {
   const [agreed, setAgreed] = useState(false);
-  const claimableDisplay = fromWei(claimableNow);
+  const claimableDisplay = fromWei(totalClaimable);
 
   return (
     <Dialog>
@@ -40,7 +42,7 @@ export function ConfirmClaimVesting({
         render={
           <Button
             className="w-full sm:w-2xs"
-            disabled={claimableNow === 0n || isPending}
+            disabled={totalClaimable === 0n || isPending}
             size="lg"
           >
             {isPending ? <Spinner className="size-5" /> : "Claim now"}
@@ -66,11 +68,16 @@ export function ConfirmClaimVesting({
                 </span>
                 <span>{formatTokenAmount(claimableDisplay)} IDOS</span>
               </li>
+              <li className="flex h-8 items-center justify-between gap-2">
+                <span className="text-muted-foreground text-sm">Contracts</span>
+                <span>{contractCount}</span>
+              </li>
             </ul>
           </div>
           <p className="text-muted-foreground text-sm">
-            You will be asked to sign a transaction to claim your vested tokens.
-            Gas fees apply.
+            You will be asked to sign {contractCount}{" "}
+            {contractCount === 1 ? "transaction" : "transactions"} to claim your
+            vested tokens. Gas fees apply to each transaction.
           </p>
           <Label className="cursor-pointer items-center">
             <Checkbox

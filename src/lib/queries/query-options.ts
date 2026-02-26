@@ -174,15 +174,6 @@ export function stakeByNodeByUserQueryOptions(
   );
 }
 
-export function vestingOwnerParams(contractAddress: `0x${string}`) {
-  return {
-    address: contractAddress,
-    abi: VESTING_ABI,
-    functionName: "owner" as const,
-    chainId: APP_CHAIN_ID,
-  };
-}
-
 export function vestingStartParams(contractAddress: `0x${string}`) {
   return {
     address: contractAddress,

@@ -3,12 +3,24 @@ import { formatTokenAmount, fromWei } from "@/lib/format";
 import type { VestingData } from "@/lib/queries/use-vesting";
 import { VestingProgressBar } from "./vesting-progress-bar";
 
-export function VestingOverview({ data }: { data: VestingData }) {
-  const totalAllocation = data.totalAllocation;
-  const totalVested = fromWei(data.totalVested);
-  const alreadyClaimed = fromWei(data.alreadyClaimed);
-  const claimableNow = fromWei(data.claimableNow);
-  const locked = fromWei(data.locked);
+export function VestingOverview({ contracts }: { contracts: VestingData[] }) {
+  const totalAllocation = contracts.reduce(
+    (sum, c) => sum + c.totalAllocation,
+    0
+  );
+  const totalVested = contracts.reduce(
+    (sum, c) => sum + fromWei(c.totalVested),
+    0
+  );
+  const alreadyClaimed = contracts.reduce(
+    (sum, c) => sum + fromWei(c.alreadyClaimed),
+    0
+  );
+  const claimableNow = contracts.reduce(
+    (sum, c) => sum + fromWei(c.claimableNow),
+    0
+  );
+  const locked = contracts.reduce((sum, c) => sum + fromWei(c.locked), 0);
 
   const claimedPct =
     totalAllocation > 0 ? (alreadyClaimed / totalAllocation) * 100 : 0;
