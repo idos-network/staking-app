@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { useBlockNumber, useContractEvents, useReadContracts } from "wagmi";
-import { APP_CHAIN_ID, VESTING_ABI } from "@/lib/abi";
-import { VESTING_BY_OWNER, type VestingEntry } from "@/lib/vesting-allocations";
+import {
+  APP_CHAIN_ID,
+  IDOS_TOKEN_ABI,
+  VESTING_ABI,
+  VESTING_TOKEN_ADDRESS,
+} from "@/lib/abi";
+import { VESTING_BY_OWNER } from "@/lib/vesting-allocations";
 import {
   vestingCliffParams,
   vestingDurationParams,
@@ -11,21 +16,31 @@ import {
   vestingVestedAmountParams,
 } from "./query-options";
 
-function findOwnerContracts(beneficiary: string): VestingEntry[] | undefined {
+function findOwnerContracts(beneficiary: string): `0x${string}`[] | undefined {
   const normalized = beneficiary.toLowerCase();
-  for (const [owner, entries] of Object.entries(VESTING_BY_OWNER)) {
+  for (const [owner, contracts] of Object.entries(VESTING_BY_OWNER)) {
     if (owner.toLowerCase() === normalized) {
-      return entries;
+      return contracts;
     }
   }
   return;
 }
 
-const CALLS_PER_CONTRACT = 6;
+function vestingTokenBalanceParams(vestingContract: `0x${string}`) {
+  return {
+    address: VESTING_TOKEN_ADDRESS,
+    abi: IDOS_TOKEN_ABI,
+    functionName: "balanceOf" as const,
+    args: [vestingContract] as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+const CALLS_PER_CONTRACT = 7;
 
 export type VestingData = {
   contractAddress: `0x${string}`;
-  totalAllocation: number;
+  totalAllocation: bigint;
   alreadyClaimed: bigint;
   claimableNow: bigint;
   totalVested: bigint;
@@ -39,32 +54,35 @@ export type VestingData = {
 /**
  * Reads on-chain vesting data for multiple contracts in a single multicall.
  */
-export function useMultiVestingData(entries: VestingEntry[] | undefined) {
+export function useMultiVestingData(
+  contractAddresses: `0x${string}`[] | undefined
+) {
   const [now] = useState(() => Math.floor(Date.now() / 1000));
 
-  const contracts = entries
-    ? entries.flatMap(({ contract }) => [
-        vestingStartParams(contract),
-        vestingCliffParams(contract),
-        vestingDurationParams(contract),
-        vestingReleasedParams(contract),
-        vestingReleasableParams(contract),
-        vestingVestedAmountParams(contract, now),
+  const contracts = contractAddresses
+    ? contractAddresses.flatMap((addr) => [
+        vestingStartParams(addr),
+        vestingCliffParams(addr),
+        vestingDurationParams(addr),
+        vestingReleasedParams(addr),
+        vestingReleasableParams(addr),
+        vestingVestedAmountParams(addr, now),
+        vestingTokenBalanceParams(addr),
       ])
     : [];
 
   const { data, isLoading } = useReadContracts({
     contracts,
-    query: { enabled: !!entries && entries.length > 0 },
+    query: { enabled: !!contractAddresses && contractAddresses.length > 0 },
   });
 
-  if (!(data && entries)) {
+  if (!(data && contractAddresses)) {
     return { vestingContracts: undefined, isLoading };
   }
 
   const vestingContracts: VestingData[] = [];
 
-  for (let i = 0; i < entries.length; i++) {
+  for (let i = 0; i < contractAddresses.length; i++) {
     const offset = i * CALLS_PER_CONTRACT;
     const slice = data.slice(offset, offset + CALLS_PER_CONTRACT);
 
@@ -81,16 +99,16 @@ export function useMultiVestingData(entries: VestingEntry[] | undefined) {
     const alreadyClaimed = slice[3].result as bigint;
     const claimableNow = slice[4].result as bigint;
     const totalVested = slice[5].result as bigint;
+    const tokenBalance = slice[6].result as bigint;
     const end = start + duration;
 
-    const { contract, allocation } = entries[i];
-    const totalAllocationWei = BigInt(allocation) * 10n ** 18n;
+    const totalAllocation = tokenBalance + alreadyClaimed;
     const locked =
-      totalAllocationWei > totalVested ? totalAllocationWei - totalVested : 0n;
+      totalAllocation > totalVested ? totalAllocation - totalVested : 0n;
 
     vestingContracts.push({
-      contractAddress: contract,
-      totalAllocation: allocation,
+      contractAddress: contractAddresses[i],
+      totalAllocation,
       alreadyClaimed,
       claimableNow,
       totalVested,
@@ -117,18 +135,21 @@ export type VestingResult = {
  * and reads all on-chain data in a single multicall.
  */
 export function useVesting(beneficiary: string | undefined): VestingResult {
-  const entries = beneficiary ? findOwnerContracts(beneficiary) : undefined;
-  const { vestingContracts, isLoading } = useMultiVestingData(entries);
-
-  const contracts = vestingContracts ?? [];
-  const contractAddresses = entries?.map((e) => e.contract) ?? [];
+  const contractAddresses = beneficiary
+    ? findOwnerContracts(beneficiary)
+    : undefined;
+  const { vestingContracts, isLoading } =
+    useMultiVestingData(contractAddresses);
 
   return {
-    contracts,
-    contractAddresses,
-    hasVesting: !!entries && entries.length > 0,
+    contracts: vestingContracts ?? [],
+    contractAddresses: contractAddresses ?? [],
+    hasVesting: !!contractAddresses && contractAddresses.length > 0,
     isLoading:
-      isLoading || (!!entries && entries.length > 0 && !vestingContracts),
+      isLoading ||
+      (!!contractAddresses &&
+        contractAddresses.length > 0 &&
+        !vestingContracts),
   };
 }
 

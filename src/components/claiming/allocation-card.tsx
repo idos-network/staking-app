@@ -16,7 +16,7 @@ function formatTimestamp(unixSeconds: bigint): string {
 }
 
 export function AllocationCard({ data }: { data: VestingData }) {
-  const totalAllocation = data.totalAllocation;
+  const totalAllocation = fromWei(data.totalAllocation);
   const claimed = fromWei(data.alreadyClaimed);
   const claimable = fromWei(data.claimableNow);
   const locked = fromWei(data.locked);

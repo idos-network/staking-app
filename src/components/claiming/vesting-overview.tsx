@@ -5,7 +5,7 @@ import { VestingProgressBar } from "./vesting-progress-bar";
 
 export function VestingOverview({ contracts }: { contracts: VestingData[] }) {
   const totalAllocation = contracts.reduce(
-    (sum, c) => sum + c.totalAllocation,
+    (sum, c) => sum + fromWei(c.totalAllocation),
     0
   );
   const totalVested = contracts.reduce(

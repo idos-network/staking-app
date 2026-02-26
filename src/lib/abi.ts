@@ -7,7 +7,7 @@ export const APP_BLOCK_EXPLORER_URL = appChain.blockExplorers.default.url;
 
 // Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (Ethereum mainnet IDOS token)
 export const IDOS_TOKEN_ABI_ADDRESS =
-  "0xdb3b7BB52dD6cfE1157022bde6dfc28D8101e180";
+  "0xbcea6720a35a4e4bdd0b2282d8b3cd87c11db57b";
 
 export const IDOS_TOKEN_ABI = [
   {
@@ -819,7 +819,7 @@ export const IDOS_NODE_STAKING_ABI = [
 
 // Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (same as IDOS_TOKEN_ABI_ADDRESS)
 export const VESTING_TOKEN_ADDRESS =
-  "0xdb3b7BB52dD6cfE1157022bde6dfc28D8101e180" as `0x${string}`;
+  "0xbcea6720a35a4e4bdd0b2282d8b3cd87c11db57b" as `0x${string}`;
 
 export const VESTING_ABI = [
   {
