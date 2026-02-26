@@ -9,11 +9,11 @@ function shortenHash(hash: string): string {
 }
 
 export function ClaimHistory({
-  contractAddress,
+  contractAddresses,
 }: {
-  contractAddress: `0x${string}` | undefined;
+  contractAddresses: `0x${string}`[];
 }) {
-  const { claimHistory, isLoading } = useVestingClaimHistory(contractAddress);
+  const { claimHistory, isLoading } = useVestingClaimHistory(contractAddresses);
 
   if (isLoading) {
     return (

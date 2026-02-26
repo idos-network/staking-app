@@ -37,7 +37,7 @@ function Header() {
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <Link
-      className="border-transparent border-b-2 px-4 pb-2 text-muted-foreground transition-colors hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
+      className="border-transparent border-b-2 px-4 py-2 text-muted-foreground transition-colors hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
       to={to}
     >
       {children}
