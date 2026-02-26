@@ -1,13 +1,13 @@
-import { sepolia } from "wagmi/chains";
+import { arbitrumSepolia } from "wagmi/chains";
 
 // Mainnet: use `arbitrum` from "wagmi/chains"
-const appChain = sepolia;
+const appChain = arbitrumSepolia;
 export const APP_CHAIN_ID = appChain.id;
 export const APP_BLOCK_EXPLORER_URL = appChain.blockExplorers.default.url;
 
 // Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (Ethereum mainnet IDOS token)
 export const IDOS_TOKEN_ABI_ADDRESS =
-  "0xf73c63ee6574d7872391554178f47b0c4269638e";
+  "0xdb3b7BB52dD6cfE1157022bde6dfc28D8101e180";
 
 export const IDOS_TOKEN_ABI = [
   {
@@ -277,7 +277,7 @@ export const IDOS_TOKEN_ABI = [
 
 // Mainnet: "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f" (Arbitrum mainnet staking)
 export const IDOS_NODE_STAKING_ABI_ADDRESS =
-  "0x800c5a1bc60dff5f6f5ec10502f8f88c6fbd5da9";
+  "0xA07742fd930A8dF8dF35eE483aEe933545f84378";
 
 export const IDOS_NODE_STAKING_ABI = [
   {
@@ -819,7 +819,7 @@ export const IDOS_NODE_STAKING_ABI = [
 
 // Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (same as IDOS_TOKEN_ABI_ADDRESS)
 export const VESTING_TOKEN_ADDRESS =
-  "0xb4Ffd469393C4C6A3255554D785Ab8E8A850c170" as `0x${string}`;
+  "0xdb3b7BB52dD6cfE1157022bde6dfc28D8101e180" as `0x${string}`;
 
 export const VESTING_ABI = [
   {
