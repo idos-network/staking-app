@@ -6,7 +6,10 @@ import {
   VESTING_ABI,
   VESTING_TOKEN_ADDRESS,
 } from "@/lib/abi";
-import { VESTING_BY_OWNER } from "@/lib/vesting-allocations";
+import {
+  useVestingAllocations,
+  type VestingByOwner,
+} from "@/lib/vesting-allocations";
 import {
   vestingCliffParams,
   vestingDurationParams,
@@ -16,9 +19,12 @@ import {
   vestingVestedAmountParams,
 } from "./query-options";
 
-function findOwnerContracts(beneficiary: string): `0x${string}`[] | undefined {
+function findOwnerContracts(
+  allocations: VestingByOwner,
+  beneficiary: string
+): `0x${string}`[] | undefined {
   const normalized = beneficiary.toLowerCase();
-  for (const [owner, contracts] of Object.entries(VESTING_BY_OWNER)) {
+  for (const [owner, contracts] of Object.entries(allocations)) {
     if (owner.toLowerCase() === normalized) {
       return contracts;
     }
@@ -135,21 +141,27 @@ export type VestingResult = {
  * and reads all on-chain data in a single multicall.
  */
 export function useVesting(beneficiary: string | undefined): VestingResult {
-  const contractAddresses = beneficiary
-    ? findOwnerContracts(beneficiary)
-    : undefined;
-  const { vestingContracts, isLoading } =
+  const { data: allocations, isLoading: isLoadingAllocations } =
+    useVestingAllocations();
+
+  const contractAddresses =
+    beneficiary && allocations
+      ? findOwnerContracts(allocations, beneficiary)
+      : undefined;
+
+  const { vestingContracts, isLoading: isLoadingContracts } =
     useMultiVestingData(contractAddresses);
+
+  const isLoading =
+    isLoadingAllocations ||
+    isLoadingContracts ||
+    (!!contractAddresses && contractAddresses.length > 0 && !vestingContracts);
 
   return {
     contracts: vestingContracts ?? [],
     contractAddresses: contractAddresses ?? [],
     hasVesting: !!contractAddresses && contractAddresses.length > 0,
-    isLoading:
-      isLoading ||
-      (!!contractAddresses &&
-        contractAddresses.length > 0 &&
-        !vestingContracts),
+    isLoading,
   };
 }
 
