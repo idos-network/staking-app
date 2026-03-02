@@ -1,13 +1,12 @@
-import { arbitrumSepolia } from "wagmi/chains";
+import { arbitrum } from "wagmi/chains";
 
-// Mainnet: use `arbitrum` from "wagmi/chains"
-const appChain = arbitrumSepolia;
+const appChain = arbitrum;
 export const APP_CHAIN_ID = appChain.id;
 export const APP_BLOCK_EXPLORER_URL = appChain.blockExplorers.default.url;
 
-// Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (Ethereum mainnet IDOS token)
+// https://github.com/idos-network/contracts/blob/master/deployments.toml
 export const IDOS_TOKEN_ABI_ADDRESS =
-  "0xbcea6720a35a4e4bdd0b2282d8b3cd87c11db57b";
+  "0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c";
 
 export const IDOS_TOKEN_ABI = [
   {
@@ -275,9 +274,8 @@ export const IDOS_TOKEN_ABI = [
   { stateMutability: "payable", type: "receive" },
 ] as const;
 
-// Mainnet: "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f" (Arbitrum mainnet staking)
 export const IDOS_NODE_STAKING_ABI_ADDRESS =
-  "0xA07742fd930A8dF8dF35eE483aEe933545f84378";
+  "0x6132F2EE66deC6bdf416BDA9588D663EaCeec337";
 
 export const IDOS_NODE_STAKING_ABI = [
   {
@@ -817,9 +815,136 @@ export const IDOS_NODE_STAKING_ABI = [
   { stateMutability: "payable", type: "receive" },
 ] as const;
 
-// Mainnet: "0x4C85b9D56dC64276dADC1353ca94331097D351CA" (same as IDOS_TOKEN_ABI_ADDRESS)
 export const VESTING_TOKEN_ADDRESS =
-  "0xbcea6720a35a4e4bdd0b2282d8b3cd87c11db57b" as `0x${string}`;
+  "0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c" as `0x${string}`;
+
+export const TDE_DISBURSEMENT_ADDRESS =
+  "0xdf24F4Ca9984807577d13f5ef24eD26e5AFc7083" as `0x${string}`;
+
+export const TDE_DISBURSEMENT_ABI = [
+  {
+    inputs: [
+      { internalType: "contract IERC20", name: "idosToken", type: "address" },
+      { internalType: "address", name: "disburser", type: "address" },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  { inputs: [], name: "DirectIsNotVested", type: "error" },
+  { inputs: [], name: "OnlyCallableByDisburser", type: "error" },
+  {
+    inputs: [
+      { internalType: "enum Modality", name: "modality", type: "uint8" },
+    ],
+    name: "UnknownModality",
+    type: "error",
+  },
+  { inputs: [], name: "ZeroAddressBeneficiary", type: "error" },
+  { inputs: [], name: "ZeroAddressDisburser", type: "error" },
+  { inputs: [], name: "ZeroAddressToken", type: "error" },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "beneficiary",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "transferTarget",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "enum Modality",
+        name: "modality",
+        type: "uint8",
+      },
+    ],
+    name: "Disbursed",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "DISBURSER",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "IDOS_TOKEN",
+    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "enum Modality", name: "modality", type: "uint8" },
+    ],
+    name: "VESTING_PARAMS_FOR_MODALITY",
+    outputs: [
+      { internalType: "uint64", name: "startTimestamp", type: "uint64" },
+      { internalType: "uint64", name: "durationSeconds", type: "uint64" },
+      { internalType: "uint64", name: "cliffSeconds", type: "uint64" },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "beneficiary", type: "address" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "enum Modality", name: "modality", type: "uint8" },
+    ],
+    name: "disburse",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "beneficiary", type: "address" },
+      { internalType: "enum Modality", name: "modality", type: "uint8" },
+    ],
+    name: "ensureVestingContractExists",
+    outputs: [
+      {
+        internalType: "contract IDOSVesting",
+        name: "vestingContract",
+        type: "address",
+      },
+      { internalType: "bool", name: "created", type: "bool" },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "beneficiary", type: "address" },
+      { internalType: "enum Modality", name: "modality", type: "uint8" },
+    ],
+    name: "vestingContracts",
+    outputs: [
+      {
+        internalType: "contract IDOSVesting",
+        name: "vestingWallet",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const;
 
 export const VESTING_ABI = [
   {
