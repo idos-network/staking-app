@@ -25,11 +25,9 @@
    Create a `.env.local` file in the root directory:
    ```env
    VITE_APPKIT_PROJECT_ID=your_project_id_here
-   VITE_VESTING_ALLOCATIONS_URL=https://your-blob-store.public.blob.vercel-storage.com/vesting-allocations.json
    ```
 
-   - `VITE_APPKIT_PROJECT_ID` — WalletConnect project ID. If not provided, the app uses a default for local development.
-   - `VITE_VESTING_ALLOCATIONS_URL` — Public URL for the vesting allocations JSON (hosted on Vercel Blob). If not set, the app falls back to the static map in `src/lib/vesting-allocations.ts`.
+   `VITE_APPKIT_PROJECT_ID` — WalletConnect project ID. If not provided, the app uses a default for local development.
 
 ### Running Locally
 

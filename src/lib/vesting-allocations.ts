@@ -1,43 +1,39 @@
-import { useQuery } from "@tanstack/react-query";
+import { useReadContracts } from "wagmi";
+import {
+  APP_CHAIN_ID,
+  TDE_DISBURSEMENT_ABI,
+  TDE_DISBURSEMENT_ADDRESS,
+} from "@/lib/abi";
 
-type VestingAllocationEntry = {
-  beneficiary: string;
-  transferTarget: string;
-};
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-export type VestingByOwner = Record<string, `0x${string}`[]>;
+const VESTED_MODALITIES = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
-const ALLOCATIONS_URL = import.meta.env.VITE_VESTING_ALLOCATIONS_URL as
-  | string
-  | undefined;
+export function useVestingContracts(beneficiary: `0x${string}` | undefined) {
+  const contracts = beneficiary
+    ? VESTED_MODALITIES.map((modality) => ({
+        address: TDE_DISBURSEMENT_ADDRESS,
+        abi: TDE_DISBURSEMENT_ABI,
+        functionName: "vestingContracts" as const,
+        args: [beneficiary, modality] as const,
+        chainId: APP_CHAIN_ID,
+      }))
+    : [];
 
-function transformAllocations(
-  entries: VestingAllocationEntry[]
-): VestingByOwner {
-  const map: VestingByOwner = {};
-  for (const { beneficiary, transferTarget } of entries) {
-    const contracts = map[beneficiary] ?? [];
-    contracts.push(transferTarget as `0x${string}`);
-    map[beneficiary] = contracts;
-  }
-  return map;
-}
-
-export function useVestingAllocations() {
-  return useQuery<VestingByOwner>({
-    queryKey: ["vestingAllocations"],
-    queryFn: async () => {
-      if (!ALLOCATIONS_URL) {
-        return {};
-      }
-      const res = await fetch(ALLOCATIONS_URL);
-      if (!res.ok) {
-        throw new Error("Failed to fetch vesting allocations");
-      }
-      const entries: VestingAllocationEntry[] = await res.json();
-      return transformAllocations(entries);
-    },
-    staleTime: 5 * 60 * 1000,
-    retry: 2,
+  const { data, isLoading } = useReadContracts({
+    contracts,
+    query: { enabled: !!beneficiary },
   });
+
+  const contractAddresses: `0x${string}`[] | undefined =
+    data && beneficiary
+      ? data
+          .map((r) => (r.status === "success" ? (r.result as string) : null))
+          .filter(
+            (addr): addr is `0x${string}` =>
+              addr !== null && addr !== ZERO_ADDRESS
+          )
+      : undefined;
+
+  return { contractAddresses, isLoading };
 }
