@@ -17,7 +17,7 @@ export function ConnectWallet() {
             claim your vested allocation.
           </p>
         </CardPanel>
-        <CardFooter>
+        <CardFooter className="flex flex-col gap-4">
           <Button
             className="w-full"
             onClick={() => {
@@ -27,6 +27,37 @@ export function ConnectWallet() {
           >
             Connect an EVM wallet
           </Button>
+          <p className="text-center text-muted-foreground text-xs">
+            By continuing you agree to the{" "}
+            {/* TODO: replace placeholder URLs with actual links */}
+            <a
+              className="underline transition-colors hover:text-foreground"
+              href="#terms"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Terms of Service
+            </a>{" "}
+            and confirm you read our{" "}
+            <a
+              className="underline transition-colors hover:text-foreground"
+              href="#privacy"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a
+              className="underline transition-colors hover:text-foreground"
+              href="#transparency"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Transparency Document
+            </a>
+            .
+          </p>
         </CardFooter>
       </Card>
     </div>

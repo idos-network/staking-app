@@ -39,14 +39,16 @@ export function calculateAPY(
   return ((rewardsPerDay * 365) / effectiveTotal) * 100;
 }
 
-export function useStakingAPY(stakeAmount?: number | null) {
-  const { data: startTime, isLoading: isStartTimeLoading } = useReadContract(
-    startTimeParams()
-  );
+export function useStakingAPY(stakeAmount?: number | null, enabled = true) {
+  const { data: startTime, isLoading: isStartTimeLoading } = useReadContract({
+    ...startTimeParams(),
+    query: { enabled },
+  });
 
-  const { data: nodeStakes, isLoading: isNodeStakesLoading } = useReadContract(
-    getNodeStakesParams()
-  );
+  const { data: nodeStakes, isLoading: isNodeStakesLoading } = useReadContract({
+    ...getNodeStakesParams(),
+    query: { enabled },
+  });
 
   const isLoading = isStartTimeLoading || isNodeStakesLoading;
 

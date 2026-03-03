@@ -4,6 +4,7 @@ import { ClaimRewards } from "@/components/staking/claim-rewards";
 import { Stake } from "@/components/staking/stake";
 import { Unstake } from "@/components/staking/unstake";
 import { WithdrawUnstake } from "@/components/staking/withdraw-unstake";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
@@ -167,6 +168,26 @@ function StakingBalances() {
 export function Staking() {
   return (
     <div className="flex flex-col gap-5">
+      <Alert variant="warning">
+        <AlertDescription className="text-white">
+          <p>
+            Staking carries significant risk, including the potential total loss
+            of all staked tokens. Staking rewards are not guaranteed and may be
+            reduced or forfeited. Lock-up and unbonding periods may apply. Not
+            financial, investment, or legal advice. You are solely responsible
+            for your participation.{" "}
+            <a
+              className="font-medium underline transition-colors hover:text-warning-foreground"
+              href="#terms"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Terms apply
+            </a>
+            .
+          </p>
+        </AlertDescription>
+      </Alert>
       <StakingBalances />
       <div className="min-w-0 rounded-[20px] bg-muted p-6">
         <Tabs className="gap-10" defaultValue="stake">

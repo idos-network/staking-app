@@ -13,8 +13,76 @@ import {
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
 import { formatTokenAmount, fromWei } from "@/lib/format";
-import { useWithdrawableUnstaked } from "@/lib/queries/use-withdrawable-unstaked";
+import {
+  UNSTAKE_DELAY_SECONDS,
+  type UnstakeRecord,
+  useWithdrawableUnstaked,
+} from "@/lib/queries/use-withdrawable-unstaked";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
+
+function formatCountdown(secondsRemaining: number): string {
+  if (secondsRemaining <= 0) {
+    return "Ready";
+  }
+  const days = Math.floor(secondsRemaining / 86_400);
+  const hours = Math.floor((secondsRemaining % 86_400) / 3600);
+  const minutes = Math.floor((secondsRemaining % 3600) / 60);
+
+  const parts: string[] = [];
+  if (days > 0) {
+    parts.push(`${days}d`);
+  }
+  if (hours > 0) {
+    parts.push(`${hours}h`);
+  }
+  if (days === 0 && minutes > 0) {
+    parts.push(`${minutes}m`);
+  }
+
+  return `${parts.join(" ")} remaining`;
+}
+
+function PendingUnbonding({
+  records,
+  currentTimestamp,
+}: {
+  records: UnstakeRecord[];
+  currentTimestamp: number;
+}) {
+  const pendingRecords = records.filter((r) => {
+    const unlockTime = Number(r.timestamp) + UNSTAKE_DELAY_SECONDS;
+    return unlockTime > currentTimestamp;
+  });
+
+  if (pendingRecords.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <p className="font-semibold">Pending Unbonding</p>
+      <div className="flex flex-col gap-3">
+        {pendingRecords.map((record, index) => {
+          const unlockTime = Number(record.timestamp) + UNSTAKE_DELAY_SECONDS;
+          const secondsRemaining = unlockTime - currentTimestamp;
+          return (
+            <div
+              className="flex items-center justify-between rounded-xl bg-secondary p-4"
+              key={`${record.timestamp}-${index}`}
+            >
+              <span className="text-sm">
+                {formatTokenAmount(fromWei(record.amount))} IDOS
+              </span>
+              <span className="text-muted-foreground text-sm">
+                {formatCountdown(secondsRemaining)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function WithdrawUnstake() {
   const { address } = useAppKitAccount();
@@ -22,8 +90,12 @@ export function WithdrawUnstake() {
   const queryClient = useQueryClient();
   const config = useConfig();
 
-  const { withdrawableAmount, isLoading: isBalanceLoading } =
-    useWithdrawableUnstaked(address as `0x${string}` | undefined);
+  const {
+    withdrawableAmount,
+    unstakeRecords,
+    currentTimestamp,
+    isLoading: isBalanceLoading,
+  } = useWithdrawableUnstaked(address as `0x${string}` | undefined);
 
   // Convert bigint balance to number (dividing by 10^18 for 18 decimals)
   const balance = fromWei(withdrawableAmount);
@@ -107,6 +179,12 @@ export function WithdrawUnstake() {
           )}
         </div>
       </div>
+      {!isBalanceLoading && (
+        <PendingUnbonding
+          currentTimestamp={currentTimestamp}
+          records={unstakeRecords}
+        />
+      )}
       <ConfirmWithdrawUnstake
         amount={balance}
         onConfirm={() => {

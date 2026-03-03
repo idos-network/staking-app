@@ -11,6 +11,7 @@ import {
   type NodeProvider,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,36 +78,22 @@ export type StakingFormSubmitData = {
 type ConfirmTransactionProps = {
   mode: "stake" | "unstake";
   amount: number;
-  provider: NodeProvider;
   isValid: boolean;
   pending: boolean;
 };
 function ConfirmTransaction({
   mode,
   amount,
-  provider,
   isValid,
   pending,
 }: ConfirmTransactionProps) {
   if (mode === "stake") {
-    return (
-      <ConfirmStake
-        amount={amount}
-        isValid={isValid}
-        pending={pending}
-        provider={provider}
-      />
-    );
+    return <ConfirmStake amount={amount} isValid={isValid} pending={pending} />;
   }
 
   if (mode === "unstake") {
     return (
-      <ConfirmUnstake
-        amount={amount}
-        isValid={isValid}
-        pending={pending}
-        provider={provider}
-      />
+      <ConfirmUnstake amount={amount} isValid={isValid} pending={pending} />
     );
   }
 
@@ -133,7 +120,11 @@ export function StakingForm({
   // TODO: update default provider address
   const selectedProvider: NodeProvider = nodeProviders[0];
 
-  const { apy, isLoading: isApyLoading } = useStakingAPY(stakeAmount);
+  const isStaking = mode === "stake";
+  const { apy, isLoading: isApyLoading } = useStakingAPY(
+    stakeAmount,
+    isStaking
+  );
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -197,21 +188,14 @@ export function StakingForm({
               id="amount-to-stake"
               placeholder="100.00 IDOS"
             />
-            <span className="flex items-center gap-3">
-              {isApyLoading ? (
-                <Skeleton className="h-6 w-20" />
-              ) : (
-                <Badge variant="success">{apy.toFixed(2)}% APY</Badge>
-              )}
-              <Button
-                className="h-fit w-fit text-success-foreground hover:border-primary"
-                onClick={setMaxAmount}
-                type="button"
-                variant="secondary"
-              >
-                MAX
-              </Button>
-            </span>
+            <Button
+              className="h-fit w-fit text-success-foreground hover:border-primary"
+              onClick={setMaxAmount}
+              type="button"
+              variant="secondary"
+            >
+              MAX
+            </Button>
           </AmountFieldGroup>
 
           {hasStakeAmountError ? (
@@ -219,25 +203,52 @@ export function StakingForm({
               {errorMessage}
             </p>
           ) : null}
+          {mode === "stake" ? (
+            <div className="mt-2 flex items-center justify-between">
+              {isApyLoading ? (
+                <Skeleton className="h-7 w-28" />
+              ) : (
+                <Badge className="px-3 py-1 text-sm" variant="success">
+                  {apy.toFixed(2)}% APY
+                </Badge>
+              )}
+              <span className="text-muted-foreground text-sm">
+                *Estimated only. Not guaranteed and subject to change.
+              </span>
+            </div>
+          ) : null}
         </div>
       </AmountField>
 
       {mode === "stake" ? (
-        <Label className="w-full gap-3 text-muted-foreground">
+        <Label className="w-full gap-3 text-foreground">
           <Checkbox
             checked={checked}
             className="size-5"
             onCheckedChange={setChecked}
           />
-          I understand that by staking, I'm insuring the protocol and putting my
-          capital at risk
+          <span>
+            I have read the{" "}
+            {/* TODO: replace placeholder URL with actual link */}
+            <a
+              className="text-primary underline transition-colors hover:text-primary/80"
+              href="#risk-disclosure"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Risk Disclosure
+            </a>{" "}
+            and understand the risks of staking
+          </span>
         </Label>
       ) : null}
 
       {mode === "unstake" ? (
-        <p className="w-full text-muted-foreground text-sm">
-          Unstaking IDOS tokens is subject to an unbonding period of 14 days
-        </p>
+        <Alert variant="warning">
+          <AlertDescription className="text-white">
+            Unstaking IDOS tokens is subject to an unbonding period of 14 days.
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       <ConfirmTransaction
@@ -245,7 +256,6 @@ export function StakingForm({
         isValid={isValid}
         mode={mode}
         pending={pending}
-        provider={selectedProvider}
       />
     </form>
   );
