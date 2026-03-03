@@ -106,7 +106,7 @@ All contracts are on **Arbitrum Sepolia** for development and testing.
 **Other hardcoded values:**
 
 - **Node Providers** (`src/components/staking/node-provider-selector.tsx`): idOS Node, Near Node, Ripple Node, Tezos Node
-- **APY / Expected Rewards**: hardcoded at `10%` / `"206.25 IDOS"`
+- **APY**: dynamically calculated from on-chain `startTime`, `getNodeStakes()`, and the reward schedule in `src/lib/queries/use-staking-apy.ts`
 - **Token Price**: `$3.06 USD` hardcoded in `src/lib/queries/use-token-price.ts` (CoinGecko API commented out)
 - **Etherscan Links**: currently point to `etherscan.io` (mainnet) in vesting components
 - **Vesting Type Label**: `"Linear (post-cliff)"`

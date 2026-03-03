@@ -37,7 +37,8 @@
     "typescript": "~5.9.3",
     "ultracite": "6.3.9",
     "vite": "^7.3.1",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "^4.5.0",
+    "vitest": "^4.0.18"
   },
   "private": true,
   "scripts": {
@@ -45,7 +46,8 @@
     "dev": "vite",
     "lint": "ultracite check",
     "lint:fix": "ultracite fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "type": "module"
 }

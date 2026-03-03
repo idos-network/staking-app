@@ -9,14 +9,15 @@ import { ConfirmStake } from "@/components/staking/confirm-stake";
 import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
   type NodeProvider,
-  NodeProviderSelector,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatTokenAmount } from "@/lib/format";
+import { useStakingAPY } from "@/lib/queries/use-staking-apy";
 
 type BalanceDisplayProps = {
   balance: number;
@@ -118,7 +119,6 @@ type StakingFormProps = {
   onSubmit: (data: StakingFormSubmitData) => void;
   balance: number;
   isBalanceLoading: boolean;
-  onProviderChange?: (provider: NodeProvider) => void;
 };
 export function StakingForm({
   mode,
@@ -126,18 +126,14 @@ export function StakingForm({
   pending,
   balance,
   isBalanceLoading,
-  onProviderChange,
 }: StakingFormProps) {
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<NodeProvider>(
-    nodeProviders[0]
-  );
+  // TODO: re-add NodeProviderSelector when ready
+  // TODO: update default provider address
+  const selectedProvider: NodeProvider = nodeProviders[0];
 
-  const handleProviderChange = (provider: NodeProvider) => {
-    setSelectedProvider(provider);
-    onProviderChange?.(provider);
-  };
+  const { apy, isLoading: isApyLoading } = useStakingAPY(stakeAmount);
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -168,11 +164,6 @@ export function StakingForm({
       name={mode}
       onSubmit={handleSubmit}
     >
-      <NodeProviderSelector
-        onProviderChange={handleProviderChange}
-        providers={nodeProviders}
-        selectedProvider={selectedProvider}
-      />
       <AmountField
         className="flex flex-col gap-4"
         onValueChange={(value) => {
@@ -206,14 +197,21 @@ export function StakingForm({
               id="amount-to-stake"
               placeholder="100.00 IDOS"
             />
-            <Button
-              className="h-fit w-fit text-success-foreground hover:border-primary"
-              onClick={setMaxAmount}
-              type="button"
-              variant="secondary"
-            >
-              MAX
-            </Button>
+            <span className="flex items-center gap-3">
+              {isApyLoading ? (
+                <Skeleton className="h-6 w-20" />
+              ) : (
+                <Badge variant="success">{apy.toFixed(2)}% APY</Badge>
+              )}
+              <Button
+                className="h-fit w-fit text-success-foreground hover:border-primary"
+                onClick={setMaxAmount}
+                type="button"
+                variant="secondary"
+              >
+                MAX
+              </Button>
+            </span>
           </AmountFieldGroup>
 
           {hasStakeAmountError ? (
