@@ -86,7 +86,7 @@ export function ConfirmStake({ amount, isValid, pending }: ConfirmStakeProps) {
             </ul>
           </div>
           <p className="text-muted-foreground text-sm">
-            You be asked to sign two transactions: an allowance for IDOS, and
+            You'll be asked to sign two transactions: an allowance for IDOS, and
             the staking transaction
           </p>
         </div>
