@@ -1,12 +1,12 @@
-import { arbitrum } from "wagmi/chains";
+import { arbitrumSepolia } from "wagmi/chains";
 
-const appChain = arbitrum;
+const appChain = arbitrumSepolia;
 export const APP_CHAIN_ID = appChain.id;
 export const APP_BLOCK_EXPLORER_URL = appChain.blockExplorers.default.url;
 
-// https://github.com/idos-network/contracts/blob/master/deployments.toml
+// Arbitrum Sepolia IDOS token (from commit e499383)
 export const IDOS_TOKEN_ABI_ADDRESS =
-  "0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c";
+  "0x4C85b9D56dC64276dADC1353ca94331097D351CA";
 
 export const IDOS_TOKEN_ABI = [
   {
@@ -274,8 +274,9 @@ export const IDOS_TOKEN_ABI = [
   { stateMutability: "payable", type: "receive" },
 ] as const;
 
+// Arbitrum mainnet staking contract (from commit e499383)
 export const IDOS_NODE_STAKING_ABI_ADDRESS =
-  "0x6132F2EE66deC6bdf416BDA9588D663EaCeec337";
+  "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f";
 
 export const IDOS_NODE_STAKING_ABI = [
   {

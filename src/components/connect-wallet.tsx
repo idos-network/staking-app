@@ -27,11 +27,11 @@ export function ConnectWallet() {
           >
             Connect an EVM wallet
           </Button>
-          <p className="text-center text-muted-foreground text-xs">
+          <p className="text-center text-muted-foreground text-sm">
             By continuing you agree to the{" "}
             {/* TODO: replace placeholder URLs with actual links */}
             <a
-              className="underline transition-colors hover:text-foreground"
+              className="text-primary underline transition-colors hover:text-primary/80"
               href="#terms"
               rel="noopener noreferrer"
               target="_blank"
@@ -40,7 +40,7 @@ export function ConnectWallet() {
             </a>{" "}
             and confirm you read our{" "}
             <a
-              className="underline transition-colors hover:text-foreground"
+              className="text-primary underline transition-colors hover:text-primary/80"
               href="#privacy"
               rel="noopener noreferrer"
               target="_blank"
@@ -49,7 +49,7 @@ export function ConnectWallet() {
             </a>{" "}
             and{" "}
             <a
-              className="underline transition-colors hover:text-foreground"
+              className="text-primary underline transition-colors hover:text-primary/80"
               href="#transparency"
               rel="noopener noreferrer"
               target="_blank"

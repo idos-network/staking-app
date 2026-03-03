@@ -1,10 +1,12 @@
 import { useAppKitAccount } from "@reown/appkit/react";
+import { useState } from "react";
 import { useReadContract } from "wagmi";
 import { ClaimRewards } from "@/components/staking/claim-rewards";
 import { Stake } from "@/components/staking/stake";
 import { Unstake } from "@/components/staking/unstake";
 import { WithdrawUnstake } from "@/components/staking/withdraw-unstake";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsPanel, TabsTab } from "@/components/ui/tabs";
@@ -15,6 +17,7 @@ import {
   getUserStakeParams,
   withdrawableRewardParams,
 } from "@/lib/queries/query-options";
+import { useStakingAPY } from "@/lib/queries/use-staking-apy";
 import { useTokenPrice } from "@/lib/queries/use-token-price";
 
 type IDOSBalanceProps = {
@@ -61,7 +64,38 @@ function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
   return <span>{formatted}</span>;
 }
 
-function StakingBalances() {
+function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
+  const { apy, isLoading } = useStakingAPY(stakeAmount);
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <p className="text-muted-foreground text-sm">Estimated APR*</p>
+        {isLoading ? (
+          <Skeleton className="h-6 w-20 bg-muted" />
+        ) : (
+          <Badge className="px-3 py-1 text-sm" variant="success">
+            {apy.toFixed(2)}%
+          </Badge>
+        )}
+      </div>
+      <p className="text-muted-foreground text-sm">
+        Staking rewards are accrued daily.
+      </p>
+      <p className="text-muted-foreground text-sm italic">
+        *Estimated only. Not guaranteed and subject to change.
+      </p>
+    </div>
+  );
+}
+
+function StakingBalances({
+  showAPR = true,
+  stakeAmount,
+}: {
+  showAPR?: boolean;
+  stakeAmount?: number | null;
+}) {
   const { address } = useAppKitAccount();
 
   const { data: tokenPrice } = useTokenPrice(IDOS_TOKEN_ABI_ADDRESS);
@@ -152,7 +186,7 @@ function StakingBalances() {
           </div>
           <div className="flex w-1/2 flex-col gap-2 text-right">
             <p className="text-muted-foreground text-sm">
-              Expected Monthly Rewards
+              Est. Monthly Rewards*
             </p>
             <div className="flex flex-col items-end gap-2">
               <p className="text-lg">0.00 IDOS</p>
@@ -160,14 +194,27 @@ function StakingBalances() {
             </div>
           </div>
         </div>
+        {showAPR ? (
+          <>
+            <Separator className="bg-neutral-700" orientation="horizontal" />
+            <EstimatedAPR stakeAmount={stakeAmount} />
+          </>
+        ) : null}
       </div>
     </div>
   );
 }
 
 export function Staking() {
+  const [activeTab, setActiveTab] = useState("stake");
+  const [stakeAmount, setStakeAmount] = useState<number | null>(null);
+
   return (
     <div className="flex flex-col gap-5">
+      <StakingBalances
+        showAPR={activeTab === "stake"}
+        stakeAmount={stakeAmount}
+      />
       <Alert variant="warning">
         <AlertDescription className="text-accent-foreground">
           <p>
@@ -177,7 +224,7 @@ export function Staking() {
             financial, investment, or legal advice. You are solely responsible
             for your participation.{" "}
             <a
-              className="font-medium underline transition-colors hover:text-warning-foreground"
+              className="font-medium text-primary underline transition-colors hover:text-primary/80"
               href="#terms"
               rel="noopener noreferrer"
               target="_blank"
@@ -188,9 +235,12 @@ export function Staking() {
           </p>
         </AlertDescription>
       </Alert>
-      <StakingBalances />
       <div className="min-w-0 rounded-[20px] bg-muted p-6">
-        <Tabs className="gap-10" defaultValue="stake">
+        <Tabs
+          className="gap-10"
+          defaultValue="stake"
+          onValueChange={setActiveTab}
+        >
           <div className="scrollbar-hide min-w-0 overflow-x-auto rounded-full [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <TabsList className="h-11 w-fit min-w-full flex-nowrap rounded-full p-1 [&>*]:shrink-0 [&>*]:whitespace-nowrap [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:bg-neutral-950">
               <TabsTab
@@ -220,7 +270,7 @@ export function Staking() {
             </TabsList>
           </div>
           <TabsPanel value="stake">
-            <Stake />
+            <Stake onAmountChange={setStakeAmount} />
           </TabsPanel>
           <TabsPanel value="unstake">
             <Unstake />

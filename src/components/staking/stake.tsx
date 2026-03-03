@@ -18,7 +18,11 @@ import { fromWei } from "@/lib/format";
 import { balanceOfParams } from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
-export function Stake() {
+export function Stake({
+  onAmountChange,
+}: {
+  onAmountChange?: (amount: number | null) => void;
+}) {
   const { address } = useAppKitAccount();
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
@@ -104,6 +108,7 @@ export function Stake() {
       balance={availableBalance}
       isBalanceLoading={isBalanceLoading}
       mode="stake"
+      onAmountChange={onAmountChange}
       onSubmit={handleSubmit}
       pending={writeContract.isPending}
     />

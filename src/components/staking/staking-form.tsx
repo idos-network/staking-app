@@ -1,4 +1,4 @@
-import { WalletMinimalIcon } from "lucide-react";
+import { TriangleAlertIcon, WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
 import {
   AmountField,
@@ -11,14 +11,12 @@ import {
   type NodeProvider,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatTokenAmount } from "@/lib/format";
-import { useStakingAPY } from "@/lib/queries/use-staking-apy";
 
 type BalanceDisplayProps = {
   balance: number;
@@ -104,27 +102,28 @@ type StakingFormProps = {
   mode: "stake" | "unstake";
   pending: boolean;
   onSubmit: (data: StakingFormSubmitData) => void;
+  onAmountChange?: (amount: number | null) => void;
   balance: number;
   isBalanceLoading: boolean;
 };
 export function StakingForm({
   mode,
   onSubmit,
+  onAmountChange,
   pending,
   balance,
   isBalanceLoading,
 }: StakingFormProps) {
-  const [stakeAmount, setStakeAmount] = useState<number | null>(null);
+  const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
+
+  const setStakeAmount = (value: number | null) => {
+    _setStakeAmount(value);
+    onAmountChange?.(value);
+  };
   const [checked, setChecked] = useState(false);
   // TODO: re-add NodeProviderSelector when ready
   // TODO: update default provider address
   const selectedProvider: NodeProvider = nodeProviders[0];
-
-  const isStaking = mode === "stake";
-  const { apy, isLoading: isApyLoading } = useStakingAPY(
-    stakeAmount,
-    isStaking
-  );
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -155,6 +154,18 @@ export function StakingForm({
       name={mode}
       onSubmit={handleSubmit}
     >
+      <Alert variant="warning">
+        <TriangleAlertIcon className="text-warning" />
+        <AlertTitle className="font-semibold text-warning">
+          14-Day Unbonding Period
+        </AlertTitle>
+        <AlertDescription className="text-foreground">
+          {mode === "stake"
+            ? "When you unstake in the future, your tokens will be subject to a 14-day unbonding period. During this time, tokens will not earn rewards and cannot be transferred."
+            : "Your tokens will be subject to a 14-day unbonding period. During this time, tokens will not earn rewards and cannot be transferred. You can withdraw them after the unbonding period ends."}
+        </AlertDescription>
+      </Alert>
+
       <AmountField
         className="flex flex-col gap-4"
         onValueChange={(value) => {
@@ -203,20 +214,6 @@ export function StakingForm({
               {errorMessage}
             </p>
           ) : null}
-          {mode === "stake" ? (
-            <div className="mt-2 flex items-center justify-between">
-              {isApyLoading ? (
-                <Skeleton className="h-7 w-28" />
-              ) : (
-                <Badge className="px-3 py-1 text-sm" variant="success">
-                  {apy.toFixed(2)}% APY
-                </Badge>
-              )}
-              <span className="text-muted-foreground text-sm">
-                *Estimated only. Not guaranteed and subject to change.
-              </span>
-            </div>
-          ) : null}
         </div>
       </AmountField>
 
@@ -241,14 +238,6 @@ export function StakingForm({
             and understand the risks of staking
           </span>
         </Label>
-      ) : null}
-
-      {mode === "unstake" ? (
-        <Alert variant="warning">
-          <AlertDescription className="text-white">
-            Unstaking IDOS tokens is subject to an unbonding period of 14 days.
-          </AlertDescription>
-        </Alert>
       ) : null}
 
       <ConfirmTransaction
