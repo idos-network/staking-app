@@ -169,7 +169,7 @@ export function Staking() {
   return (
     <div className="flex flex-col gap-5">
       <Alert variant="warning">
-        <AlertDescription className="text-white">
+        <AlertDescription className="text-accent-foreground">
           <p>
             Staking carries significant risk, including the potential total loss
             of all staked tokens. Staking rewards are not guaranteed and may be
