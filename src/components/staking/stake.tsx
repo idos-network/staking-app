@@ -1,10 +1,9 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { parseUnits } from "viem";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
-import { getRandomProvider } from "@/components/staking/node-provider-selector";
+import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import {
   StakingForm,
   type StakingFormSubmitData,
@@ -22,13 +21,16 @@ import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Stake({
   onAmountChange,
+  selectedProvider,
+  onProviderChange,
 }: {
   onAmountChange?: (amount: number | null) => void;
+  selectedProvider: NodeProvider;
+  onProviderChange: (provider: NodeProvider) => void;
 }) {
   const { address } = useAppKitAccount();
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
-  const [selectedProvider, setSelectedProvider] = useState(getRandomProvider);
 
   const config = useConfig();
 
@@ -112,7 +114,7 @@ export function Stake({
       isBalanceLoading={isBalanceLoading}
       mode="stake"
       onAmountChange={onAmountChange}
-      onProviderChange={setSelectedProvider}
+      onProviderChange={onProviderChange}
       onSubmit={handleSubmit}
       pending={writeContract.isPending}
       selectedProvider={selectedProvider}
