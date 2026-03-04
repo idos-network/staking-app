@@ -1,6 +1,5 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
-import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,17 +21,11 @@ import { balanceOfParams } from "@/lib/queries/query-options";
 
 type ConfirmStakeProps = {
   amount: number;
-  provider: NodeProvider | null;
   isValid: boolean;
   pending: boolean;
 };
 
-export function ConfirmStake({
-  amount,
-  provider,
-  isValid,
-  pending,
-}: ConfirmStakeProps) {
+export function ConfirmStake({ amount, isValid, pending }: ConfirmStakeProps) {
   const { address } = useAppKitAccount();
 
   // Fetch balance
@@ -74,12 +67,6 @@ export function ConfirmStake({
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
                 <span className="text-muted-foreground text-sm">
-                  Node Provider
-                </span>
-                <span>{provider?.name ?? "Unknown Provider"}</span>
-              </li>
-              <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
                   Available Balance
                 </span>
                 <span>
@@ -99,7 +86,7 @@ export function ConfirmStake({
             </ul>
           </div>
           <p className="text-muted-foreground text-sm">
-            You be asked to sign two transactions: an allowance for IDOS, and
+            You'll be asked to sign two transactions: an allowance for IDOS, and
             the staking transaction
           </p>
         </div>

@@ -1,4 +1,4 @@
-import { WalletMinimalIcon } from "lucide-react";
+import { TriangleAlertIcon, WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
 import {
   AmountField,
@@ -9,9 +9,9 @@ import { ConfirmStake } from "@/components/staking/confirm-stake";
 import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
   type NodeProvider,
-  NodeProviderSelector,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -76,36 +76,22 @@ export type StakingFormSubmitData = {
 type ConfirmTransactionProps = {
   mode: "stake" | "unstake";
   amount: number;
-  provider: NodeProvider;
   isValid: boolean;
   pending: boolean;
 };
 function ConfirmTransaction({
   mode,
   amount,
-  provider,
   isValid,
   pending,
 }: ConfirmTransactionProps) {
   if (mode === "stake") {
-    return (
-      <ConfirmStake
-        amount={amount}
-        isValid={isValid}
-        pending={pending}
-        provider={provider}
-      />
-    );
+    return <ConfirmStake amount={amount} isValid={isValid} pending={pending} />;
   }
 
   if (mode === "unstake") {
     return (
-      <ConfirmUnstake
-        amount={amount}
-        isValid={isValid}
-        pending={pending}
-        provider={provider}
-      />
+      <ConfirmUnstake amount={amount} isValid={isValid} pending={pending} />
     );
   }
 
@@ -116,28 +102,28 @@ type StakingFormProps = {
   mode: "stake" | "unstake";
   pending: boolean;
   onSubmit: (data: StakingFormSubmitData) => void;
+  onAmountChange?: (amount: number | null) => void;
   balance: number;
   isBalanceLoading: boolean;
-  onProviderChange?: (provider: NodeProvider) => void;
 };
 export function StakingForm({
   mode,
   onSubmit,
+  onAmountChange,
   pending,
   balance,
   isBalanceLoading,
-  onProviderChange,
 }: StakingFormProps) {
-  const [stakeAmount, setStakeAmount] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<NodeProvider>(
-    nodeProviders[0]
-  );
+  const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
 
-  const handleProviderChange = (provider: NodeProvider) => {
-    setSelectedProvider(provider);
-    onProviderChange?.(provider);
+  const setStakeAmount = (value: number | null) => {
+    _setStakeAmount(value);
+    onAmountChange?.(value);
   };
+  const [checked, setChecked] = useState(false);
+  // TODO: re-add NodeProviderSelector UI when ready
+  // Currently defaults to nodeProviders[0] — update addresses in node-provider-selector.tsx
+  const selectedProvider: NodeProvider = nodeProviders[0];
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -168,11 +154,18 @@ export function StakingForm({
       name={mode}
       onSubmit={handleSubmit}
     >
-      <NodeProviderSelector
-        onProviderChange={handleProviderChange}
-        providers={nodeProviders}
-        selectedProvider={selectedProvider}
-      />
+      <Alert variant="warning">
+        <TriangleAlertIcon className="text-warning" />
+        <AlertTitle className="font-semibold text-warning">
+          14-Day Unbonding Period
+        </AlertTitle>
+        <AlertDescription className="text-foreground">
+          {mode === "stake"
+            ? "When you unstake in the future, your tokens will be subject to a 14-day unbonding period. During this time, tokens will not earn rewards and cannot be transferred."
+            : "Your tokens will be subject to a 14-day unbonding period. During this time, tokens will not earn rewards and cannot be transferred. You can withdraw them after the unbonding period ends."}
+        </AlertDescription>
+      </Alert>
+
       <AmountField
         className="flex flex-col gap-4"
         onValueChange={(value) => {
@@ -225,21 +218,25 @@ export function StakingForm({
       </AmountField>
 
       {mode === "stake" ? (
-        <Label className="w-full gap-3 text-muted-foreground">
+        <Label className="w-full gap-3 text-foreground">
           <Checkbox
             checked={checked}
             className="size-5"
             onCheckedChange={setChecked}
           />
-          I understand that by staking, I'm insuring the protocol and putting my
-          capital at risk
+          <span>
+            I have read the{" "}
+            <a
+              className="text-primary underline transition-colors hover:text-primary/80"
+              href="http://www.idos.network/legal/risk-disclosure-staking"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Risk Disclosure
+            </a>{" "}
+            and understand the risks of staking
+          </span>
         </Label>
-      ) : null}
-
-      {mode === "unstake" ? (
-        <p className="w-full text-muted-foreground text-sm">
-          Unstaking IDOS tokens is subject to an unbonding period of 14 days
-        </p>
       ) : null}
 
       <ConfirmTransaction
@@ -247,7 +244,6 @@ export function StakingForm({
         isValid={isValid}
         mode={mode}
         pending={pending}
-        provider={selectedProvider}
       />
     </form>
   );

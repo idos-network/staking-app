@@ -84,7 +84,7 @@ function RootLayout() {
         <div className="mx-auto flex w-full min-w-0 max-w-[678px] flex-col gap-10">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3">
-              <h2 className="text-2xl">IDOS Earn</h2>
+              <h2 className="text-2xl">idOS Portal</h2>
               <p className="text-muted-foreground">
                 Manage your IDOS positions — stake tokens to secure the network
                 and claim your vested allocation.

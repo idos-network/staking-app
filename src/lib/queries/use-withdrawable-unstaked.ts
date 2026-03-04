@@ -2,13 +2,12 @@ import { useQueries } from "@tanstack/react-query";
 import { useBlock, useConfig } from "wagmi";
 import { unstakeByUserAtIndexQueryOptions } from "./query-options";
 
-type UnstakeRecord = {
+export type UnstakeRecord = {
   amount: bigint;
   timestamp: bigint;
 };
 
-// UNSTAKE_DELAY is 14 days = 14 * 24 * 60 * 60 = 1,209,600 seconds
-const UNSTAKE_DELAY_SECONDS = 14 * 24 * 60 * 60;
+export const UNSTAKE_DELAY_SECONDS = 14 * 24 * 60 * 60;
 
 function processUnstakeRecord(
   amount: bigint,
@@ -144,10 +143,13 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
       );
     })();
 
+  const currentTimestamp = currentBlock ? Number(currentBlock.timestamp) : 0;
+
   return {
     withdrawableAmount,
     pendingAmount,
     unstakeRecords,
+    currentTimestamp,
     isLoading: isLoading || isBlockLoading,
   };
 }

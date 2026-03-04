@@ -174,6 +174,26 @@ export function stakeByNodeByUserQueryOptions(
   );
 }
 
+export function startTimeParams() {
+  return {
+    address: IDOS_NODE_STAKING_ABI_ADDRESS as `0x${string}`,
+    abi: IDOS_NODE_STAKING_ABI,
+    functionName: "startTime" as const,
+    args: [] as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
+export function getNodeStakesParams() {
+  return {
+    address: IDOS_NODE_STAKING_ABI_ADDRESS as `0x${string}`,
+    abi: IDOS_NODE_STAKING_ABI,
+    functionName: "getNodeStakes" as const,
+    args: [] as const,
+    chainId: APP_CHAIN_ID,
+  };
+}
+
 export function vestingStartParams(contractAddress: `0x${string}`) {
   return {
     address: contractAddress,

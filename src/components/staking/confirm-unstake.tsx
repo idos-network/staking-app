@@ -1,6 +1,5 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
-import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,14 +24,12 @@ import {
 
 type ConfirmUnstakeProps = {
   amount: number;
-  provider: NodeProvider | null;
   isValid: boolean;
   pending: boolean;
 };
 
 export function ConfirmUnstake({
   amount,
-  provider,
   isValid,
   pending,
 }: ConfirmUnstakeProps) {
@@ -87,12 +84,6 @@ export function ConfirmUnstake({
               <li className="flex h-10 items-center justify-between gap-2">
                 <span className="text-muted-foreground text-sm">Address</span>
                 <span>{formatEthereumAddress(address)}</span>
-              </li>
-              <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
-                  Node Provider
-                </span>
-                <span>{provider?.name ?? "Unknown Provider"}</span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
                 <span className="text-muted-foreground text-sm">

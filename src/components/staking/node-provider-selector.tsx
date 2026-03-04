@@ -1,7 +1,6 @@
 import { TokenETH, TokenNEAR, TokenXRP, TokenXTZ } from "@web3icons/react";
 import { ChevronRightIcon } from "lucide-react";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,20 +16,17 @@ import { cn } from "@/lib/utils";
 export type NodeProvider = {
   name: string;
   address: `0x${string}`;
-  apy: number;
   assets: string;
-  expectedIdos: string;
   assetIcon: React.ReactElement;
   providerIcon: React.ReactElement;
 };
 
+// TODO: update node provider addresses for mainnet before production deployment
 export const nodeProviders: NodeProvider[] = [
   {
     name: "idOS Node",
     address: "0x4Bfcc302AA00c8f9bD04eBfBbd8C28762285292a",
-    apy: 10,
     assets: "ETH",
-    expectedIdos: "206.25 IDOS",
     assetIcon: (
       <div className="flex size-5 items-center justify-center rounded-full bg-[#2c5ff6]">
         <TokenETH className="size-4" />
@@ -41,9 +37,7 @@ export const nodeProviders: NodeProvider[] = [
   {
     name: "Near Node",
     address: "0x1dafeB42aD85ECc7EBF80410d3a3F5ADA06d153A",
-    apy: 10,
     assets: "NEAR",
-    expectedIdos: "206.25 IDOS",
     assetIcon: (
       <div className="flex size-5 items-center justify-center rounded-full bg-green-300">
         <TokenNEAR className="size-4" color="black" variant="mono" />
@@ -58,9 +52,7 @@ export const nodeProviders: NodeProvider[] = [
   {
     name: "Ripple Node",
     address: "0x8Da270863C2fD726c28eCeB4C2763d0746e63920",
-    apy: 10,
     assets: "XRP",
-    expectedIdos: "206.25 IDOS",
     assetIcon: (
       <div className="flex size-5 items-center justify-center rounded-full bg-white">
         <TokenXRP className="size-4" color="black" variant="mono" />
@@ -75,9 +67,7 @@ export const nodeProviders: NodeProvider[] = [
   {
     name: "Tezos Node",
     address: "0x4DE22ae3e2AD8CE21d878c104C2bc9bE4f8529BB",
-    apy: 10,
     assets: "TEZ",
-    expectedIdos: "206.25 IDOS",
     assetIcon: (
       <div className="flex size-5 items-center justify-center rounded-full bg-[#2c5ff6]">
         <TokenXTZ className="size-4" color="white" variant="mono" />
@@ -106,9 +96,7 @@ function NodeProviderTrigger({ provider, ...props }: NodeProviderTriggerProps) {
         <span>{provider.name}</span>
       </span>
       <span className="flex items-center gap-5">
-        <Badge size="lg" variant="success">
-          {provider.apy}% APY
-        </Badge>
+        {/* TODO: show dynamic APY from useStakingAPY when re-enabling this component */}
         <ChevronRightIcon className="size-6" />
       </span>
     </Button>
@@ -141,9 +129,7 @@ function NodeProviderButton({
           {provider.providerIcon}
           {provider.name}
         </div>
-        <Badge className="w-fit" size="lg" variant="success">
-          {provider.apy}% APY
-        </Badge>
+        {/* TODO: show dynamic APY from useStakingAPY when re-enabling this component */}
       </div>
       <div className="flex items-center justify-between gap-2 self-stretch">
         <div className="flex flex-1 flex-col items-start gap-2">
@@ -151,10 +137,6 @@ function NodeProviderButton({
           <div className="flex items-center gap-2 text-sm">
             {provider.assetIcon} {provider.assets}
           </div>
-        </div>
-        <div className="flex flex-1 flex-col items-start gap-2">
-          <span className="text-muted-foreground text-sm">Expected IDOS</span>
-          <span className="text-sm">{provider.expectedIdos}</span>
         </div>
       </div>
     </Button>
