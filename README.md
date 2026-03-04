@@ -25,9 +25,12 @@
    Create a `.env.local` file in the root directory:
    ```env
    VITE_APPKIT_PROJECT_ID=your_project_id_here
+   VITE_ZERION_API_KEY=your_zerion_api_key_here
    ```
 
    `VITE_APPKIT_PROJECT_ID` — WalletConnect project ID. If not provided, the app uses a default for local development.
+
+   `VITE_ZERION_API_KEY` — Zerion API key for real-time token price data. If not provided, the app falls back to CoinGecko. Get one at [developers.zerion.io](https://developers.zerion.io/).
 
 ### Running Locally
 
@@ -110,7 +113,7 @@ All contracts are on **Arbitrum** (mainnet).
 
 - **Node Providers** (`src/components/staking/node-provider-selector.tsx`): Currently defaults to the first provider (selector UI is hidden, to be re-added later)
 - **APY**: dynamically calculated from on-chain `startTime`, `getNodeStakes()`, and the reward schedule in `src/lib/queries/use-staking-apy.ts`. Displays `———` when the staking pool is empty (no stakers yet)
-- **Token Price**: `$3.06 USD` hardcoded in `src/lib/queries/use-token-price.ts` (CoinGecko API commented out)
+- **Token Price**: fetched live from Zerion API (primary) with CoinGecko fallback in `src/lib/queries/use-token-price.ts`. Requires `VITE_ZERION_API_KEY` for Zerion
 - **Etherscan Links**: currently point to `etherscan.io` (mainnet) in vesting components
 - **Vesting Type Label**: `"Linear (post-cliff)"`
 
@@ -164,7 +167,7 @@ const networks: [AppKitNetwork, ...AppKitNetwork[]] = [
 
 ### 5. Token Price (`src/lib/queries/use-token-price.ts`)
 
-Uncomment the CoinGecko API integration and remove the hardcoded `$3.06` fallback.
+Token price is fetched live from Zerion API (primary) with CoinGecko as a fallback. Ensure `VITE_ZERION_API_KEY` is set in production.
 
 ### 6. Node Providers (`src/components/staking/node-provider-selector.tsx`)
 
@@ -183,7 +186,7 @@ Update the deployment URL if the domain changes.
 - [ ] `VESTING_ALLOCATIONS` → mainnet contract addresses + allocations
 - [ ] Block explorer links → correct for target network
 - [ ] `appkit.tsx` networks → remove testnets
-- [ ] Token price → enable CoinGecko API
+- [ ] `VITE_ZERION_API_KEY` → production Zerion API key
 - [ ] Node provider selector → re-enable and verify addresses
 - [ ] ABIs → verify they match the deployed mainnet contracts
 - [ ] `VITE_APPKIT_PROJECT_ID` → production WalletConnect project ID
