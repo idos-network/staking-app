@@ -226,10 +226,9 @@ export function StakingForm({
           />
           <span>
             I have read the{" "}
-            {/* TODO: replace placeholder URL with actual link */}
             <a
               className="text-primary underline transition-colors hover:text-primary/80"
-              href="#risk-disclosure"
+              href="http://www.idos.network/legal/risk-disclosure-staking"
               rel="noopener noreferrer"
               target="_blank"
             >

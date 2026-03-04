@@ -187,6 +187,8 @@ Update the deployment URL if the domain changes.
 - [ ] Node provider selector → re-enable and verify addresses
 - [ ] ABIs → verify they match the deployed mainnet contracts
 - [ ] `VITE_APPKIT_PROJECT_ID` → production WalletConnect project ID
-- [ ] T&C / Privacy Policy / Transparency Document links → replace placeholder URLs
-- [ ] Risk Disclosure link → replace placeholder URL
+- [x] Terms of Service link → `http://www.idos.network/legal/portal-terms`
+- [x] Risk Disclosure link → `http://www.idos.network/legal/risk-disclosure-staking`
+- [x] Privacy Policy link → `https://www.idos.network/legal/privacy-policy`
+- [x] Transparency Document link → Google Drive hosted document
 - [ ] Test all flows end-to-end before going live

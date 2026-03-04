@@ -47,10 +47,9 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
         <h2 className="font-semibold text-2xl">Welcome to idOS Portal</h2>
         <p className="text-center text-muted-foreground text-sm">
           By continuing you agree to the{" "}
-          {/* TODO: replace placeholder URLs with actual links */}
           <a
             className="text-primary underline transition-colors hover:text-primary/80"
-            href="#terms"
+            href="http://www.idos.network/legal/portal-terms"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -59,7 +58,7 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
           and confirm you have read our{" "}
           <a
             className="text-primary underline transition-colors hover:text-primary/80"
-            href="#privacy"
+            href="https://www.idos.network/legal/privacy-policy"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -68,7 +67,7 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
           and{" "}
           <a
             className="text-primary underline transition-colors hover:text-primary/80"
-            href="#transparency"
+            href="https://drive.google.com/file/d/1lzrdgD_dwusE4xsKw_oTUcu8Hq3YU60b/view?usp=sharing"
             rel="noopener noreferrer"
             target="_blank"
           >
