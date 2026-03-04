@@ -109,7 +109,7 @@ All contracts are on **Arbitrum** (mainnet).
 **Other hardcoded values:**
 
 - **Node Providers** (`src/components/staking/node-provider-selector.tsx`): Currently defaults to the first provider (selector UI is hidden, to be re-added later)
-- **APY**: dynamically calculated from on-chain `startTime`, `getNodeStakes()`, and the reward schedule in `src/lib/queries/use-staking-apy.ts`
+- **APY**: dynamically calculated from on-chain `startTime`, `getNodeStakes()`, and the reward schedule in `src/lib/queries/use-staking-apy.ts`. Displays `———` when the staking pool is empty (no stakers yet)
 - **Token Price**: `$3.06 USD` hardcoded in `src/lib/queries/use-token-price.ts` (CoinGecko API commented out)
 - **Etherscan Links**: currently point to `etherscan.io` (mainnet) in vesting components
 - **Vesting Type Label**: `"Linear (post-cliff)"`

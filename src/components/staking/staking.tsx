@@ -65,7 +65,8 @@ function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
 }
 
 function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
-  const { apy, isLoading } = useStakingAPY(stakeAmount);
+  const { apy, totalStakedNum, isLoading } = useStakingAPY(stakeAmount);
+  const hasStakers = totalStakedNum > 0;
 
   return (
     <div className="flex flex-col gap-3">
@@ -75,7 +76,7 @@ function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
           <Skeleton className="h-6 w-20 bg-muted" />
         ) : (
           <Badge className="px-3 py-1 text-sm" variant="success">
-            {apy.toFixed(2)}%
+            {hasStakers ? `${apy.toFixed(2)}%` : "———"}
           </Badge>
         )}
       </div>

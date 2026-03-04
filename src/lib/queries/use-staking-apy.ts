@@ -64,8 +64,9 @@ export function useStakingAPY(stakeAmount?: number | null, enabled = true) {
       ? getRewardsPerDay(Number(startTime), Date.now() / 1000)
       : 0;
 
+  const totalStakedNum = fromWei(totalStaked);
   const amount = stakeAmount ?? DEFAULT_STAKE_AMOUNT;
-  const apy = calculateAPY(rewardsPerDay, fromWei(totalStaked), amount);
+  const apy = calculateAPY(rewardsPerDay, totalStakedNum, amount);
 
-  return { apy, rewardsPerDay, totalStaked, isLoading };
+  return { apy, rewardsPerDay, totalStaked, totalStakedNum, isLoading };
 }

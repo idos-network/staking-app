@@ -121,8 +121,8 @@ export function StakingForm({
     onAmountChange?.(value);
   };
   const [checked, setChecked] = useState(false);
-  // TODO: re-add NodeProviderSelector when ready
-  // TODO: update default provider address
+  // TODO: re-add NodeProviderSelector UI when ready
+  // Currently defaults to nodeProviders[0] — update addresses in node-provider-selector.tsx
   const selectedProvider: NodeProvider = nodeProviders[0];
 
   const setMaxAmount = () => {
