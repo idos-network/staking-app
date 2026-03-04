@@ -52,9 +52,12 @@ function USDBalance({ value, tokenPrice, isLoading }: USDBalanceProps) {
     return <Skeleton className="h-4 w-20 bg-muted" />;
   }
 
-  // Format the USD amount
-  if (!value || value === 0n || !tokenPrice) {
+  if (!value || value === 0n) {
     return <span>$0.00</span>;
+  }
+
+  if (!tokenPrice) {
+    return <span>—</span>;
   }
 
   const tokenValue = fromWei(value);
