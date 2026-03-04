@@ -14,19 +14,19 @@ import {
 import { decodeTransactionError } from "@/lib/decode-error";
 import { formatTokenAmount, fromWei } from "@/lib/format";
 import {
-  UNSTAKE_DELAY_SECONDS,
   type UnstakeRecord,
   useWithdrawableUnstaked,
 } from "@/lib/queries/use-withdrawable-unstaked";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
-function formatCountdown(secondsRemaining: number): string {
+export function formatCountdown(secondsRemaining: number): string {
   if (secondsRemaining <= 0) {
     return "Ready";
   }
   const days = Math.floor(secondsRemaining / 86_400);
   const hours = Math.floor((secondsRemaining % 86_400) / 3600);
   const minutes = Math.floor((secondsRemaining % 3600) / 60);
+  const seconds = Math.floor(secondsRemaining % 60);
 
   const parts: string[] = [];
   if (days > 0) {
@@ -38,6 +38,9 @@ function formatCountdown(secondsRemaining: number): string {
   if (days === 0 && minutes > 0) {
     parts.push(`${minutes}m`);
   }
+  if (days === 0 && hours === 0 && seconds > 0) {
+    parts.push(`${seconds}s`);
+  }
 
   return `${parts.join(" ")} remaining`;
 }
@@ -45,12 +48,14 @@ function formatCountdown(secondsRemaining: number): string {
 function PendingUnbonding({
   records,
   currentTimestamp,
+  unstakeDelaySeconds,
 }: {
   records: UnstakeRecord[];
   currentTimestamp: number;
+  unstakeDelaySeconds: number;
 }) {
   const pendingRecords = records.filter((r) => {
-    const unlockTime = Number(r.timestamp) + UNSTAKE_DELAY_SECONDS;
+    const unlockTime = Number(r.timestamp) + unstakeDelaySeconds;
     return unlockTime > currentTimestamp;
   });
 
@@ -63,7 +68,7 @@ function PendingUnbonding({
       <p className="font-semibold">Pending Unbonding</p>
       <div className="flex flex-col gap-3">
         {pendingRecords.map((record, index) => {
-          const unlockTime = Number(record.timestamp) + UNSTAKE_DELAY_SECONDS;
+          const unlockTime = Number(record.timestamp) + unstakeDelaySeconds;
           const secondsRemaining = unlockTime - currentTimestamp;
           return (
             <div
@@ -93,6 +98,7 @@ export function WithdrawUnstake() {
   const {
     withdrawableAmount,
     unstakeRecords,
+    unstakeDelaySeconds,
     currentTimestamp,
     isLoading: isBalanceLoading,
   } = useWithdrawableUnstaked(address as `0x${string}` | undefined);
@@ -183,6 +189,7 @@ export function WithdrawUnstake() {
         <PendingUnbonding
           currentTimestamp={currentTimestamp}
           records={unstakeRecords}
+          unstakeDelaySeconds={unstakeDelaySeconds}
         />
       )}
       <ConfirmWithdrawUnstake

@@ -9,6 +9,7 @@ import { ConfirmStake } from "@/components/staking/confirm-stake";
 import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
   type NodeProvider,
+  NodeProviderSelector,
   nodeProviders,
 } from "@/components/staking/node-provider-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -105,6 +106,8 @@ type StakingFormProps = {
   onAmountChange?: (amount: number | null) => void;
   balance: number;
   isBalanceLoading: boolean;
+  selectedProvider: NodeProvider;
+  onProviderChange: (provider: NodeProvider) => void;
 };
 export function StakingForm({
   mode,
@@ -113,6 +116,8 @@ export function StakingForm({
   pending,
   balance,
   isBalanceLoading,
+  selectedProvider,
+  onProviderChange,
 }: StakingFormProps) {
   const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
 
@@ -121,9 +126,6 @@ export function StakingForm({
     onAmountChange?.(value);
   };
   const [checked, setChecked] = useState(false);
-  // TODO: re-add NodeProviderSelector UI when ready
-  // Currently defaults to nodeProviders[0] — update addresses in node-provider-selector.tsx
-  const selectedProvider: NodeProvider = nodeProviders[0];
 
   const setMaxAmount = () => {
     setStakeAmount(balance);
@@ -165,6 +167,12 @@ export function StakingForm({
             : "Your tokens will be subject to a 14-day unbonding period. During this time, tokens will not earn rewards and cannot be transferred. You can withdraw them after the unbonding period ends."}
         </AlertDescription>
       </Alert>
+
+      <NodeProviderSelector
+        onProviderChange={onProviderChange}
+        providers={nodeProviders}
+        selectedProvider={selectedProvider}
+      />
 
       <AmountField
         className="flex flex-col gap-4"

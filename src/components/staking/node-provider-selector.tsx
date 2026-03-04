@@ -1,4 +1,4 @@
-import { TokenETH, TokenNEAR, TokenXRP, TokenXTZ } from "@web3icons/react";
+import { TokenETH, TokenZEN } from "@web3icons/react";
 import { ChevronRightIcon } from "lucide-react";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import { Button } from "@/components/ui/button";
@@ -35,51 +35,26 @@ export const nodeProviders: NodeProvider[] = [
     providerIcon: <img alt="idOS Icon" height={36} src={idOSIcon} width={36} />,
   },
   {
-    name: "Near Node",
-    address: "0x1dafeB42aD85ECc7EBF80410d3a3F5ADA06d153A",
-    assets: "NEAR",
+    // TODO: update Horizen node provider address before production deployment
+    name: "Horizen Node",
+    address: "0x2222222222222222222222222222222222222222",
+    assets: "ZEN",
     assetIcon: (
-      <div className="flex size-5 items-center justify-center rounded-full bg-green-300">
-        <TokenNEAR className="size-4" color="black" variant="mono" />
+      <div className="flex size-5 items-center justify-center rounded-full bg-[#041742]">
+        <TokenZEN className="size-4" />
       </div>
     ),
     providerIcon: (
-      <div className="flex size-8 items-center justify-center rounded-full bg-green-300">
-        <TokenNEAR className="size-6" color="black" variant="mono" />
-      </div>
-    ),
-  },
-  {
-    name: "Ripple Node",
-    address: "0x8Da270863C2fD726c28eCeB4C2763d0746e63920",
-    assets: "XRP",
-    assetIcon: (
-      <div className="flex size-5 items-center justify-center rounded-full bg-white">
-        <TokenXRP className="size-4" color="black" variant="mono" />
-      </div>
-    ),
-    providerIcon: (
-      <div className="flex size-8 items-center justify-center rounded-full bg-white">
-        <TokenXRP className="size-6" color="black" variant="mono" />
-      </div>
-    ),
-  },
-  {
-    name: "Tezos Node",
-    address: "0x4DE22ae3e2AD8CE21d878c104C2bc9bE4f8529BB",
-    assets: "TEZ",
-    assetIcon: (
-      <div className="flex size-5 items-center justify-center rounded-full bg-[#2c5ff6]">
-        <TokenXTZ className="size-4" color="white" variant="mono" />
-      </div>
-    ),
-    providerIcon: (
-      <div className="flex size-8 items-center justify-center rounded-full bg-[#2c5ff6]">
-        <TokenXTZ className="size-6" color="white" variant="mono" />
+      <div className="flex size-8 items-center justify-center rounded-full bg-[#041742]">
+        <TokenZEN className="size-6" />
       </div>
     ),
   },
 ];
+
+export function getRandomProvider(): NodeProvider {
+  return nodeProviders[Math.floor(Math.random() * nodeProviders.length)];
+}
 
 type NodeProviderTriggerProps = {
   provider: NodeProvider;
@@ -96,7 +71,6 @@ function NodeProviderTrigger({ provider, ...props }: NodeProviderTriggerProps) {
         <span>{provider.name}</span>
       </span>
       <span className="flex items-center gap-5">
-        {/* TODO: show dynamic APY from useStakingAPY when re-enabling this component */}
         <ChevronRightIcon className="size-6" />
       </span>
     </Button>
@@ -129,7 +103,6 @@ function NodeProviderButton({
           {provider.providerIcon}
           {provider.name}
         </div>
-        {/* TODO: show dynamic APY from useStakingAPY when re-enabling this component */}
       </div>
       <div className="flex items-center justify-between gap-2 self-stretch">
         <div className="flex flex-1 flex-col items-start gap-2">
