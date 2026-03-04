@@ -1,5 +1,5 @@
-import { TokenZEN } from "@web3icons/react";
 import { ChevronRightIcon } from "lucide-react";
+import horizenIcon from "@/assets/horizen-labs-logo.svg?url";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import idOSTokenIcon from "@/assets/idOS-token.svg?url";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export type NodeProvider = {
 // TODO: update node provider addresses for mainnet before production deployment
 export const nodeProviders: NodeProvider[] = [
   {
-    name: "idOS Node",
+    name: "idOS",
     address: "0x4Bfcc302AA00c8f9bD04eBfBbd8C28762285292a",
     assets: "IDOS",
     assetIcon: (
@@ -43,7 +43,7 @@ export const nodeProviders: NodeProvider[] = [
   },
   {
     // TODO: update Horizen node provider address before production deployment
-    name: "Horizen Node",
+    name: "Horizen Labs",
     address: "0x2222222222222222222222222222222222222222",
     assets: "IDOS",
     assetIcon: (
@@ -58,9 +58,7 @@ export const nodeProviders: NodeProvider[] = [
       </div>
     ),
     providerIcon: (
-      <div className="flex size-8 items-center justify-center rounded-full bg-[#041742]">
-        <TokenZEN className="size-6" />
-      </div>
+      <img alt="Horizen Labs Icon" height={30} src={horizenIcon} width={30} />
     ),
   },
 ];
