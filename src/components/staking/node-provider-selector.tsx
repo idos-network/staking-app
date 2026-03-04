@@ -1,6 +1,7 @@
-import { TokenETH, TokenZEN } from "@web3icons/react";
+import { TokenZEN } from "@web3icons/react";
 import { ChevronRightIcon } from "lucide-react";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
+import idOSTokenIcon from "@/assets/idOS-token.svg?url";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,10 +27,16 @@ export const nodeProviders: NodeProvider[] = [
   {
     name: "idOS Node",
     address: "0x4Bfcc302AA00c8f9bD04eBfBbd8C28762285292a",
-    assets: "ETH",
+    assets: "IDOS",
     assetIcon: (
-      <div className="flex size-5 items-center justify-center rounded-full bg-[#2c5ff6]">
-        <TokenETH className="size-4" />
+      <div className="flex size-12 items-center justify-center rounded-full">
+        <img
+          alt="idOS Token Icon"
+          className="rounded-full"
+          height={32}
+          src={idOSTokenIcon}
+          width={32}
+        />
       </div>
     ),
     providerIcon: <img alt="idOS Icon" height={36} src={idOSIcon} width={36} />,
@@ -38,10 +45,16 @@ export const nodeProviders: NodeProvider[] = [
     // TODO: update Horizen node provider address before production deployment
     name: "Horizen Node",
     address: "0x2222222222222222222222222222222222222222",
-    assets: "ZEN",
+    assets: "IDOS",
     assetIcon: (
-      <div className="flex size-5 items-center justify-center rounded-full bg-[#041742]">
-        <TokenZEN className="size-4" />
+      <div className="flex size-12 items-center justify-center rounded-full">
+        <img
+          alt="idOS Token Icon"
+          className="rounded-full"
+          height={32}
+          src={idOSTokenIcon}
+          width={32}
+        />
       </div>
     ),
     providerIcon: (
