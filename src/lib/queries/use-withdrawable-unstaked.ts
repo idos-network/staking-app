@@ -1,13 +1,16 @@
 import { useQueries } from "@tanstack/react-query";
-import { useBlock, useConfig } from "wagmi";
-import { unstakeByUserAtIndexQueryOptions } from "./query-options";
+import { useBlock, useConfig, useReadContract } from "wagmi";
+import {
+  unstakeByUserAtIndexQueryOptions,
+  unstakeDelayParams,
+} from "./query-options";
 
 export type UnstakeRecord = {
   amount: bigint;
   timestamp: bigint;
 };
 
-export const UNSTAKE_DELAY_SECONDS = 14 * 24 * 60 * 60;
+const FALLBACK_UNSTAKE_DELAY_SECONDS = 14 * 24 * 60 * 60;
 
 function processUnstakeRecord(
   amount: bigint,
@@ -108,12 +111,17 @@ function processUnstakeQueries(
 export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
   const config = useConfig();
 
-  // Get current block timestamp
   const { data: currentBlock, isLoading: isBlockLoading } = useBlock();
 
-  // Fetch unstake records - start with a smaller batch (20 records)
-  // Most users won't have more than a few unstake records
-  // If we need more, we can expand this number
+  const { data: onChainDelay, isLoading: isDelayLoading } = useReadContract(
+    unstakeDelayParams()
+  );
+
+  const unstakeDelaySeconds =
+    onChainDelay !== undefined
+      ? Number(onChainDelay)
+      : FALLBACK_UNSTAKE_DELAY_SECONDS;
+
   const BATCH_SIZE = 20;
   const unstakeQueries = useQueries({
     queries: Array.from({ length: BATCH_SIZE }, (_, index) =>
@@ -121,7 +129,6 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
     ),
   });
 
-  // Process the results
   const { withdrawableAmount, pendingAmount, unstakeRecords, isLoading } =
     (() => {
       if (!(address && currentBlock)) {
@@ -134,12 +141,11 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
       }
 
       const currentTimestamp = Number(currentBlock.timestamp);
-      const delaySeconds = UNSTAKE_DELAY_SECONDS;
 
       return processUnstakeQueries(
         unstakeQueries,
         currentTimestamp,
-        delaySeconds
+        unstakeDelaySeconds
       );
     })();
 
@@ -149,7 +155,8 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
     withdrawableAmount,
     pendingAmount,
     unstakeRecords,
+    unstakeDelaySeconds,
     currentTimestamp,
-    isLoading: isLoading || isBlockLoading,
+    isLoading: isLoading || isBlockLoading || isDelayLoading,
   };
 }

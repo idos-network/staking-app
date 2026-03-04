@@ -1,9 +1,10 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { parseUnits } from "viem";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
-import { nodeProviders } from "@/components/staking/node-provider-selector";
+import { getRandomProvider } from "@/components/staking/node-provider-selector";
 import {
   StakingForm,
   type StakingFormSubmitData,
@@ -23,10 +24,7 @@ export function Unstake() {
   const writeContract = useWriteContract();
   const queryClient = useQueryClient();
   const config = useConfig();
-
-  // TODO: re-add NodeProviderSelector when ready
-  // TODO: update default provider address
-  const selectedProvider = nodeProviders[0];
+  const [selectedProvider, setSelectedProvider] = useState(getRandomProvider);
 
   // Fetch staked balance for the selected node provider
   const { data: nodeStake, isLoading: isStakedBalanceLoading } =
@@ -100,8 +98,10 @@ export function Unstake() {
       balance={stakedBalance}
       isBalanceLoading={isStakedBalanceLoading}
       mode="unstake"
+      onProviderChange={setSelectedProvider}
       onSubmit={handleSubmit}
       pending={writeContract.isPending}
+      selectedProvider={selectedProvider}
     />
   );
 }

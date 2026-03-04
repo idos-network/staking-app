@@ -6,7 +6,7 @@
 
 - Node.js 18+ (or Bun)
 - A Web3 wallet (MetaMask, Rabby, WalletConnect, etc.)
-- Access to Arbitrum network
+- Access to Arbitrum Sepolia testnet (for testing) or Arbitrum mainnet (for production)
 
 ### Installation
 
@@ -84,7 +84,7 @@ The entire app runs on a single chain, configured via `APP_CHAIN_ID` in `src/lib
 The staking page connects to an idOS Node Staking contract. Users can:
 
 1. **Stake** — Approve + stake IDOS tokens to a selected node provider
-2. **Unstake** — Initiate unstaking (14-day delay)
+2. **Unstake** — Initiate unstaking (delay read dynamically from the contract's `UNSTAKE_DELAY`)
 3. **Withdraw Unstake** — Withdraw after the delay period
 4. **Claim Rewards** — Withdraw accumulated staking rewards
 
@@ -111,7 +111,7 @@ All contracts are on **Arbitrum** (mainnet).
 
 **Other hardcoded values:**
 
-- **Node Providers** (`src/components/staking/node-provider-selector.tsx`): Currently defaults to the first provider (selector UI is hidden, to be re-added later)
+- **Node Providers** (`src/components/staking/node-provider-selector.tsx`): Two providers configured (idOS Node, Horizen Node). Provider addresses must be `allowNode`'d on the staking contract before they can receive stakes
 - **APY**: dynamically calculated from on-chain `startTime`, `getNodeStakes()`, and the reward schedule in `src/lib/queries/use-staking-apy.ts`. Displays `———` when the staking pool is empty (no stakers yet)
 - **Token Price**: fetched live from Zerion API (primary) with CoinGecko fallback in `src/lib/queries/use-token-price.ts`. Requires `VITE_ZERION_API_KEY` for Zerion
 - **Etherscan Links**: currently point to `etherscan.io` (mainnet) in vesting components
@@ -171,7 +171,7 @@ Token price is fetched live from Zerion API (primary) with CoinGecko as a fallba
 
 ### 6. Node Providers (`src/components/staking/node-provider-selector.tsx`)
 
-The node provider selector is currently hidden (defaults to the first provider). When re-enabling the selector, verify the provider addresses are correct for the target network.
+Verify provider addresses are `allowNode`'d on the staking contract and correct for the target network.
 
 ### 7. Production URL (`src/lib/appkit.tsx`)
 
