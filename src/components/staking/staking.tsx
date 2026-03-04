@@ -2,6 +2,10 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useState } from "react";
 import { useReadContract } from "wagmi";
 import { ClaimRewards } from "@/components/staking/claim-rewards";
+import {
+  getRandomProvider,
+  type NodeProvider,
+} from "@/components/staking/node-provider-selector";
 import { Stake } from "@/components/staking/stake";
 import { Unstake } from "@/components/staking/unstake";
 import { WithdrawUnstake } from "@/components/staking/withdraw-unstake";
@@ -93,6 +97,8 @@ function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
   );
 }
 
+const POLL_INTERVAL = 30_000;
+
 function StakingBalances({
   showAPR = true,
   stakeAmount,
@@ -104,18 +110,21 @@ function StakingBalances({
 
   const { data: tokenPrice } = useTokenPrice(IDOS_TOKEN_ABI_ADDRESS);
 
-  const { data: balance, isLoading: isBalanceLoading } = useReadContract(
-    balanceOfParams(address as `0x${string}` | undefined)
-  );
+  const { data: balance, isLoading: isBalanceLoading } = useReadContract({
+    ...balanceOfParams(address as `0x${string}` | undefined),
+    query: { refetchInterval: POLL_INTERVAL },
+  });
 
-  const { data: userStake, isLoading: isUserStakeLoading } = useReadContract(
-    getUserStakeParams(address as `0x${string}` | undefined)
-  );
+  const { data: userStake, isLoading: isUserStakeLoading } = useReadContract({
+    ...getUserStakeParams(address as `0x${string}` | undefined),
+    query: { refetchInterval: POLL_INTERVAL },
+  });
 
   const { data: withdrawableReward, isLoading: isRewardLoading } =
-    useReadContract(
-      withdrawableRewardParams(address as `0x${string}` | undefined)
-    );
+    useReadContract({
+      ...withdrawableRewardParams(address as `0x${string}` | undefined),
+      query: { refetchInterval: POLL_INTERVAL },
+    });
 
   // Calculate total staked: activeStake + slashedStake
   // Note: If you want to exclude slashed stake from the total, change this to only use `userStake[0]`
@@ -212,6 +221,8 @@ function StakingBalances({
 export function Staking() {
   const [activeTab, setActiveTab] = useState("stake");
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
+  const [selectedProvider, setSelectedProvider] =
+    useState<NodeProvider>(getRandomProvider);
 
   return (
     <div className="flex flex-col gap-5">
@@ -274,10 +285,17 @@ export function Staking() {
             </TabsList>
           </div>
           <TabsPanel value="stake">
-            <Stake onAmountChange={setStakeAmount} />
+            <Stake
+              onAmountChange={setStakeAmount}
+              onProviderChange={setSelectedProvider}
+              selectedProvider={selectedProvider}
+            />
           </TabsPanel>
           <TabsPanel value="unstake">
-            <Unstake />
+            <Unstake
+              onProviderChange={setSelectedProvider}
+              selectedProvider={selectedProvider}
+            />
           </TabsPanel>
           <TabsPanel value="withdraw-unstake">
             <WithdrawUnstake />
