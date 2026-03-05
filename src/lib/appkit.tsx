@@ -15,7 +15,7 @@ const projectId =
 
 const url = import.meta.env.DEV
   ? "http://localhost:5173"
-  : "https://idos-staking-app.vercel.app/";
+  : "https://portal.idos.network/";
 
 const metadata = {
   name: "idOS Staking",
