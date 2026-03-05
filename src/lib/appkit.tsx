@@ -8,7 +8,8 @@ import {
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import type { PropsWithChildren } from "react";
-import { WagmiProvider } from "wagmi";
+import { http, WagmiProvider } from "wagmi";
+import { arbitrum as wagmiArbitrum } from "wagmi/chains";
 
 const projectId =
   import.meta.env.VITE_APPKIT_PROJECT_ID || "b56e18d47c72ab683b10814fe9495694";
@@ -35,6 +36,9 @@ const wagmiAdapter = new WagmiAdapter({
   networks,
   projectId,
   ssr: true,
+  transports: {
+    [wagmiArbitrum.id]: http("https://arb1.arbitrum.io/rpc"),
+  },
 });
 
 createAppKit({
