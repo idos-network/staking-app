@@ -10,7 +10,7 @@ import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
   type NodeProvider,
   NodeProviderSelector,
-  nodeProviders,
+  useOnChainNodeProviders,
 } from "@/components/staking/node-provider-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -120,6 +120,7 @@ export function StakingForm({
   onProviderChange,
 }: StakingFormProps) {
   const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
+  const { providers: onChainProviders } = useOnChainNodeProviders();
 
   const setStakeAmount = (value: number | null) => {
     _setStakeAmount(value);
@@ -168,11 +169,13 @@ export function StakingForm({
         </AlertDescription>
       </Alert>
 
-      <NodeProviderSelector
-        onProviderChange={onProviderChange}
-        providers={nodeProviders}
-        selectedProvider={selectedProvider}
-      />
+      {onChainProviders.length > 0 && (
+        <NodeProviderSelector
+          onProviderChange={onProviderChange}
+          providers={onChainProviders}
+          selectedProvider={selectedProvider}
+        />
+      )}
 
       <AmountField
         className="flex flex-col gap-4"

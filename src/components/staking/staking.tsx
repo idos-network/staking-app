@@ -5,6 +5,7 @@ import { ClaimRewards } from "@/components/staking/claim-rewards";
 import {
   getRandomProvider,
   type NodeProvider,
+  useOnChainNodeProviders,
 } from "@/components/staking/node-provider-selector";
 import { Stake } from "@/components/staking/stake";
 import { Unstake } from "@/components/staking/unstake";
@@ -221,8 +222,17 @@ function StakingBalances({
 export function Staking() {
   const [activeTab, setActiveTab] = useState("stake");
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
-  const [selectedProvider, setSelectedProvider] =
-    useState<NodeProvider>(getRandomProvider);
+  const { providers: onChainProviders } = useOnChainNodeProviders();
+  const [selectedProvider, setSelectedProvider] = useState<NodeProvider | null>(
+    null
+  );
+
+  if (!selectedProvider && onChainProviders.length > 0) {
+    setSelectedProvider(getRandomProvider(onChainProviders));
+  }
+
+  const activeProvider =
+    selectedProvider ?? onChainProviders[0] ?? getRandomProvider([]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -288,13 +298,13 @@ export function Staking() {
             <Stake
               onAmountChange={setStakeAmount}
               onProviderChange={setSelectedProvider}
-              selectedProvider={selectedProvider}
+              selectedProvider={activeProvider}
             />
           </TabsPanel>
           <TabsPanel value="unstake">
             <Unstake
               onProviderChange={setSelectedProvider}
-              selectedProvider={selectedProvider}
+              selectedProvider={activeProvider}
             />
           </TabsPanel>
           <TabsPanel value="withdraw-unstake">
