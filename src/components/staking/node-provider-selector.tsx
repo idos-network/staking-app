@@ -22,11 +22,10 @@ export type NodeProvider = {
   providerIcon: React.ReactElement;
 };
 
-// TODO: update node provider addresses for mainnet before production deployment
 export const nodeProviders: NodeProvider[] = [
   {
     name: "idOS",
-    address: "0x4Bfcc302AA00c8f9bD04eBfBbd8C28762285292a",
+    address: "0x0C5393db793DbA88f16DC4D030D678FBD88F8B0D",
     assets: "IDOS",
     assetIcon: (
       <div className="flex size-12 items-center justify-center rounded-full">
@@ -42,9 +41,8 @@ export const nodeProviders: NodeProvider[] = [
     providerIcon: <img alt="idOS Icon" height={36} src={idOSIcon} width={36} />,
   },
   {
-    // TODO: update Horizen node provider address before production deployment
     name: "Horizen Labs",
-    address: "0x2222222222222222222222222222222222222222",
+    address: "0x5A20FEdA3120A944b6a18BB80DB78776908f282f",
     assets: "IDOS",
     assetIcon: (
       <div className="flex size-12 items-center justify-center rounded-full">
