@@ -18,7 +18,7 @@ function Header() {
   const { disconnect } = useDisconnect();
 
   return (
-    <header className="sticky top-0 flex items-center justify-between border-border border-b bg-background p-5">
+    <header className="sticky top-0 z-10 flex items-center justify-between border-border border-b bg-background p-5">
       <Link to="/">
         <img alt="idOS Logo" height={32} src={idOSLogo} width={100} />
       </Link>
