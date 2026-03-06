@@ -1,5 +1,6 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,6 +19,7 @@ import {
   fromWei,
 } from "@/lib/format";
 import { balanceOfParams } from "@/lib/queries/query-options";
+
 import type { NodeProvider } from "./node-provider-selector";
 
 type ConfirmStakeProps = {
@@ -69,11 +71,11 @@ export function ConfirmStake({
           <div className="rounded-[20px] bg-secondary px-4 py-2">
             <ul className="flex flex-col gap-2">
               <li className="flex h-10 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">Address</span>
+                <span className="text-sm text-muted-foreground">Address</span>
                 <span>{formatEthereumAddress(address)}</span>
               </li>
               <li className="flex h-10 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Node Provider
                 </span>
                 <span className="flex items-center gap-2 text-sm">
@@ -84,7 +86,7 @@ export function ConfirmStake({
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Available Balance
                 </span>
                 <span>
@@ -96,14 +98,14 @@ export function ConfirmStake({
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Amount to Stake
                 </span>
                 <span>{formatTokenAmount(amount)} IDOS</span>
               </li>
             </ul>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             You'll be asked to sign two transactions: an allowance for IDOS, and
             the staking transaction
           </p>

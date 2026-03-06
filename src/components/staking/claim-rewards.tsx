@@ -2,6 +2,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+
 import { ConfirmClaimReward } from "@/components/staking/confirm-claim-reward";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,15 +28,15 @@ export function ClaimRewards() {
 
   const { data: withdrawableReward, isLoading: isRewardLoading } =
     useReadContract(
-      withdrawableRewardParams(address as `0x${string}` | undefined)
+      withdrawableRewardParams(address as `0x${string}` | undefined),
     );
 
   const { data: balance, isLoading: isBalanceLoading } = useReadContract(
-    balanceOfParams(address as `0x${string}` | undefined)
+    balanceOfParams(address as `0x${string}` | undefined),
   );
 
   // Extract withdrawableAmount from withdrawableReward result
-  // withdrawableReward returns: [withdrawableAmount, rewardAcc, userStakeAcc, totalStakeAcc]
+  // WithdrawableReward returns: [withdrawableAmount, rewardAcc, userStakeAcc, totalStakeAcc]
   const rewardAmount =
     withdrawableReward &&
     Array.isArray(withdrawableReward) &&
@@ -50,7 +51,7 @@ export function ClaimRewards() {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
-        "Please connect your wallet to claim rewards."
+        "Please connect your wallet to claim rewards.",
       );
       return;
     }
@@ -62,10 +63,10 @@ export function ClaimRewards() {
     try {
       // Claim rewards (withdrawReward takes no args)
       const claimTx = await writeContract.mutateAsync({
-        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
-        functionName: "withdrawReward",
+        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         args: [],
+        functionName: "withdrawReward",
       });
 
       await waitForTransactionReceipt(config, {
@@ -75,7 +76,7 @@ export function ClaimRewards() {
       // Invalidate all readContract queries to ensure fresh data
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const queryKey = query.queryKey;
+          const { queryKey } = query;
           // Match all readContract queries
           return (
             Array.isArray(queryKey) &&
@@ -90,7 +91,7 @@ export function ClaimRewards() {
 
       showSuccessToast(
         "Rewards Claimed",
-        `Successfully claimed ${formatTokenAmount(rewardAmount)} IDOS rewards.`
+        `Successfully claimed ${formatTokenAmount(rewardAmount)} IDOS rewards.`,
       );
     } catch (error) {
       console.error(error);
@@ -115,10 +116,10 @@ export function ClaimRewards() {
             </>
           ) : (
             <>
-              <p className="font-semibold text-lg">
+              <p className="text-lg font-semibold">
                 {formatTokenAmount(rewardAmount)} IDOS
               </p>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 {formatTokenAmount(currentBalance)} IDOS
               </p>
             </>

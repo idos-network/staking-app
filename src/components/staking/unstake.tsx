@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { parseUnits } from "viem";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+
 import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import {
   StakingForm,
@@ -35,8 +36,8 @@ export function Unstake({
     useReadContract(
       stakeByNodeByUserParams(
         address as `0x${string}` | undefined,
-        selectedProvider.address
-      )
+        selectedProvider.address,
+      ),
     );
 
   const stakedBalance = fromWei(nodeStake);
@@ -45,7 +46,7 @@ export function Unstake({
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
-        "Please connect your wallet to unstake tokens."
+        "Please connect your wallet to unstake tokens.",
       );
       return;
     }
@@ -56,10 +57,10 @@ export function Unstake({
     try {
       // Unstake tokens (no approval needed for unstaking)
       const unstakeTx = await writeContract.mutateAsync({
-        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
-        functionName: "unstake",
+        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         args: [data.provider.address, amountInWei],
+        functionName: "unstake",
       });
 
       await waitForTransactionReceipt(config, {
@@ -69,7 +70,7 @@ export function Unstake({
       // Invalidate all readContract queries to ensure fresh data
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const queryKey = query.queryKey;
+          const { queryKey } = query;
           // Match all readContract queries
           return (
             Array.isArray(queryKey) &&
@@ -84,7 +85,7 @@ export function Unstake({
 
       showSuccessToast(
         "Unstaking Successful",
-        `Successfully unstaked ${data.amount} IDOS tokens.`
+        `Successfully unstaked ${data.amount} IDOS tokens.`,
       );
     } catch (error) {
       console.error(error);

@@ -1,10 +1,11 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useState } from "react";
 import { useReadContract } from "wagmi";
+
 import { ClaimRewards } from "@/components/staking/claim-rewards";
 import {
-  getRandomProvider,
   type NodeProvider,
+  getRandomProvider,
   useOnChainNodeProviders,
 } from "@/components/staking/node-provider-selector";
 import { Stake } from "@/components/staking/stake";
@@ -79,7 +80,7 @@ function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-muted-foreground text-sm">Estimated APR*</p>
+        <p className="text-sm text-muted-foreground">Estimated APR*</p>
         {isLoading ? (
           <Skeleton className="h-[30px] w-20 bg-muted" />
         ) : (
@@ -88,10 +89,10 @@ function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
           </Badge>
         )}
       </div>
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         Staking rewards are accrued daily.
       </p>
-      <p className="text-muted-foreground text-sm italic">
+      <p className="text-sm text-muted-foreground italic">
         *Estimated only. Not guaranteed and subject to change.
       </p>
     </div>
@@ -135,7 +136,7 @@ function StakingBalances({
       : undefined;
 
   // Extract withdrawableAmount from withdrawableReward result
-  // withdrawableReward returns: [withdrawableAmount, rewardAcc, userStakeAcc, totalStakeAcc]
+  // WithdrawableReward returns: [withdrawableAmount, rewardAcc, userStakeAcc, totalStakeAcc]
   const totalRewards =
     withdrawableReward &&
     Array.isArray(withdrawableReward) &&
@@ -148,12 +149,12 @@ function StakingBalances({
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-5">
           <div className="flex w-1/2 flex-col gap-2">
-            <p className="text-muted-foreground text-sm">Available Balance</p>
+            <p className="text-sm text-muted-foreground">Available Balance</p>
             <div className="flex h-14 flex-col gap-2">
               <div className="text-lg">
                 <IDOSBalance isLoading={isBalanceLoading} value={balance} />
               </div>
-              <div className="text-muted-foreground text-sm">
+              <div className="text-sm text-muted-foreground">
                 <USDBalance
                   isLoading={isBalanceLoading}
                   tokenPrice={tokenPrice}
@@ -163,7 +164,7 @@ function StakingBalances({
             </div>
           </div>
           <div className="flex w-1/2 flex-col gap-2 text-right">
-            <p className="text-muted-foreground text-sm">Total Staked</p>
+            <p className="text-sm text-muted-foreground">Total Staked</p>
             <div className="flex h-14 flex-col items-end gap-2">
               <div className="text-lg">
                 <IDOSBalance
@@ -171,7 +172,7 @@ function StakingBalances({
                   value={totalStaked}
                 />
               </div>
-              <div className="text-muted-foreground text-sm">
+              <div className="text-sm text-muted-foreground">
                 <USDBalance
                   isLoading={isUserStakeLoading}
                   tokenPrice={tokenPrice}
@@ -184,12 +185,12 @@ function StakingBalances({
         <Separator className="bg-neutral-700" orientation="horizontal" />
         <div className="flex items-center gap-5">
           <div className="flex w-1/2 flex-col gap-2">
-            <p className="text-muted-foreground text-sm">Total Rewards</p>
+            <p className="text-sm text-muted-foreground">Total Rewards</p>
             <div className="flex h-14 flex-col gap-2">
               <div className="text-lg">
                 <IDOSBalance isLoading={isRewardLoading} value={totalRewards} />
               </div>
-              <div className="text-muted-foreground text-sm">
+              <div className="text-sm text-muted-foreground">
                 <USDBalance
                   isLoading={isRewardLoading}
                   tokenPrice={tokenPrice}
@@ -199,12 +200,12 @@ function StakingBalances({
             </div>
           </div>
           <div className="flex w-1/2 flex-col gap-2 text-right">
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               Est. Monthly Rewards*
             </p>
             <div className="flex flex-col items-end gap-2">
               <p className="text-lg">0.00 IDOS</p>
-              <p className="text-muted-foreground text-sm">$0.00</p>
+              <p className="text-sm text-muted-foreground">$0.00</p>
             </div>
           </div>
         </div>
@@ -224,7 +225,7 @@ export function Staking() {
   const [stakeAmount, setStakeAmount] = useState<number | null>(null);
   const { providers: onChainProviders } = useOnChainNodeProviders();
   const [selectedProvider, setSelectedProvider] = useState<NodeProvider | null>(
-    null
+    null,
   );
 
   if (!selectedProvider && onChainProviders.length > 0) {
@@ -267,7 +268,7 @@ export function Staking() {
           onValueChange={setActiveTab}
         >
           <div className="scrollbar-hide min-w-0 overflow-x-auto rounded-full [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <TabsList className="h-11 w-fit min-w-full flex-nowrap rounded-full p-1 [&>*]:shrink-0 [&>*]:whitespace-nowrap [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:bg-neutral-950">
+            <TabsList className="h-11 w-fit min-w-full flex-nowrap rounded-full p-1 [&_[data-slot=tab-indicator]]:rounded-full [&_[data-slot=tab-indicator]]:bg-neutral-950 [&>*]:shrink-0 [&>*]:whitespace-nowrap">
               <TabsTab
                 className="h-full rounded-full text-neutral-400 hover:text-neutral-300 data-active:text-white"
                 value="stake"

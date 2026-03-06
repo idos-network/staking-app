@@ -1,5 +1,6 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useReadContract } from "wagmi";
+
 import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import { Button } from "@/components/ui/button";
 import {
@@ -85,11 +86,11 @@ export function ConfirmUnstake({
           <div className="rounded-[20px] bg-secondary px-4 py-2">
             <ul className="flex flex-col gap-2">
               <li className="flex h-10 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">Address</span>
+                <span className="text-sm text-muted-foreground">Address</span>
                 <span>{formatEthereumAddress(address)}</span>
               </li>
               <li className="flex h-10 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Node Provider
                 </span>
                 <span className="flex items-center gap-2 text-sm">
@@ -100,7 +101,7 @@ export function ConfirmUnstake({
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Available Balance
                 </span>
                 <span>
@@ -112,7 +113,7 @@ export function ConfirmUnstake({
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Staked Amount
                 </span>
                 <span>
@@ -124,20 +125,20 @@ export function ConfirmUnstake({
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Amount to Unstake
                 </span>
                 <span>{formatTokenAmount(amount)} IDOS</span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Staked Balance After Unstake
                 </span>
                 <span>{formatTokenAmount(totalStaked - amount)} IDOS</span>
               </li>
             </ul>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             You will be asked to sign a transaction for unstaking your tokens
           </p>
         </div>

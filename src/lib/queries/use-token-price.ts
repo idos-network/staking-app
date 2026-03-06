@@ -12,7 +12,7 @@ const CHAIN_TO_PLATFORM: Record<number, string> = {
 
 export async function fetchZerionPrice(
   contractAddress: string,
-  apiKey: string
+  apiKey: string,
 ): Promise<number | null> {
   if (!apiKey) {
     return null;
@@ -35,7 +35,7 @@ export async function fetchZerionPrice(
 
 export async function fetchCoinGeckoPrice(
   contractAddress: string,
-  chainId: number
+  chainId: number,
 ): Promise<number | null> {
   const platform = CHAIN_TO_PLATFORM[chainId];
   if (!platform) {
@@ -55,7 +55,7 @@ export async function fetchCoinGeckoPrice(
 
 export async function fetchTokenPrice(
   contractAddress: string,
-  chainId: number
+  chainId: number,
 ): Promise<number | null> {
   const apiKey = import.meta.env.VITE_ZERION_API_KEY ?? "";
 
@@ -79,11 +79,11 @@ export function useTokenPrice(contractAddress: string) {
   const chainId = useChainId();
 
   return useQuery({
-    queryKey: ["tokenPrice", contractAddress, chainId],
+    enabled: Boolean(contractAddress),
     queryFn: () => fetchTokenPrice(contractAddress, chainId),
-    enabled: !!contractAddress,
+    queryKey: ["tokenPrice", contractAddress, chainId],
     refetchInterval: 60_000,
-    staleTime: 30_000,
     retry: 3,
+    staleTime: 30_000,
   });
 }

@@ -1,0 +1,25 @@
+{
+  "plugins": ["react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "style": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "eslint-plugin-react/react-in-jsx-scope": "off",
+    "eslint-plugin-react/jsx-max-depth": "off",
+    "eslint-plugin-react/jsx-props-no-spreading": "off",
+    "no-magic-numbers": "off",
+    "no-ternary": "off",
+    "func-style": "off",
+    "sort-imports": "off",
+    "id-length": "off",
+    "sort-keys": "off",
+    "max-statements": "off",
+    "max-params": "off",
+    "no-continue": "off",
+    "new-cap": "off"
+  },
+  "ignorePatterns": ["src/components/ui/*.tsx", "src/routeTree.gen.ts"]
+}

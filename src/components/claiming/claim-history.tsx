@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { APP_BLOCK_EXPLORER_URL } from "@/lib/abi";
 import { formatTokenAmount, fromWei } from "@/lib/format";
@@ -28,7 +29,7 @@ export function ClaimHistory({
     <div className="flex flex-col gap-4">
       <p className="font-semibold">Claim History</p>
       {claimHistory.length === 0 ? (
-        <p className="py-6 text-center text-muted-foreground text-sm">
+        <p className="py-6 text-center text-sm text-muted-foreground">
           No claims yet.
         </p>
       ) : (
@@ -39,12 +40,12 @@ export function ClaimHistory({
               key={entry.txHash}
             >
               <div className="flex flex-col gap-0.5">
-                <p className="font-medium text-sm">
+                <p className="text-sm font-medium">
                   +{formatTokenAmount(fromWei(entry.amount))} IDOS
                 </p>
               </div>
               <a
-                className="flex items-center gap-1 font-mono text-muted-foreground text-sm transition-colors hover:text-foreground"
+                className="flex items-center gap-1 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
                 href={`${APP_BLOCK_EXPLORER_URL}/tx/${entry.txHash}`}
                 rel="noopener noreferrer"
                 target="_blank"

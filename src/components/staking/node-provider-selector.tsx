@@ -1,5 +1,6 @@
 import { ChevronRightIcon } from "lucide-react";
 import { useReadContract } from "wagmi";
+
 import HorizenIcon from "@/assets/horizen-labs-logo.svg?url";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import idOSTokenIcon from "@/assets/idOS-token.svg?url";
@@ -27,9 +28,7 @@ export type NodeProvider = {
 
 export const nodeProviders: NodeProvider[] = [
   {
-    name: "idOS",
     address: "0x0C5393db793DbA88f16DC4D030D678FBD88F8B0D",
-    assets: "IDOS",
     assetIcon: (
       <div className="flex size-12 items-center justify-center rounded-full">
         <img
@@ -41,6 +40,8 @@ export const nodeProviders: NodeProvider[] = [
         />
       </div>
     ),
+    assets: "IDOS",
+    name: "idOS",
     providerIcon: (
       <img
         alt="idOS Icon"
@@ -52,9 +53,7 @@ export const nodeProviders: NodeProvider[] = [
     ),
   },
   {
-    name: "Horizen Labs",
     address: "0x5A20FEdA3120A944b6a18BB80DB78776908f282f",
-    assets: "IDOS",
     assetIcon: (
       <div className="flex size-12 items-center justify-center rounded-full">
         <img
@@ -66,6 +65,8 @@ export const nodeProviders: NodeProvider[] = [
         />
       </div>
     ),
+    assets: "IDOS",
+    name: "Horizen Labs",
     providerIcon: (
       <img
         alt="Horizen Labs Icon"
@@ -77,9 +78,7 @@ export const nodeProviders: NodeProvider[] = [
     ),
   },
   {
-    name: "Metapool",
     address: "0x24131dAa64632De66AD805654D7FCb8F6041abD3",
-    assets: "IDOS",
     assetIcon: (
       <div className="flex size-12 items-center justify-center rounded-full">
         <img
@@ -91,6 +90,8 @@ export const nodeProviders: NodeProvider[] = [
         />
       </div>
     ),
+    assets: "IDOS",
+    name: "Metapool",
     providerIcon: (
       <img
         alt="Metapool Icon"
@@ -112,23 +113,23 @@ export function getRandomProvider(providers: NodeProvider[]): NodeProvider {
 
 export function useOnChainNodeProviders() {
   const { data: nodeStakes, isLoading } = useReadContract(
-    getNodeStakesParams()
+    getNodeStakesParams(),
   );
 
   const onChainAddresses = new Set(
     Array.isArray(nodeStakes)
       ? nodeStakes.map((entry: { node: string }) => entry.node.toLowerCase())
-      : []
+      : [],
   );
 
   const providers =
     onChainAddresses.size > 0
       ? nodeProviders.filter((p) =>
-          onChainAddresses.has(p.address.toLowerCase())
+          onChainAddresses.has(p.address.toLowerCase()),
         )
       : [];
 
-  return { providers, isLoading };
+  return { isLoading, providers };
 }
 
 type NodeProviderTriggerProps = {
@@ -166,7 +167,7 @@ function NodeProviderButton({
       aria-selected={isSelected}
       className={cn(
         "flex flex-col items-start gap-10 border p-6 text-xl hover:border-success",
-        isSelected ? "border-success" : "border-transparent"
+        isSelected ? "border-success" : "border-transparent",
       )}
       data-selected={isSelected}
       onClick={onClick}
@@ -181,7 +182,7 @@ function NodeProviderButton({
       </div>
       <div className="flex items-center justify-between gap-2 self-stretch">
         <div className="flex flex-1 flex-col items-start gap-2">
-          <span className="text-muted-foreground text-sm">Assets</span>
+          <span className="text-sm text-muted-foreground">Assets</span>
           <div className="flex items-center gap-2 text-sm">
             {provider.assetIcon} {provider.assets}
           </div>

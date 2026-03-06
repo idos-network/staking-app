@@ -21,7 +21,7 @@ export function VestingProgressBar({ segments }: VestingProgressBarProps) {
           />
         ))}
       </div>
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-muted-foreground text-sm">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-muted-foreground">
         {segments.map((segment) => (
           <div className="flex items-center gap-1.5" key={segment.label}>
             <div className={`size-2 rounded-full ${segment.dotClass}`} />

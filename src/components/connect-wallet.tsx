@@ -1,5 +1,6 @@
 import { useAppKit } from "@reown/appkit/react";
 import { useState } from "react";
+
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { Button } from "@/components/ui/button";
 
@@ -44,8 +45,8 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
     <div className="flex h-svh flex-col place-content-center items-center p-5">
       <div className="flex w-full max-w-lg flex-col items-center gap-6">
         <img alt="idOS Logo" height={32} src={idOSLogo} width={100} />
-        <h2 className="font-semibold text-2xl">Welcome to idOS Portal</h2>
-        <p className="text-center text-muted-foreground text-sm">
+        <h2 className="text-2xl font-semibold">Welcome to idOS Portal</h2>
+        <p className="text-center text-sm text-muted-foreground">
           By continuing you agree to the{" "}
           <a
             className="text-primary underline transition-colors hover:text-primary/80"
@@ -90,8 +91,8 @@ function WalletScreen() {
     <div className="flex h-svh flex-col place-content-center items-center p-5">
       <div className="flex w-full max-w-lg flex-col items-center gap-6">
         <img alt="idOS Logo" height={32} src={idOSLogo} width={100} />
-        <h2 className="font-semibold text-2xl">Welcome to idOS Portal</h2>
-        <p className="text-center text-muted-foreground text-sm">
+        <h2 className="text-2xl font-semibold">Welcome to idOS Portal</h2>
+        <p className="text-center text-sm text-muted-foreground">
           Manage your idOS positions — stake tokens to secure the network and
           claim your vested allocation.
         </p>

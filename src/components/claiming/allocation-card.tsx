@@ -1,4 +1,5 @@
 import { ExternalLink, Lock } from "lucide-react";
+
 import { APP_BLOCK_EXPLORER_URL } from "@/lib/abi";
 import {
   formatEthereumAddress,
@@ -9,8 +10,8 @@ import type { VestingData } from "@/lib/queries/use-vesting";
 
 function formatTimestamp(unixSeconds: bigint): string {
   return new Date(Number(unixSeconds) * 1000).toLocaleDateString("en-US", {
-    month: "short",
     day: "numeric",
+    month: "short",
     year: "numeric",
   });
 }
@@ -34,7 +35,7 @@ export function AllocationCard({ data }: { data: VestingData }) {
     <div className="flex flex-col gap-4 rounded-xl bg-secondary p-4">
       <div className="flex items-center justify-end">
         <a
-          className="flex items-center gap-1 font-mono text-muted-foreground text-sm transition-colors hover:text-foreground"
+          className="flex items-center gap-1 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
           href={`${APP_BLOCK_EXPLORER_URL}/address/${data.contractAddress}`}
           rel="noopener noreferrer"
           target="_blank"
@@ -46,18 +47,18 @@ export function AllocationCard({ data }: { data: VestingData }) {
 
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col gap-1">
-          <p className="text-muted-foreground text-xs">Total</p>
-          <p className="font-medium text-sm">
+          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-sm font-medium">
             {formatTokenAmount(totalAllocation)}
           </p>
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-muted-foreground text-xs">Claimed</p>
-          <p className="font-medium text-sm">{formatTokenAmount(claimed)}</p>
+          <p className="text-xs text-muted-foreground">Claimed</p>
+          <p className="text-sm font-medium">{formatTokenAmount(claimed)}</p>
         </div>
         <div className="flex flex-col gap-1 text-right">
-          <p className="text-muted-foreground text-xs">Claimable</p>
-          <p className="font-medium text-primary text-sm">
+          <p className="text-xs text-muted-foreground">Claimable</p>
+          <p className="text-sm font-medium text-primary">
             {claimable > 0 ? formatTokenAmount(claimable) : "\u2014"}
           </p>
         </div>
@@ -78,7 +79,7 @@ export function AllocationCard({ data }: { data: VestingData }) {
         />
       </div>
 
-      <div className="flex items-center justify-between text-muted-foreground text-xs">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{vestedPct}% vested</span>
         <span className="flex items-center gap-1">
           <Lock className="size-3" />

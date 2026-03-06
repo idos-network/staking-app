@@ -1,24 +1,25 @@
 import { Separator } from "@/components/ui/separator";
 import { formatTokenAmount, fromWei } from "@/lib/format";
 import type { VestingData } from "@/lib/queries/use-vesting";
+
 import { VestingProgressBar } from "./vesting-progress-bar";
 
 export function VestingOverview({ contracts }: { contracts: VestingData[] }) {
   const totalAllocation = contracts.reduce(
     (sum, c) => sum + fromWei(c.totalAllocation),
-    0
+    0,
   );
   const totalVested = contracts.reduce(
     (sum, c) => sum + fromWei(c.totalVested),
-    0
+    0,
   );
   const alreadyClaimed = contracts.reduce(
     (sum, c) => sum + fromWei(c.alreadyClaimed),
-    0
+    0,
   );
   const claimableNow = contracts.reduce(
     (sum, c) => sum + fromWei(c.claimableNow),
-    0
+    0,
   );
   const locked = contracts.reduce((sum, c) => sum + fromWei(c.locked), 0);
 
@@ -37,25 +38,25 @@ export function VestingOverview({ contracts }: { contracts: VestingData[] }) {
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-2 gap-x-4 gap-y-6">
           <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground text-sm">Total Allocation</p>
+            <p className="text-sm text-muted-foreground">Total Allocation</p>
             <p className="text-lg">{formatTokenAmount(totalAllocation)} IDOS</p>
           </div>
 
           <div className="flex flex-col gap-2 text-right">
-            <p className="text-muted-foreground text-sm">Total Vested</p>
+            <p className="text-sm text-muted-foreground">Total Vested</p>
             <div className="flex flex-col items-end gap-1">
               <p className="text-lg">{formatTokenAmount(totalVested)} IDOS</p>
-              <p className="text-muted-foreground text-sm">{totalVestedPct}%</p>
+              <p className="text-sm text-muted-foreground">{totalVestedPct}%</p>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="text-muted-foreground text-sm">Already Claimed</p>
+            <p className="text-sm text-muted-foreground">Already Claimed</p>
             <div className="flex flex-col gap-1">
               <p className="text-lg">
                 {formatTokenAmount(alreadyClaimed)} IDOS
               </p>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 {totalAllocation > 0
                   ? ((alreadyClaimed / totalAllocation) * 100).toFixed(0)
                   : 0}
@@ -65,8 +66,8 @@ export function VestingOverview({ contracts }: { contracts: VestingData[] }) {
           </div>
 
           <div className="flex flex-col gap-2 text-right">
-            <p className="text-muted-foreground text-sm">Claimable Now</p>
-            <p className="font-semibold text-lg text-primary">
+            <p className="text-sm text-muted-foreground">Claimable Now</p>
+            <p className="text-lg font-semibold text-primary">
               {formatTokenAmount(claimableNow)} IDOS
             </p>
           </div>
@@ -77,22 +78,22 @@ export function VestingOverview({ contracts }: { contracts: VestingData[] }) {
         <VestingProgressBar
           segments={[
             {
-              label: "Claimed",
-              percent: claimedPct,
               color: "bg-muted-foreground",
               dotClass: "bg-muted-foreground",
+              label: "Claimed",
+              percent: claimedPct,
             },
             {
-              label: "Claimable",
-              percent: claimablePct,
               color: "bg-primary",
               dotClass: "bg-primary",
+              label: "Claimable",
+              percent: claimablePct,
             },
             {
-              label: "Locked",
-              percent: lockedPct,
               color: "bg-secondary",
               dotClass: "border border-border bg-secondary",
+              label: "Locked",
+              percent: lockedPct,
             },
           ]}
         />

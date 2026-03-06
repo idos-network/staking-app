@@ -1,5 +1,6 @@
 import { useQueries } from "@tanstack/react-query";
 import { useBlock, useConfig, useReadContract } from "wagmi";
+
 import {
   unstakeByUserAtIndexQueryOptions,
   unstakeDelayParams,
@@ -16,7 +17,7 @@ function processUnstakeRecord(
   amount: bigint,
   timestamp: bigint,
   currentTimestamp: number,
-  delaySeconds: number
+  delaySeconds: number,
 ): { withdrawable: bigint; pending: bigint } {
   // Check if this record is withdrawable
   // Contract logic: timestamp < block.timestamp - UNSTAKE_DELAY
@@ -25,9 +26,9 @@ function processUnstakeRecord(
   const withdrawableTimestamp = timestampNum + delaySeconds;
 
   if (withdrawableTimestamp <= currentTimestamp) {
-    return { withdrawable: amount, pending: 0n };
+    return { pending: 0n, withdrawable: amount };
   }
-  return { withdrawable: 0n, pending: amount };
+  return { pending: amount, withdrawable: 0n };
 }
 
 function processUnstakeQueries(
@@ -37,7 +38,7 @@ function processUnstakeQueries(
     data: readonly [bigint, number] | undefined;
   }>,
   currentTimestamp: number,
-  delaySeconds: number
+  delaySeconds: number,
 ): {
   withdrawableAmount: bigint;
   pendingAmount: bigint;
@@ -52,10 +53,10 @@ function processUnstakeQueries(
   for (const query of unstakeQueries) {
     if (query.isLoading) {
       return {
-        withdrawableAmount: 0n,
+        isLoading: true,
         pendingAmount: 0n,
         unstakeRecords: [],
-        isLoading: true,
+        withdrawableAmount: 0n,
       };
     }
 
@@ -70,7 +71,7 @@ function processUnstakeQueries(
 
       // If amount is 0, we've reached the end of the array (empty slot)
       // Note: This shouldn't happen in practice since contract requires amount > 0,
-      // but it's a safety check
+      // But it's a safety check
       if (amount === 0n) {
         break;
       }
@@ -85,7 +86,7 @@ function processUnstakeQueries(
         amount,
         timestamp,
         currentTimestamp,
-        delaySeconds
+        delaySeconds,
       );
       withdrawable += result.withdrawable;
       pending += result.pending;
@@ -97,10 +98,10 @@ function processUnstakeQueries(
   }
 
   return {
-    withdrawableAmount: withdrawable,
+    isLoading: false,
     pendingAmount: pending,
     unstakeRecords: records,
-    isLoading: false,
+    withdrawableAmount: withdrawable,
   };
 }
 
@@ -113,9 +114,8 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
 
   const { data: currentBlock, isLoading: isBlockLoading } = useBlock();
 
-  const { data: onChainDelay, isLoading: isDelayLoading } = useReadContract(
-    unstakeDelayParams()
-  );
+  const { data: onChainDelay, isLoading: isDelayLoading } =
+    useReadContract(unstakeDelayParams());
 
   const unstakeDelaySeconds =
     onChainDelay !== undefined
@@ -125,7 +125,7 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
   const BATCH_SIZE = 20;
   const unstakeQueries = useQueries({
     queries: Array.from({ length: BATCH_SIZE }, (_, index) =>
-      unstakeByUserAtIndexQueryOptions(config, address, index)
+      unstakeByUserAtIndexQueryOptions(config, address, index),
     ),
   });
 
@@ -133,10 +133,10 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
     (() => {
       if (!(address && currentBlock)) {
         return {
-          withdrawableAmount: 0n,
+          isLoading: true,
           pendingAmount: 0n,
           unstakeRecords: [] as UnstakeRecord[],
-          isLoading: true,
+          withdrawableAmount: 0n,
         };
       }
 
@@ -145,18 +145,18 @@ export function useWithdrawableUnstaked(address: `0x${string}` | undefined) {
       return processUnstakeQueries(
         unstakeQueries,
         currentTimestamp,
-        unstakeDelaySeconds
+        unstakeDelaySeconds,
       );
     })();
 
   const currentTimestamp = currentBlock ? Number(currentBlock.timestamp) : 0;
 
   return {
-    withdrawableAmount,
-    pendingAmount,
-    unstakeRecords,
-    unstakeDelaySeconds,
     currentTimestamp,
     isLoading: isLoading || isBlockLoading || isDelayLoading,
+    pendingAmount,
+    unstakeDelaySeconds,
+    unstakeRecords,
+    withdrawableAmount,
   };
 }

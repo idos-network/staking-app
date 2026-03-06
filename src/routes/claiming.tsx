@@ -5,6 +5,7 @@ import { Lock } from "lucide-react";
 import { useState } from "react";
 import { useConfig, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+
 import { AllocationCard } from "@/components/claiming/allocation-card";
 import { ClaimHistory } from "@/components/claiming/claim-history";
 import { ConfirmClaimVesting } from "@/components/claiming/confirm-claim-vesting";
@@ -35,8 +36,8 @@ function NoVestingFound() {
     <div className="flex flex-col items-center gap-4 rounded-[20px] bg-muted p-10">
       <Lock className="size-8 text-muted-foreground" />
       <div className="flex flex-col items-center gap-2">
-        <p className="font-semibold text-lg">No Vesting Found</p>
-        <p className="text-center text-muted-foreground text-sm">
+        <p className="text-lg font-semibold">No Vesting Found</p>
+        <p className="text-center text-sm text-muted-foreground">
           The connected wallet does not have any active vesting contracts.
         </p>
       </div>
@@ -53,12 +54,12 @@ function RouteComponent() {
   const [isClaiming, setIsClaiming] = useState(false);
 
   const claimableContracts = vesting.contracts.filter(
-    (c) => c.claimableNow > 0n
+    (c) => c.claimableNow > 0n,
   );
 
   const totalClaimable = claimableContracts.reduce(
     (sum, c) => sum + c.claimableNow,
-    0n
+    0n,
   );
 
   const handleClaimAll = async () => {
@@ -72,13 +73,15 @@ function RouteComponent() {
 
     try {
       for (const contract of claimableContracts) {
+        // oxlint-disable-next-line no-await-in-loop: for now this is fine, we will revisit later
         const tx = await writeContract.mutateAsync({
-          address: contract.contractAddress,
           abi: VESTING_ABI,
-          functionName: "release",
+          address: contract.contractAddress,
           args: [VESTING_TOKEN_ADDRESS],
+          functionName: "release",
         });
 
+        // oxlint-disable-next-line no-await-in-loop: for now this is fine, we will revisit later
         await waitForTransactionReceipt(config, { hash: tx });
         claimed += 1;
         totalClaimed += contract.claimableNow;
@@ -86,7 +89,7 @@ function RouteComponent() {
 
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const queryKey = query.queryKey;
+          const { queryKey } = query;
           return (
             Array.isArray(queryKey) &&
             queryKey.length > 0 &&
@@ -98,7 +101,7 @@ function RouteComponent() {
 
       showSuccessToast(
         "Tokens Claimed",
-        `Successfully claimed ${formatTokenAmount(fromWei(totalClaimed))} IDOS from ${claimed} ${claimed === 1 ? "contract" : "contracts"}.`
+        `Successfully claimed ${formatTokenAmount(fromWei(totalClaimed))} IDOS from ${claimed} ${claimed === 1 ? "contract" : "contracts"}.`,
       );
     } catch (error) {
       console.error(error);
@@ -107,7 +110,7 @@ function RouteComponent() {
       if (claimed > 0) {
         showSuccessToast(
           "Partially Claimed",
-          `Claimed from ${claimed} of ${claimableContracts.length} contracts before an error occurred.`
+          `Claimed from ${claimed} of ${claimableContracts.length} contracts before an error occurred.`,
         );
       }
 
@@ -115,7 +118,7 @@ function RouteComponent() {
 
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const queryKey = query.queryKey;
+          const { queryKey } = query;
           return (
             Array.isArray(queryKey) &&
             queryKey.length > 0 &&
@@ -144,12 +147,12 @@ function RouteComponent() {
       <div className="min-w-0 rounded-[20px] bg-muted p-6">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2 rounded-xl bg-secondary p-6">
-            <p className="text-muted-foreground text-sm">Available to Claim</p>
-            <p className="font-semibold text-2xl text-primary">
+            <p className="text-sm text-muted-foreground">Available to Claim</p>
+            <p className="text-2xl font-semibold text-primary">
               {formatTokenAmount(fromWei(totalClaimable))} IDOS
             </p>
             {claimableContracts.length > 0 && (
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 Across {claimableContracts.length}{" "}
                 {claimableContracts.length === 1 ? "contract" : "contracts"}
               </p>

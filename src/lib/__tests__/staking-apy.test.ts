@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
+
 import {
+  REWARDS_SCHEDULE,
   calculateAPY,
   getRewardsPerDay,
-  REWARDS_SCHEDULE,
 } from "@/lib/queries/use-staking-apy";
 
 const SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
@@ -16,7 +17,7 @@ describe("getRewardsPerDay", () => {
   });
 
   it("returns 82,191.78 during year 1 (still in first phase)", () => {
-    const now = startTime + 1 * SECONDS_PER_YEAR;
+    const now = startTime + Number(SECONDS_PER_YEAR);
     expect(getRewardsPerDay(startTime, now)).toBe(82_191.78);
   });
 
@@ -63,7 +64,7 @@ describe("calculateAPY", () => {
       ((rewardsPerDay * 365) / (totalStaked + stakeAmount)) * 100;
     expect(calculateAPY(rewardsPerDay, totalStaked, stakeAmount)).toBeCloseTo(
       expected,
-      10
+      10,
     );
   });
 

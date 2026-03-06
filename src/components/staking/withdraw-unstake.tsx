@@ -2,6 +2,7 @@ import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useConfig, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+
 import { ConfirmWithdrawUnstake } from "@/components/staking/confirm-withdraw-unstake";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -67,18 +68,18 @@ function PendingUnbonding({
     <div className="flex w-full flex-col gap-4">
       <p className="font-semibold">Pending Unbonding</p>
       <div className="flex flex-col gap-3">
-        {pendingRecords.map((record, index) => {
+        {pendingRecords.map((record) => {
           const unlockTime = Number(record.timestamp) + unstakeDelaySeconds;
           const secondsRemaining = unlockTime - currentTimestamp;
           return (
             <div
               className="flex items-center justify-between rounded-xl bg-secondary p-4"
-              key={`${record.timestamp}-${index}`}
+              key={`${record.timestamp}`}
             >
               <span className="text-sm">
                 {formatTokenAmount(fromWei(record.amount))} IDOS
               </span>
-              <span className="text-muted-foreground text-sm">
+              <span className="text-sm text-muted-foreground">
                 {formatCountdown(secondsRemaining)}
               </span>
             </div>
@@ -110,7 +111,7 @@ export function WithdrawUnstake() {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
-        "Please connect your wallet to withdraw unstaked tokens."
+        "Please connect your wallet to withdraw unstaked tokens.",
       );
       return;
     }
@@ -122,10 +123,10 @@ export function WithdrawUnstake() {
     try {
       // Withdraw unstaked tokens (withdrawUnstaked takes no args, withdraws all available)
       const withdrawTx = await writeContract.mutateAsync({
-        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
-        functionName: "withdrawUnstaked",
+        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         args: [],
+        functionName: "withdrawUnstaked",
       });
 
       await waitForTransactionReceipt(config, {
@@ -135,7 +136,7 @@ export function WithdrawUnstake() {
       // Invalidate all readContract queries to ensure fresh data
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const queryKey = query.queryKey;
+          const { queryKey } = query;
           // Match all readContract queries
           return (
             Array.isArray(queryKey) &&
@@ -150,7 +151,7 @@ export function WithdrawUnstake() {
 
       showSuccessToast(
         "Withdrawal Successful",
-        `Successfully withdrew ${formatTokenAmount(balance)} IDOS tokens.`
+        `Successfully withdrew ${formatTokenAmount(balance)} IDOS tokens.`,
       );
     } catch (error) {
       console.error(error);
@@ -175,10 +176,10 @@ export function WithdrawUnstake() {
             </>
           ) : (
             <>
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 Available to withdraw
               </p>
-              <p className="font-semibold text-lg">
+              <p className="text-lg font-semibold">
                 {formatTokenAmount(balance)} IDOS
               </p>
             </>

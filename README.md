@@ -11,18 +11,21 @@
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd staking-app
    ```
 
 2. Install dependencies:
+
    ```bash
    bun install
    ```
 
 3. (Optional) Set up environment variables:
    Create a `.env.local` file in the root directory:
+
    ```env
    VITE_APPKIT_PROJECT_ID=your_project_id_here
    VITE_ZERION_API_KEY=your_zerion_api_key_here
@@ -35,6 +38,7 @@
 ### Running Locally
 
 1. Start the development server:
+
    ```bash
    bun run dev
    ```
@@ -60,8 +64,10 @@ bun run preview   # Preview the production build
 - `bun run dev` - Start development server
 - `bun run build` - Build for production
 - `bun run preview` - Preview production build
-- `bun run lint` - Check for linting errors
-- `bun run lint:fix` - Auto-fix linting errors
+- `bun run lint` - Check for linting errors (oxlint)
+- `bun run lint:fix` - Auto-fix linting errors (oxlint)
+- `bun run fmt` - Format code (oxfmt)
+- `bun run fmt:check` - Check formatting without writing (oxfmt)
 - `bun run test` - Run unit tests (Vitest)
 
 ## Architecture
@@ -101,13 +107,13 @@ The claiming page integrates with per-beneficiary VestingWallet contracts discov
 
 All contracts are on **Arbitrum** (mainnet).
 
-| What | Address | Location |
-|---|---|---|
-| App Chain | Arbitrum (`42161`) | `src/lib/abi.ts` → `APP_CHAIN_ID` |
-| IDOS Token | `0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c` | `src/lib/abi.ts` → `IDOS_TOKEN_ABI_ADDRESS` |
+| What             | Address                                      | Location                                           |
+| ---------------- | -------------------------------------------- | -------------------------------------------------- |
+| App Chain        | Arbitrum (`42161`)                           | `src/lib/abi.ts` → `APP_CHAIN_ID`                  |
+| IDOS Token       | `0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c` | `src/lib/abi.ts` → `IDOS_TOKEN_ABI_ADDRESS`        |
 | Staking Contract | `0x6132F2EE66deC6bdf416BDA9588D663EaCeec337` | `src/lib/abi.ts` → `IDOS_NODE_STAKING_ABI_ADDRESS` |
-| Vesting Token | `0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c` | `src/lib/abi.ts` → `VESTING_TOKEN_ADDRESS` |
-| TDE Disbursement | `0xdf24F4Ca9984807577d13f5ef24eD26e5AFc7083` | `src/lib/abi.ts` → `TDE_DISBURSEMENT_ADDRESS` |
+| Vesting Token    | `0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c` | `src/lib/abi.ts` → `VESTING_TOKEN_ADDRESS`         |
+| TDE Disbursement | `0xdf24F4Ca9984807577d13f5ef24eD26e5AFc7083` | `src/lib/abi.ts` → `TDE_DISBURSEMENT_ADDRESS`      |
 
 **Other hardcoded values:**
 
@@ -157,10 +163,7 @@ Block explorer URLs are derived automatically from the chain config via `APP_BLO
 Update the `networks` array to only include production networks:
 
 ```typescript
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [
-  mainnet,
-  arbitrum,
-];
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, arbitrum];
 ```
 
 ### 5. Token Price (`src/lib/queries/use-token-price.ts`)

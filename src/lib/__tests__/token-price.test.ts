@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import {
   fetchCoinGeckoPrice,
   fetchZerionPrice,
@@ -16,7 +17,6 @@ describe("fetchZerionPrice", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
-        ok: true,
         json: () =>
           Promise.resolve({
             data: {
@@ -25,7 +25,8 @@ describe("fetchZerionPrice", () => {
               },
             },
           }),
-      })
+        ok: true,
+      }),
     );
 
     expect(await fetchZerionPrice(CONTRACT, API_KEY)).toBe(2.45);
@@ -38,7 +39,7 @@ describe("fetchZerionPrice", () => {
   it("returns null on non-200 response", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 401 })
+      vi.fn().mockResolvedValue({ ok: false, status: 401 }),
     );
 
     expect(await fetchZerionPrice(CONTRACT, API_KEY)).toBeNull();
@@ -48,7 +49,6 @@ describe("fetchZerionPrice", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
-        ok: true,
         json: () =>
           Promise.resolve({
             data: {
@@ -57,7 +57,8 @@ describe("fetchZerionPrice", () => {
               },
             },
           }),
-      })
+        ok: true,
+      }),
     );
 
     expect(await fetchZerionPrice(CONTRACT, API_KEY)).toBeNull();
@@ -66,26 +67,27 @@ describe("fetchZerionPrice", () => {
   it("throws on network error", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockRejectedValue(new Error("Network failure"))
+      vi.fn().mockRejectedValue(new Error("Network failure")),
     );
 
     await expect(fetchZerionPrice(CONTRACT, API_KEY)).rejects.toThrow(
-      "Network failure"
+      "Network failure",
     );
   });
 
   it("sends correct Authorization header", async () => {
     const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
       json: () =>
         Promise.resolve({
           data: { attributes: { market_data: { price: 1.0 } } },
         }),
+      ok: true,
     });
     vi.stubGlobal("fetch", mockFetch);
 
     await fetchZerionPrice(CONTRACT, API_KEY);
 
+    // oxlint-disable-next-line prefer-destructuring
     const [, options] = mockFetch.mock.calls[0];
     const expectedAuth = `Basic ${btoa(`${API_KEY}:`)}`;
     expect(options.headers.Authorization).toBe(expectedAuth);
@@ -97,12 +99,12 @@ describe("fetchCoinGeckoPrice", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
-        ok: true,
         json: () =>
           Promise.resolve({
             [CONTRACT]: { usd: 3.12 },
           }),
-      })
+        ok: true,
+      }),
     );
 
     expect(await fetchCoinGeckoPrice(CONTRACT, 42_161)).toBe(3.12);
@@ -115,7 +117,7 @@ describe("fetchCoinGeckoPrice", () => {
   it("returns null on non-200 response", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({ ok: false, status: 429 })
+      vi.fn().mockResolvedValue({ ok: false, status: 429 }),
     );
 
     expect(await fetchCoinGeckoPrice(CONTRACT, 42_161)).toBeNull();
@@ -124,11 +126,11 @@ describe("fetchCoinGeckoPrice", () => {
   it("throws on network error", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockRejectedValue(new Error("Network failure"))
+      vi.fn().mockRejectedValue(new Error("Network failure")),
     );
 
     await expect(fetchCoinGeckoPrice(CONTRACT, 42_161)).rejects.toThrow(
-      "Network failure"
+      "Network failure",
     );
   });
 
@@ -136,9 +138,9 @@ describe("fetchCoinGeckoPrice", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
-        ok: true,
         json: () => Promise.resolve({}),
-      })
+        ok: true,
+      }),
     );
 
     expect(await fetchCoinGeckoPrice(CONTRACT, 42_161)).toBeNull();
