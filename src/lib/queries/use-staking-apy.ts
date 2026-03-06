@@ -38,7 +38,7 @@ export function calculateAPY(
   if (effectiveTotal <= 0) {
     return 0;
   }
-  return (rewardsPerDay * 365) / effectiveTotal;
+  return (100 * (rewardsPerDay * 365)) / effectiveTotal;
 }
 
 export function useStakingAPY(stakeAmount?: number | null, enabled = true) {
