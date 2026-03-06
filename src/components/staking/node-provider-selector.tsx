@@ -4,7 +4,7 @@ import { useReadContract } from "wagmi";
 import HorizenIcon from "@/assets/horizen-labs-logo.svg?url";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import idOSTokenIcon from "@/assets/idOS-token.svg?url";
-import MetapoolIcon from "@/assets/metapool-logo.png?url";
+import MetaPoolIcon from "@/assets/metapool-logo.png?url";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -91,13 +91,13 @@ export const nodeProviders: NodeProvider[] = [
       </div>
     ),
     assets: "IDOS",
-    name: "Metapool",
+    name: "Meta Pool",
     providerIcon: (
       <img
-        alt="Metapool Icon"
+        alt="Meta Pool Icon"
         className="rounded-full"
         height={30}
-        src={MetapoolIcon}
+        src={MetaPoolIcon}
         width={30}
       />
     ),
