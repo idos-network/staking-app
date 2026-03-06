@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import { Staking } from "@/components/staking/staking";
 
 export const Route = createFileRoute("/staking")({

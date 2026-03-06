@@ -1,10 +1,11 @@
 import { useAppKitAccount, useDisconnect } from "@reown/appkit/react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { useEffect } from "react";
 import { useChainId, useSwitchChain } from "wagmi";
+
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { ConnectWallet } from "@/components/connect-wallet";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ function Header() {
   const { disconnect } = useDisconnect();
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between border-border border-b bg-background p-5">
+    <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background p-5">
       <Link to="/">
         <img alt="idOS Logo" height={32} src={idOSLogo} width={100} />
       </Link>
@@ -37,7 +38,7 @@ function Header() {
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <Link
-      className="border-transparent border-b-2 px-4 py-2 text-muted-foreground transition-colors hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
+      className="border-b-2 border-transparent px-4 py-2 text-muted-foreground transition-colors hover:text-foreground data-[status=active]:border-primary data-[status=active]:text-foreground"
       to={to}
     >
       {children}
@@ -47,7 +48,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 
 function Navigation() {
   return (
-    <nav className="flex gap-6 border-border border-b">
+    <nav className="flex gap-6 border-b border-border">
       <NavLink to="/staking">Staking</NavLink>
       <NavLink to="/claiming">Claiming</NavLink>
     </nav>
@@ -81,7 +82,7 @@ function RootLayout() {
     <div className="grid min-h-svh grid-rows-[auto_1fr] gap-4">
       <Header />
       <div className="min-w-0 p-5">
-        <div className="mx-auto flex w-full min-w-0 max-w-[678px] flex-col gap-10">
+        <div className="mx-auto flex w-full max-w-[678px] min-w-0 flex-col gap-10">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3">
               <h2 className="text-2xl">idOS Portal</h2>

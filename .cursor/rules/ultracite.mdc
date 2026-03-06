@@ -1,20 +1,21 @@
 ---
-description: Ultracite Rules - AI-Ready Formatter and Linter
-globs: "**/*.{ts,tsx,js,jsx,json,jsonc,html,vue,svelte,astro,css,yaml,yml,graphql,gql,md,mdx,grit}"
+description: Oxc Rules - AI-Ready Formatter and Linter
+globs: "**/*.{ts,tsx,js,jsx,json,jsonc,html,vue,svelte,astro,css,yaml,yml,graphql,gql,md,mdx}"
 alwaysApply: false
 ---
 
-# Ultracite Code Standards
+# Oxc Code Standards
 
-This project uses **Ultracite**, a zero-config Biome preset that enforces strict code quality standards through automated formatting and linting.
+This project uses **oxlint** (linting) and **oxfmt** (formatting) from the Oxc toolchain for strict code quality standards.
 
 ## Quick Reference
 
-- **Format code**: `npx ultracite fix`
-- **Check for issues**: `npx ultracite check`
-- **Diagnose setup**: `npx ultracite doctor`
+- **Format code**: `bun run fmt` (or `npx oxfmt .`)
+- **Check formatting**: `bun run fmt:check` (or `npx oxfmt --check`)
+- **Lint code**: `bun run lint` (or `npx oxlint .`)
+- **Auto-fix lint issues**: `bun run lint:fix` (or `npx oxlint --fix .`)
 
-Biome (the underlying engine) provides extremely fast Rust-based linting and formatting. Most issues are automatically fixable.
+Both tools are Rust-based and extremely fast. Most formatting issues are automatically fixable.
 
 ---
 
@@ -113,11 +114,11 @@ Write code that is **accessible, performant, type-safe, and maintainable**. Focu
 - Don't use `.only` or `.skip` in committed code
 - Keep test suites reasonably flat - avoid excessive `describe` nesting
 
-## When Biome Can't Help
+## When Linters Can't Help
 
-Biome's linter will catch most issues automatically. Focus your attention on:
+Oxlint will catch most issues automatically. Focus your attention on:
 
-1. **Business logic correctness** - Biome can't validate your algorithms
+1. **Business logic correctness** - linters can't validate your algorithms
 2. **Meaningful naming** - Use descriptive names for functions, variables, and types
 3. **Architecture decisions** - Component structure, data flow, and API design
 4. **Edge cases** - Handle boundary conditions and error states
@@ -126,4 +127,4 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 
 ---
 
-Most formatting and common issues are automatically fixed by Biome. Run `npx ultracite fix` before committing to ensure compliance.
+Most formatting and common issues are automatically fixed. Run `npx oxfmt . && npx oxlint --fix .` before committing to ensure compliance.

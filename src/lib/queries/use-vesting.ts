@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useBlockNumber, useContractEvents, useReadContracts } from "wagmi";
+
 import {
   APP_CHAIN_ID,
   IDOS_TOKEN_ABI,
@@ -7,6 +8,7 @@ import {
   VESTING_TOKEN_ADDRESS,
 } from "@/lib/abi";
 import { useVestingContracts } from "@/lib/vesting-allocations";
+
 import {
   vestingCliffParams,
   vestingDurationParams,
@@ -18,11 +20,11 @@ import {
 
 function vestingTokenBalanceParams(vestingContract: `0x${string}`) {
   return {
-    address: VESTING_TOKEN_ADDRESS,
     abi: IDOS_TOKEN_ABI,
-    functionName: "balanceOf" as const,
+    address: VESTING_TOKEN_ADDRESS,
     args: [vestingContract] as const,
     chainId: APP_CHAIN_ID,
+    functionName: "balanceOf" as const,
   };
 }
 
@@ -45,7 +47,7 @@ export type VestingData = {
  * Reads on-chain vesting data for multiple contracts in a single multicall.
  */
 export function useMultiVestingData(
-  contractAddresses: `0x${string}`[] | undefined
+  contractAddresses: `0x${string}`[] | undefined,
 ) {
   const [now] = useState(() => Math.floor(Date.now() / 1000));
 
@@ -63,11 +65,13 @@ export function useMultiVestingData(
 
   const { data, isLoading } = useReadContracts({
     contracts,
-    query: { enabled: !!contractAddresses && contractAddresses.length > 0 },
+    query: {
+      enabled: contractAddresses !== undefined && contractAddresses.length > 0,
+    },
   });
 
   if (!(data && contractAddresses)) {
-    return { vestingContracts: undefined, isLoading };
+    return { isLoading, vestingContracts: undefined };
   }
 
   const vestingContracts: VestingData[] = [];
@@ -97,20 +101,20 @@ export function useMultiVestingData(
       totalAllocation > totalVested ? totalAllocation - totalVested : 0n;
 
     vestingContracts.push({
-      contractAddress: contractAddresses[i],
-      totalAllocation,
       alreadyClaimed,
       claimableNow,
-      totalVested,
+      cliff,
+      contractAddress: contractAddresses[i],
+      duration,
+      end,
       locked,
       start,
-      end,
-      cliff,
-      duration,
+      totalAllocation,
+      totalVested,
     });
   }
 
-  return { vestingContracts, isLoading };
+  return { isLoading, vestingContracts };
 }
 
 export type VestingResult = {
@@ -134,12 +138,14 @@ export function useVesting(beneficiary: string | undefined): VestingResult {
   const isLoading =
     isLoadingContracts ||
     isLoadingData ||
-    (!!contractAddresses && contractAddresses.length > 0 && !vestingContracts);
+    (contractAddresses !== undefined &&
+      contractAddresses.length > 0 &&
+      !vestingContracts);
 
   return {
-    contracts: vestingContracts ?? [],
     contractAddresses: contractAddresses ?? [],
-    hasVesting: !!contractAddresses && contractAddresses.length > 0,
+    contracts: vestingContracts ?? [],
+    hasVesting: contractAddresses !== undefined && contractAddresses.length > 0,
     isLoading,
   };
 }
@@ -159,24 +165,24 @@ const MAX_BLOCK_RANGE = 49_999n;
 export function useVestingClaimHistory(contractAddresses: `0x${string}`[]) {
   const { data: blockNumber } = useBlockNumber({ chainId: APP_CHAIN_ID });
   const fromBlock = blockNumber ? blockNumber - MAX_BLOCK_RANGE : undefined;
-  const enabled = contractAddresses.length > 0 && !!fromBlock;
+  const enabled = contractAddresses.length > 0 && Boolean(fromBlock);
 
   const { data: logs, isLoading } = useContractEvents({
-    address: enabled ? ([...contractAddresses] as `0x${string}`[]) : undefined,
     abi: VESTING_ABI,
-    eventName: "ERC20Released",
+    address: enabled ? ([...contractAddresses] as `0x${string}`[]) : undefined,
     chainId: APP_CHAIN_ID,
+    eventName: "ERC20Released",
     fromBlock: fromBlock ?? 0n,
-    toBlock: "latest",
     query: { enabled },
+    toBlock: "latest",
   });
 
   const claimHistory: ClaimEvent[] = logs
     ? logs
         .map((log) => ({
           amount: (log.args as { amount: bigint }).amount,
-          txHash: log.transactionHash,
           blockNumber: log.blockNumber,
+          txHash: log.transactionHash,
         }))
         .sort((a, b) => Number(b.blockNumber - a.blockNumber))
         .slice(0, 10)

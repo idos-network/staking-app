@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { formatCountdown } from "@/components/staking/withdraw-unstake";
 
 describe("formatCountdown", () => {

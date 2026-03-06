@@ -1,5 +1,6 @@
 import { TriangleAlertIcon, WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
+
 import {
   AmountField,
   AmountFieldGroup,
@@ -38,7 +39,7 @@ function BalanceDisplay({
       {isLoading ? (
         <Skeleton className="h-4 w-32" />
       ) : (
-        <span className="text-muted-foreground text-sm">
+        <span className="text-sm text-muted-foreground">
           <span className="font-semibold">{label}:</span>{" "}
           {formatTokenAmount(balance)} IDOS
         </span>
@@ -152,11 +153,11 @@ export function StakingForm({
   };
 
   const { isValid, errorMessage } = validateStakeAmount({
-    stakeAmount,
     balance,
-    mode,
     checked,
     hasOnChainProvider: onChainProviders.length > 0,
+    mode,
+    stakeAmount,
   });
   const hasStakeAmountError = errorMessage !== undefined;
 
@@ -165,8 +166,8 @@ export function StakingForm({
 
     onSubmit({
       amount: stakeAmount ?? 0,
-      provider: selectedProvider,
       mode,
+      provider: selectedProvider,
     });
   };
 
@@ -214,13 +215,13 @@ export function StakingForm({
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           <BalanceDisplay
             balance={balance}
-            className="-top-4 relative order-1 sm:relative sm:order-2 md:top-0"
+            className="relative -top-4 order-1 sm:relative sm:order-2 md:top-0"
             isLoading={isBalanceLoading}
             mode={mode}
           />
 
           <Label
-            className="order-2 font-semibold text-base sm:order-1"
+            className="order-2 text-base font-semibold sm:order-1"
             htmlFor="amount-to-stake"
           >
             {mode === "unstake" ? "Amount to Unstake" : "Amount to Stake"}
@@ -248,7 +249,7 @@ export function StakingForm({
           </AmountFieldGroup>
 
           {hasStakeAmountError ? (
-            <p className="text-destructive-foreground text-xs">
+            <p className="text-xs text-destructive-foreground">
               {errorMessage}
             </p>
           ) : null}

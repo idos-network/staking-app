@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { parseUnits } from "viem";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+
 import type { NodeProvider } from "@/components/staking/node-provider-selector";
 import {
   StakingForm,
@@ -36,7 +37,7 @@ export function Stake({
 
   // Fetch available balance
   const { data: balance, isLoading: isBalanceLoading } = useReadContract(
-    balanceOfParams(address as `0x${string}` | undefined)
+    balanceOfParams(address as `0x${string}` | undefined),
   );
 
   // Calculate available balance
@@ -46,7 +47,7 @@ export function Stake({
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
-        "Please connect your wallet to stake tokens."
+        "Please connect your wallet to stake tokens.",
       );
       return;
     }
@@ -56,10 +57,10 @@ export function Stake({
 
     try {
       const approvalTx = await writeContract.mutateAsync({
-        address: IDOS_TOKEN_ABI_ADDRESS,
         abi: IDOS_TOKEN_ABI,
-        functionName: "approve",
+        address: IDOS_TOKEN_ABI_ADDRESS,
         args: [IDOS_NODE_STAKING_ABI_ADDRESS, amountInWei],
+        functionName: "approve",
       });
 
       await waitForTransactionReceipt(config, {
@@ -67,10 +68,10 @@ export function Stake({
       });
 
       const stakeTx = await writeContract.mutateAsync({
-        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         abi: IDOS_NODE_STAKING_ABI,
-        functionName: "stake",
+        address: IDOS_NODE_STAKING_ABI_ADDRESS,
         args: [address as `0x${string}`, data.provider.address, amountInWei],
+        functionName: "stake",
       });
 
       await waitForTransactionReceipt(config, {
@@ -79,7 +80,7 @@ export function Stake({
 
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const queryKey = query.queryKey;
+          const { queryKey } = query;
           // Match all readContract queries
           return (
             Array.isArray(queryKey) &&
@@ -94,7 +95,7 @@ export function Stake({
 
       showSuccessToast(
         "Staking Successful",
-        "Your tokens have been staked successfully"
+        "Your tokens have been staked successfully",
       );
     } catch (error) {
       console.error(error);

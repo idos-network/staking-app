@@ -2,6 +2,7 @@
 
 import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
 import { createContext, useContext, useId } from "react";
+
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ function AmountField({
   const fieldId = id ?? generatedId;
 
   return (
+    // oxlint-disable-next-line react/jsx-no-constructed-context-values
     <AmountFieldContext.Provider value={{ fieldId }}>
       <NumberFieldPrimitive.Root
         className={cn("flex w-full flex-col items-start gap-2", className)}
@@ -40,8 +42,8 @@ function AmountFieldGroup({
   return (
     <NumberFieldPrimitive.Group
       className={cn(
-        "relative flex w-full items-center justify-between rounded-2xl border border-input bg-background bg-clip-padding text-sm shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[15px] not-data-disabled:not-focus-within:not-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] focus-within:border-ring focus-within:ring-[3px] has-aria-invalid:border-destructive/36 focus-within:has-aria-invalid:border-destructive/64 focus-within:has-aria-invalid:ring-destructive/48 data-disabled:pointer-events-none data-disabled:opacity-64 dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:has-aria-invalid:ring-destructive/24 dark:not-data-disabled:not-focus-within:not-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)] [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 [[data-disabled],:focus-within,[aria-invalid]]:shadow-none",
-        className
+        "relative flex w-full items-center justify-between rounded-2xl border border-input bg-background bg-clip-padding text-sm shadow-xs ring-ring/24 transition-shadow before:pointer-events-none before:absolute before:inset-0 before:rounded-[15px] not-data-disabled:not-focus-within:not-aria-invalid:before:shadow-[0_1px_--theme(--color-black/4%)] focus-within:border-ring focus-within:ring-[3px] has-aria-invalid:border-destructive/36 focus-within:has-aria-invalid:border-destructive/64 focus-within:has-aria-invalid:ring-destructive/48 data-disabled:pointer-events-none data-disabled:opacity-64 dark:bg-input/32 dark:not-in-data-[slot=group]:bg-clip-border dark:not-data-disabled:not-focus-within:not-aria-invalid:before:shadow-[0_-1px_--theme(--color-white/8%)] dark:has-aria-invalid:ring-destructive/24 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [[data-disabled],:focus-within,[aria-invalid]]:shadow-none",
+        className,
       )}
       data-slot="amount-field-group"
       {...props}
@@ -56,8 +58,8 @@ function AmountFieldInput({
   return (
     <NumberFieldPrimitive.Input
       className={cn(
-        "w-full min-w-0 flex-1 bg-transparent in-data-[size=sm]:px-[calc(--spacing(2.5)-1px)] px-[calc(--spacing(3)-1px)] in-data-[size=lg]:py-[calc(--spacing(2)-1px)] in-data-[size=sm]:py-[calc(--spacing(1)-1px)] py-[calc(--spacing(1.5)-1px)] tabular-nums outline-none",
-        className
+        "w-full min-w-0 flex-1 bg-transparent px-[calc(--spacing(3)-1px)] py-[calc(--spacing(1.5)-1px)] tabular-nums outline-none in-data-[size=lg]:py-[calc(--spacing(2)-1px)] in-data-[size=sm]:px-[calc(--spacing(2.5)-1px)] in-data-[size=sm]:py-[calc(--spacing(1)-1px)]",
+        className,
       )}
       data-slot="amount-field-input"
       {...props}
@@ -76,7 +78,7 @@ function AmountFieldScrubArea({
 
   if (!context) {
     throw new Error(
-      "AmountFieldScrubArea must be used within a AmountField component for accessibility."
+      "AmountFieldScrubArea must be used within a AmountField component for accessibility.",
     );
   }
 

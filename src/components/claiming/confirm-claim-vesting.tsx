@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -57,24 +58,24 @@ export function ConfirmClaimVesting({
           <div className="rounded-[20px] bg-secondary px-4 py-2">
             <ul className="flex flex-col gap-2">
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">Recipient</span>
+                <span className="text-sm text-muted-foreground">Recipient</span>
                 <span className="font-mono text-sm">
                   {formatEthereumAddress(address)}
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Amount to Claim
                 </span>
                 <span>{formatTokenAmount(claimableDisplay)} IDOS</span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">Contracts</span>
+                <span className="text-sm text-muted-foreground">Contracts</span>
                 <span>{contractCount}</span>
               </li>
             </ul>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             You will be asked to sign {contractCount}{" "}
             {contractCount === 1 ? "transaction" : "transactions"} to claim your
             vested tokens. Gas fees apply to each transaction.

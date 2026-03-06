@@ -1,18 +1,20 @@
 import { useReadContract } from "wagmi";
+
 import { fromWei } from "@/lib/format";
+
 import { getNodeStakesParams, startTimeParams } from "./query-options";
 
 const SECONDS_PER_YEAR = 365 * 24 * 60 * 60;
 
 export const REWARDS_SCHEDULE = [
-  { years: 2, dailyReward: 82_191.78 },
-  { years: 4, dailyReward: 41_095.89 },
-  { years: 4, dailyReward: 20_547.95 },
+  { dailyReward: 82_191.78, years: 2 },
+  { dailyReward: 41_095.89, years: 4 },
+  { dailyReward: 20_547.95, years: 4 },
 ] as const;
 
 export function getRewardsPerDay(
   startTimeSeconds: number,
-  nowSeconds: number
+  nowSeconds: number,
 ): number {
   const elapsed = nowSeconds - startTimeSeconds;
   let cumulative = 0;
@@ -30,7 +32,7 @@ const DEFAULT_STAKE_AMOUNT = 100;
 export function calculateAPY(
   rewardsPerDay: number,
   totalStaked: number,
-  stakeAmount: number = DEFAULT_STAKE_AMOUNT
+  stakeAmount: number = DEFAULT_STAKE_AMOUNT,
 ): number {
   const effectiveTotal = totalStaked + stakeAmount;
   if (effectiveTotal <= 0) {
@@ -68,5 +70,5 @@ export function useStakingAPY(stakeAmount?: number | null, enabled = true) {
   const amount = stakeAmount ?? DEFAULT_STAKE_AMOUNT;
   const apy = calculateAPY(rewardsPerDay, totalStakedNum, amount);
 
-  return { apy, rewardsPerDay, totalStaked, totalStakedNum, isLoading };
+  return { apy, isLoading, rewardsPerDay, totalStaked, totalStakedNum };
 }

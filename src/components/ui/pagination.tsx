@@ -6,6 +6,7 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 import type * as React from "react";
+
 import { type Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +59,7 @@ function PaginationLink({
             size,
             variant: isActive ? "outline" : "ghost",
           }),
-          className
+          className,
         ),
     "data-active": isActive,
     "data-slot": "pagination-link",

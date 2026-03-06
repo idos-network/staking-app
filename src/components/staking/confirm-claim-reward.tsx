@@ -1,6 +1,7 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import type { ReactElement } from "react";
 import { useReadContract } from "wagmi";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -53,7 +54,7 @@ export function ConfirmClaimReward({
           <div className="rounded-[20px] bg-secondary px-4 py-2">
             <ul className="flex flex-col gap-2">
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Available Balance
                 </span>
                 <span>
@@ -65,20 +66,20 @@ export function ConfirmClaimReward({
                 </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Amount to Withdraw
                 </span>
                 <span>{formatTokenAmount(amount)} IDOS</span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   Balance After Withdraw
                 </span>
                 <span>{formatTokenAmount(availableBalance + amount)} IDOS</span>
               </li>
             </ul>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             You will be asked to sign a transaction for claiming your rewards
           </p>
         </div>

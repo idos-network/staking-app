@@ -4,9 +4,9 @@
  */
 export function formatTokenAmount(value: number): string {
   return Intl.NumberFormat("en-US", {
-    style: "decimal",
-    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+    style: "decimal",
   }).format(value);
 }
 
@@ -16,10 +16,10 @@ export function formatTokenAmount(value: number): string {
  */
 export function formatCurrency(value: number): string {
   return Intl.NumberFormat("en-US", {
-    style: "currency",
     currency: "USD",
-    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+    style: "currency",
   }).format(value);
 }
 
@@ -41,7 +41,7 @@ export function fromWei(value: bigint | undefined | null): number {
  * Used for displaying addresses in a compact format (e.g., "0x1234...5678")
  */
 export function formatEthereumAddress(
-  address: `0x${string}` | string | undefined
+  address: `0x${string}` | string | undefined,
 ): string {
   if (!address) {
     return "...";

@@ -1,5 +1,4 @@
-import type { Abi } from "viem";
-import { decodeErrorResult } from "viem";
+import { type Abi, decodeErrorResult } from "viem";
 
 // Regex pattern for extracting hex error data from messages
 const HEX_PATTERN = /0x[a-fA-F0-9]{10,}/;
@@ -17,7 +16,7 @@ function isValidErrorData(value: unknown): value is `0x${string}` {
  * Extracts error data from a data object with various possible paths
  */
 function extractFromDataObject(
-  dataObj: Record<string, unknown>
+  dataObj: Record<string, unknown>,
 ): `0x${string}` | undefined {
   const possiblePaths = ["data", "revertData", "error", "errorData"];
   for (const path of possiblePaths) {
@@ -76,7 +75,7 @@ function formatErrorArgs(args: readonly unknown[]): string {
  * Extracts error data from error.data property
  */
 function extractFromDataProperty(
-  err: Record<string, unknown>
+  err: Record<string, unknown>,
 ): `0x${string}` | undefined {
   if (!err.data) {
     return;
@@ -97,7 +96,7 @@ function extractFromDataProperty(
  * Extracts error data from error messages
  */
 function extractFromMessages(
-  err: Record<string, unknown>
+  err: Record<string, unknown>,
 ): `0x${string}` | undefined {
   if (typeof err.shortMessage === "string") {
     const hex = extractHexFromMessage(err.shortMessage);
@@ -158,7 +157,7 @@ function extractErrorData(error: unknown): `0x${string}` | undefined {
  */
 function tryDecodeWithABI(
   errorData: `0x${string}`,
-  abi: Abi
+  abi: Abi,
 ): { name: string; message: string } | null {
   try {
     const decoded = decodeErrorResult({
@@ -173,8 +172,8 @@ function tryDecodeWithABI(
     }
 
     return {
-      name: decoded.errorName,
       message,
+      name: decoded.errorName,
     };
   } catch {
     return null;
@@ -186,7 +185,7 @@ function tryDecodeWithABI(
  */
 function tryDecodeWithABIs(
   errorData: `0x${string}`,
-  abis: Abi[]
+  abis: Abi[],
 ): { name: string; message: string } | null {
   for (const abi of abis) {
     const result = tryDecodeWithABI(errorData, abi);
@@ -217,10 +216,10 @@ function extractFallbackError(error: unknown): {
       const isRevert =
         shortMsg.includes("revert") || shortMsg.includes("execution reverted");
       return {
+        message: shortMsg,
         name: isRevert
           ? "TransactionReverted"
           : (err.name ?? "TransactionError"),
-        message: shortMsg,
       };
     }
 
@@ -230,23 +229,23 @@ function extractFallbackError(error: unknown): {
       (errMsg.includes("revert") || errMsg.includes("execution reverted"))
     ) {
       return {
-        name: "TransactionReverted",
         message: errMsg,
+        name: "TransactionReverted",
       };
     }
   }
 
   if (error instanceof Error) {
     return {
-      name: error.name,
       message: error.message,
+      name: error.name,
     };
   }
 
   // Ultimate fallback
   return {
-    name: "UnknownError",
     message: "Transaction failed with an unknown error",
+    name: "UnknownError",
   };
 }
 
@@ -260,7 +259,7 @@ function extractFallbackError(error: unknown): {
  */
 export function decodeTransactionError(
   error: unknown,
-  abis: Abi | Abi[]
+  abis: Abi | Abi[],
 ): { name: string; message: string } {
   const abiArray = Array.isArray(abis) ? abis : [abis];
   const errorData = extractErrorData(error);
@@ -280,8 +279,8 @@ export function decodeTransactionError(
 
     // If all ABIs failed, return info about the error selector
     return {
-      name: "Reverted",
       message: `Transaction reverted with error selector: ${errorData.slice(0, 10)}`,
+      name: "Reverted",
     };
   }
 

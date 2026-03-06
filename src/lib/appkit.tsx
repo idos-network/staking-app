@@ -1,3 +1,4 @@
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import {
   type AppKitNetwork,
   arbitrum,
@@ -6,9 +7,8 @@ import {
   sepolia,
 } from "@reown/appkit/networks";
 import { createAppKit } from "@reown/appkit/react";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import type { PropsWithChildren } from "react";
-import { http, WagmiProvider } from "wagmi";
+import { WagmiProvider, http } from "wagmi";
 import { arbitrum as wagmiArbitrum } from "wagmi/chains";
 
 const projectId =
@@ -21,7 +21,7 @@ const url = import.meta.env.DEV
 const metadata = {
   name: "idOS Staking",
   description: "idOS Staking app",
-  url, // origin must match your domain & subdomain
+  url, // Origin must match your domain & subdomain
   icons: ["/favicon.svg"],
 };
 
@@ -43,14 +43,14 @@ const wagmiAdapter = new WagmiAdapter({
 
 createAppKit({
   adapters: [wagmiAdapter],
+  features: {
+    analytics: true,
+    email: false,
+    socials: false, // Optional - defaults to your Cloud configuration
+  },
+  metadata,
   networks,
   projectId,
-  metadata,
-  features: {
-    socials: false,
-    email: false,
-    analytics: true, // Optional - defaults to your Cloud configuration
-  },
 });
 
 export function AppKitProvider({ children }: PropsWithChildren) {
