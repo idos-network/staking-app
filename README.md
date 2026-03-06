@@ -90,12 +90,12 @@ The staking page connects to an idOS Node Staking contract. Users can:
 
 ### Vesting System
 
-The claiming page integrates with per-beneficiary VestingWallet contracts:
+The claiming page integrates with per-beneficiary VestingWallet contracts discovered via the TDE Disbursement contract:
 
-1. **Contract Lookup** (`src/lib/queries/use-vesting.ts`) — Batch-calls `owner()` on all known vesting contracts to find the one matching the connected wallet.
-2. **Data Reads** — Fetches `start()`, `cliff()`, `duration()`, `released(token)`, `releasable(token)`, and `vestedAmount(token, timestamp)` in a single multicall.
+1. **Contract Discovery** (`src/lib/vesting-allocations.ts`) — Calls `vestingContracts(beneficiary, modality)` on the TDE Disbursement contract for modalities 1–9, filtering out zero addresses to find the connected wallet's vesting contracts.
+2. **Data Reads** (`src/lib/queries/use-vesting.ts`) — Multicall reads `start()`, `cliff()`, `duration()`, `released(token)`, `releasable(token)`, `vestedAmount(token, timestamp)`, and `balanceOf(vestingContract)` across all discovered contracts.
 3. **Claiming** — Calls `release(token)` on the vesting contract to claim available tokens.
-4. **Claim History** — Queries `ERC20Released` events from the contract (last 50k blocks).
+4. **Claim History** — Queries `ERC20Released` events across all user vesting contracts (last ~50k blocks).
 
 ## Contract Configuration
 
@@ -107,14 +107,14 @@ All contracts are on **Arbitrum** (mainnet).
 | IDOS Token | `0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c` | `src/lib/abi.ts` → `IDOS_TOKEN_ABI_ADDRESS` |
 | Staking Contract | `0x6132F2EE66deC6bdf416BDA9588D663EaCeec337` | `src/lib/abi.ts` → `IDOS_NODE_STAKING_ABI_ADDRESS` |
 | Vesting Token | `0x68731d6F14B827bBCfFbEBb62b19Daa18de1d79c` | `src/lib/abi.ts` → `VESTING_TOKEN_ADDRESS` |
-| Vesting Allocations | 42 contracts (10k–11.6M IDOS each) | `src/lib/queries/use-vesting.ts` → `VESTING_ALLOCATIONS` |
+| TDE Disbursement | `0xdf24F4Ca9984807577d13f5ef24eD26e5AFc7083` | `src/lib/abi.ts` → `TDE_DISBURSEMENT_ADDRESS` |
 
 **Other hardcoded values:**
 
-- **Node Providers** (`src/components/staking/node-provider-selector.tsx`): Two providers configured (idOS Node, Horizen Node). Provider addresses must be `allowNode`'d on the staking contract before they can receive stakes
+- **Node Providers** (`src/components/staking/node-provider-selector.tsx`): Three providers configured (idOS, Horizen Labs, Metapool). Provider addresses must be `allowNode`'d on the staking contract before they can receive stakes
 - **APY**: dynamically calculated from on-chain `startTime`, `getNodeStakes()`, and the reward schedule in `src/lib/queries/use-staking-apy.ts`. Displays `———` when the staking pool is empty (no stakers yet)
 - **Token Price**: fetched live from Zerion API (primary) with CoinGecko fallback in `src/lib/queries/use-token-price.ts`. Requires `VITE_ZERION_API_KEY` for Zerion
-- **Etherscan Links**: currently point to `etherscan.io` (mainnet) in vesting components
+- **Block Explorer Links**: derived automatically from the chain config via `APP_BLOCK_EXPLORER_URL` in `src/lib/abi.ts` (currently Arbiscan for Arbitrum)
 - **Vesting Type Label**: `"Linear (post-cliff)"`
 
 ## Deploying to Production
@@ -144,15 +144,13 @@ export const VESTING_TOKEN_ADDRESS =
   "0x4C85b9D56dC64276dADC1353ca94331097D351CA" as `0x${string}`;
 ```
 
-### 2. Vesting Allocations (`src/lib/queries/use-vesting.ts`)
+### 2. TDE Disbursement Address (`src/lib/abi.ts`)
 
-Replace the `VESTING_ALLOCATIONS` map with mainnet vesting contract addresses and their allocations. The addresses will be completely different on mainnet.
+Update `TDE_DISBURSEMENT_ADDRESS` to the mainnet TDE Disbursement contract. Vesting contracts are discovered dynamically from this contract.
 
-### 3. Etherscan Links (`src/components/claiming/`)
+### 3. Block Explorer Links
 
-Update block explorer URLs in `vesting-details.tsx` and `claim-history.tsx`:
-- Arbitrum: `arbiscan.io`
-- Ethereum mainnet: `etherscan.io`
+Block explorer URLs are derived automatically from the chain config via `APP_BLOCK_EXPLORER_URL`. No manual update is needed — changing the chain in step 1 updates all explorer links.
 
 ### 4. Supported Networks (`src/lib/appkit.tsx`)
 
@@ -183,8 +181,8 @@ Update the deployment URL if the domain changes.
 - [ ] `IDOS_TOKEN_ABI_ADDRESS` → verify mainnet address
 - [ ] `IDOS_NODE_STAKING_ABI_ADDRESS` → verify mainnet address
 - [ ] `VESTING_TOKEN_ADDRESS` → verify mainnet address
-- [ ] `VESTING_ALLOCATIONS` → mainnet contract addresses + allocations
-- [ ] Block explorer links → correct for target network
+- [ ] `TDE_DISBURSEMENT_ADDRESS` → verify mainnet address
+- [ ] Block explorer links → automatic via `APP_BLOCK_EXPLORER_URL` (verify chain is correct)
 - [ ] `appkit.tsx` networks → remove testnets
 - [ ] `VITE_ZERION_API_KEY` → production Zerion API key
 - [ ] Node provider selector → re-enable and verify addresses
