@@ -81,7 +81,7 @@ function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-sm">Estimated APR*</p>
         {isLoading ? (
-          <Skeleton className="h-6 w-20 bg-muted" />
+          <Skeleton className="h-[30px] w-20 bg-muted" />
         ) : (
           <Badge className="px-3 py-1 text-sm" variant="success">
             {hasStakers ? `${apy.toFixed(2)}%` : "———"}
