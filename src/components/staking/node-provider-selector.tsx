@@ -1,8 +1,9 @@
 import { ChevronRightIcon } from "lucide-react";
 import { useReadContract } from "wagmi";
-import horizenIcon from "@/assets/horizen-labs-logo.svg?url";
+import HorizenIcon from "@/assets/horizen-labs-logo.svg?url";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import idOSTokenIcon from "@/assets/idOS-token.svg?url";
+import MetapoolIcon from "@/assets/metapool-logo.png?url";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -40,7 +41,15 @@ export const nodeProviders: NodeProvider[] = [
         />
       </div>
     ),
-    providerIcon: <img alt="idOS Icon" height={36} src={idOSIcon} width={36} />,
+    providerIcon: (
+      <img
+        alt="idOS Icon"
+        className="rounded-full"
+        height={36}
+        src={idOSIcon}
+        width={36}
+      />
+    ),
   },
   {
     name: "Horizen Labs",
@@ -58,7 +67,38 @@ export const nodeProviders: NodeProvider[] = [
       </div>
     ),
     providerIcon: (
-      <img alt="Horizen Labs Icon" height={30} src={horizenIcon} width={30} />
+      <img
+        alt="Horizen Labs Icon"
+        className="rounded-full"
+        height={30}
+        src={HorizenIcon}
+        width={30}
+      />
+    ),
+  },
+  {
+    name: "Metapool",
+    address: "0x24131dAa64632De66AD805654D7FCb8F6041abD3",
+    assets: "IDOS",
+    assetIcon: (
+      <div className="flex size-12 items-center justify-center rounded-full">
+        <img
+          alt="idOS Token Icon"
+          className="rounded-full"
+          height={32}
+          src={idOSTokenIcon}
+          width={32}
+        />
+      </div>
+    ),
+    providerIcon: (
+      <img
+        alt="Metapool Icon"
+        className="rounded-full"
+        height={30}
+        src={MetapoolIcon}
+        width={30}
+      />
     ),
   },
 ];

@@ -83,20 +83,34 @@ type ConfirmTransactionProps = {
   amount: number;
   isValid: boolean;
   pending: boolean;
+  provider: NodeProvider;
 };
 function ConfirmTransaction({
   mode,
   amount,
   isValid,
   pending,
+  provider,
 }: ConfirmTransactionProps) {
   if (mode === "stake") {
-    return <ConfirmStake amount={amount} isValid={isValid} pending={pending} />;
+    return (
+      <ConfirmStake
+        amount={amount}
+        isValid={isValid}
+        pending={pending}
+        provider={provider}
+      />
+    );
   }
 
   if (mode === "unstake") {
     return (
-      <ConfirmUnstake amount={amount} isValid={isValid} pending={pending} />
+      <ConfirmUnstake
+        amount={amount}
+        isValid={isValid}
+        pending={pending}
+        provider={provider}
+      />
     );
   }
 
@@ -124,7 +138,8 @@ export function StakingForm({
   onProviderChange,
 }: StakingFormProps) {
   const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
-  const { providers: onChainProviders } = useOnChainNodeProviders();
+  const { providers: onChainProviders, isLoading: isProvidersLoading } =
+    useOnChainNodeProviders();
 
   const setStakeAmount = (value: number | null) => {
     _setStakeAmount(value);
@@ -174,12 +189,19 @@ export function StakingForm({
         </AlertDescription>
       </Alert>
 
-      {onChainProviders.length > 0 && (
-        <NodeProviderSelector
-          onProviderChange={onProviderChange}
-          providers={onChainProviders}
-          selectedProvider={selectedProvider}
-        />
+      {isProvidersLoading ? (
+        <div className="flex w-full flex-col gap-4">
+          <Skeleton className="h-[24px] w-32" />
+          <Skeleton className="h-14 w-full rounded-xl" />
+        </div>
+      ) : (
+        onChainProviders.length > 0 && (
+          <NodeProviderSelector
+            onProviderChange={onProviderChange}
+            providers={onChainProviders}
+            selectedProvider={selectedProvider}
+          />
+        )
       )}
 
       <AmountField
@@ -260,6 +282,7 @@ export function StakingForm({
         isValid={isValid}
         mode={mode}
         pending={pending}
+        provider={selectedProvider}
       />
     </form>
   );

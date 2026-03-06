@@ -18,14 +18,21 @@ import {
   fromWei,
 } from "@/lib/format";
 import { balanceOfParams } from "@/lib/queries/query-options";
+import type { NodeProvider } from "./node-provider-selector";
 
 type ConfirmStakeProps = {
   amount: number;
   isValid: boolean;
   pending: boolean;
+  provider: NodeProvider;
 };
 
-export function ConfirmStake({ amount, isValid, pending }: ConfirmStakeProps) {
+export function ConfirmStake({
+  amount,
+  isValid,
+  pending,
+  provider,
+}: ConfirmStakeProps) {
   const { address } = useAppKitAccount();
 
   // Fetch balance
@@ -64,6 +71,17 @@ export function ConfirmStake({ amount, isValid, pending }: ConfirmStakeProps) {
               <li className="flex h-10 items-center justify-between gap-2">
                 <span className="text-muted-foreground text-sm">Address</span>
                 <span>{formatEthereumAddress(address)}</span>
+              </li>
+              <li className="flex h-10 items-center justify-between gap-2">
+                <span className="text-muted-foreground text-sm">
+                  Node Provider
+                </span>
+                <span className="flex items-center gap-2 text-sm">
+                  <span className="flex size-[30px] items-center justify-center [&>img]:max-h-[30px] [&>img]:max-w-[30px]">
+                    {provider.providerIcon}
+                  </span>
+                  {provider.name}
+                </span>
               </li>
               <li className="flex h-8 items-center justify-between gap-2">
                 <span className="text-muted-foreground text-sm">
