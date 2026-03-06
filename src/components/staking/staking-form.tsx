@@ -121,7 +121,7 @@ function ConfirmTransaction({
 type StakingFormProps = {
   mode: "stake" | "unstake";
   pending: boolean;
-  onSubmit: (data: StakingFormSubmitData) => void;
+  onSubmit: (data: StakingFormSubmitData) => Promise<boolean>;
   onAmountChange?: (amount: number | null) => void;
   balance: number;
   isBalanceLoading: boolean;
@@ -161,14 +161,19 @@ export function StakingForm({
   });
   const hasStakeAmountError = errorMessage !== undefined;
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    onSubmit({
+    const success = await onSubmit({
       amount: stakeAmount ?? 0,
       mode,
       provider: selectedProvider,
     });
+
+    if (success) {
+      setStakeAmount(null);
+      setChecked(false);
+    }
   };
 
   return (

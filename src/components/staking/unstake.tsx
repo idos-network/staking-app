@@ -42,13 +42,15 @@ export function Unstake({
 
   const stakedBalance = fromWei(nodeStake);
 
-  const handleSubmit = async (data: StakingFormSubmitData) => {
+  const handleSubmit = async (
+    data: StakingFormSubmitData,
+  ): Promise<boolean> => {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
         "Please connect your wallet to unstake tokens.",
       );
-      return;
+      return false;
     }
 
     // Convert amount from token units to wei (18 decimals) using parseUnits for precision
@@ -87,6 +89,8 @@ export function Unstake({
         "Unstaking Successful",
         `Successfully unstaked ${data.amount} IDOS tokens.`,
       );
+
+      return true;
     } catch (error) {
       console.error(error);
       // Try both ABIs since errors can come from token contract (ERC20) or staking contract
@@ -95,6 +99,7 @@ export function Unstake({
         IDOS_NODE_STAKING_ABI,
       ]);
       showErrorToast("Unstaking Failed", decodedError.message);
+      return false;
     }
   };
 
