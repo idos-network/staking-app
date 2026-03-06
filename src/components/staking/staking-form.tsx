@@ -10,7 +10,7 @@ import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
   type NodeProvider,
   NodeProviderSelector,
-  nodeProviders,
+  useOnChainNodeProviders,
 } from "@/components/staking/node-provider-selector";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -47,23 +47,27 @@ function BalanceDisplay({
   );
 }
 
-function validateStakeAmount(
-  stakeAmount: number | null,
-  balance: number,
-  mode: "stake" | "unstake",
-  checked: boolean
-): { isValid: boolean; errorMessage?: string } {
-  const hasStakeAmountError = stakeAmount !== null && stakeAmount > balance;
-  const hasValidAmount = stakeAmount !== null && stakeAmount > 0;
+function validateStakeAmount(opts: {
+  stakeAmount: number | null;
+  balance: number;
+  mode: "stake" | "unstake";
+  checked: boolean;
+  hasOnChainProvider: boolean;
+}): { isValid: boolean; errorMessage?: string } {
+  const hasStakeAmountError =
+    opts.stakeAmount !== null && opts.stakeAmount > opts.balance;
+  const hasValidAmount = opts.stakeAmount !== null && opts.stakeAmount > 0;
 
   if (hasStakeAmountError) {
     return {
-      errorMessage: `Amount exceeds available balance of ${formatTokenAmount(balance)} IDOS`,
+      errorMessage: `Amount exceeds available balance of ${formatTokenAmount(opts.balance)} IDOS`,
       isValid: false,
     };
   }
 
-  const isValid = mode === "stake" ? hasValidAmount && checked : hasValidAmount;
+  const isValid =
+    opts.hasOnChainProvider &&
+    (opts.mode === "stake" ? hasValidAmount && opts.checked : hasValidAmount);
 
   return { isValid };
 }
@@ -120,6 +124,7 @@ export function StakingForm({
   onProviderChange,
 }: StakingFormProps) {
   const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
+  const { providers: onChainProviders } = useOnChainNodeProviders();
 
   const setStakeAmount = (value: number | null) => {
     _setStakeAmount(value);
@@ -131,12 +136,13 @@ export function StakingForm({
     setStakeAmount(balance);
   };
 
-  const { isValid, errorMessage } = validateStakeAmount(
+  const { isValid, errorMessage } = validateStakeAmount({
     stakeAmount,
     balance,
     mode,
-    checked
-  );
+    checked,
+    hasOnChainProvider: onChainProviders.length > 0,
+  });
   const hasStakeAmountError = errorMessage !== undefined;
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -168,11 +174,13 @@ export function StakingForm({
         </AlertDescription>
       </Alert>
 
-      <NodeProviderSelector
-        onProviderChange={onProviderChange}
-        providers={nodeProviders}
-        selectedProvider={selectedProvider}
-      />
+      {onChainProviders.length > 0 && (
+        <NodeProviderSelector
+          onProviderChange={onProviderChange}
+          providers={onChainProviders}
+          selectedProvider={selectedProvider}
+        />
+      )}
 
       <AmountField
         className="flex flex-col gap-4"

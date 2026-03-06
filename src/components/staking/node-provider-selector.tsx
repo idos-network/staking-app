@@ -1,4 +1,5 @@
 import { ChevronRightIcon } from "lucide-react";
+import { useReadContract } from "wagmi";
 import horizenIcon from "@/assets/horizen-labs-logo.svg?url";
 import idOSIcon from "@/assets/idOS-icon.svg?url";
 import idOSTokenIcon from "@/assets/idOS-token.svg?url";
@@ -12,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getNodeStakesParams } from "@/lib/queries/query-options";
 import { cn } from "@/lib/utils";
 
 export type NodeProvider = {
@@ -61,8 +63,32 @@ export const nodeProviders: NodeProvider[] = [
   },
 ];
 
-export function getRandomProvider(): NodeProvider {
-  return nodeProviders[Math.floor(Math.random() * nodeProviders.length)];
+export function getRandomProvider(providers: NodeProvider[]): NodeProvider {
+  if (providers.length === 0) {
+    return nodeProviders[0];
+  }
+  return providers[Math.floor(Math.random() * providers.length)];
+}
+
+export function useOnChainNodeProviders() {
+  const { data: nodeStakes, isLoading } = useReadContract(
+    getNodeStakesParams()
+  );
+
+  const onChainAddresses = new Set(
+    Array.isArray(nodeStakes)
+      ? nodeStakes.map((entry: { node: string }) => entry.node.toLowerCase())
+      : []
+  );
+
+  const providers =
+    onChainAddresses.size > 0
+      ? nodeProviders.filter((p) =>
+          onChainAddresses.has(p.address.toLowerCase())
+        )
+      : [];
+
+  return { providers, isLoading };
 }
 
 type NodeProviderTriggerProps = {
