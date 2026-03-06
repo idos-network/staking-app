@@ -43,13 +43,15 @@ export function Stake({
   // Calculate available balance
   const availableBalance = fromWei(balance);
 
-  const handleSubmit = async (data: StakingFormSubmitData) => {
+  const handleSubmit = async (
+    data: StakingFormSubmitData,
+  ): Promise<boolean> => {
     if (!address) {
       showErrorToast(
         "Wallet Not Connected",
         "Please connect your wallet to stake tokens.",
       );
-      return;
+      return false;
     }
 
     // Convert amount from token units to wei (18 decimals) using parseUnits for precision
@@ -97,6 +99,8 @@ export function Stake({
         "Staking Successful",
         "Your tokens have been staked successfully",
       );
+
+      return true;
     } catch (error) {
       console.error(error);
       // Try both ABIs since errors can come from token contract (ERC20) or staking contract
@@ -105,7 +109,7 @@ export function Stake({
         IDOS_NODE_STAKING_ABI,
       ]);
       showErrorToast("Staking Failed", decodedError.message);
-      return;
+      return false;
     }
   };
 
