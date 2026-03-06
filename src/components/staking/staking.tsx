@@ -85,7 +85,7 @@ function EstimatedAPR({ stakeAmount }: { stakeAmount?: number | null }) {
           <Skeleton className="h-[30px] w-20 bg-muted" />
         ) : (
           <Badge className="px-3 py-1 text-sm" variant="success">
-            {hasStakers ? `${apy.toFixed(2)}%` : "———"}
+            {hasStakers ? `${formatCurrency(apy)}%` : "———"}
           </Badge>
         )}
       </div>
