@@ -128,6 +128,8 @@ function StakingBalances({
       query: { refetchInterval: POLL_INTERVAL },
     });
 
+  const { apy, isLoading: isApyLoading } = useStakingAPY();
+
   // Calculate total staked: activeStake + slashedStake
   // Note: If you want to exclude slashed stake from the total, change this to only use `userStake[0]`
   const totalStaked =
@@ -143,6 +145,14 @@ function StakingBalances({
     withdrawableReward.length >= 1
       ? BigInt(withdrawableReward[0])
       : undefined;
+
+  // Est. yearly rewards = total stake * APR
+  const totalStakedNum = fromWei(totalStaked);
+  const estimatedYearlyRewardsIdos =
+    totalStakedNum > 0 && apy > 0 ? (totalStakedNum * apy) / 100 : 0;
+  const estimatedYearlyRewardsUsd =
+    estimatedYearlyRewardsIdos * (tokenPrice ?? 0);
+  const isYearlyRewardsLoading = isUserStakeLoading || isApyLoading;
 
   return (
     <div className="w-full rounded-[20px] bg-muted p-6">
@@ -201,11 +211,26 @@ function StakingBalances({
           </div>
           <div className="flex w-1/2 flex-col gap-2 text-right">
             <p className="text-sm text-muted-foreground">
-              Est. Monthly Rewards*
+              Est. Yearly Rewards*
             </p>
             <div className="flex flex-col items-end gap-2">
-              <p className="text-lg">0.00 IDOS</p>
-              <p className="text-sm text-muted-foreground">$0.00</p>
+              {isYearlyRewardsLoading ? (
+                <>
+                  <Skeleton className="h-6 w-24 bg-muted" />
+                  <Skeleton className="h-4 w-16 bg-muted" />
+                </>
+              ) : (
+                <>
+                  <p className="text-lg">
+                    {formatTokenAmount(estimatedYearlyRewardsIdos)} IDOS
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {tokenPrice != null
+                      ? formatCurrency(estimatedYearlyRewardsUsd)
+                      : "—"}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
