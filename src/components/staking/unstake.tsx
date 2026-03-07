@@ -1,6 +1,5 @@
 import { useAppKitAccount } from "@reown/appkit/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { parseUnits } from "viem";
 import { useConfig, useReadContract, useWriteContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 
@@ -53,8 +52,7 @@ export function Unstake({
       return false;
     }
 
-    // Convert amount from token units to wei (18 decimals) using parseUnits for precision
-    const amountInWei = parseUnits(data.amount.toString(), 18);
+    const { amountInWei } = data;
 
     try {
       // Unstake tokens (no approval needed for unstaking)
@@ -98,6 +96,12 @@ export function Unstake({
         IDOS_TOKEN_ABI,
         IDOS_NODE_STAKING_ABI,
       ]);
+
+      if (decodedError.name === "UserRejectedRequest") {
+        showErrorToast("Transaction Cancelled", decodedError.message);
+        return false;
+      }
+
       showErrorToast("Unstaking Failed", decodedError.message);
       return false;
     }
@@ -106,6 +110,7 @@ export function Unstake({
   return (
     <StakingForm
       balance={stakedBalance}
+      balanceRaw={nodeStake}
       isBalanceLoading={isStakedBalanceLoading}
       mode="unstake"
       onProviderChange={onProviderChange}
