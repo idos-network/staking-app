@@ -2,6 +2,12 @@ import { type Abi, decodeErrorResult } from "viem";
 
 // Regex pattern for extracting hex error data from messages
 const HEX_PATTERN = /0x[a-fA-F0-9]{10,}/;
+const USER_REJECTED_PATTERNS = [
+  /user denied/i,
+  /user rejected/i,
+  /rejected the request/i,
+  /request rejected/i,
+];
 
 /**
  * Checks if a value is a valid hex error data string
@@ -39,8 +45,41 @@ function extractFromDataObject(
  * Extracts hex error data from a string message
  */
 function extractHexFromMessage(msg: string): `0x${string}` | undefined {
+  const lowerMessage = msg.toLowerCase();
+  const looksLikeRevertData =
+    lowerMessage.includes("revert") ||
+    lowerMessage.includes("error data") ||
+    lowerMessage.includes("returned data");
+
+  if (!looksLikeRevertData) {
+    return;
+  }
+
   const hexMatch = msg.match(HEX_PATTERN);
   return hexMatch ? (hexMatch[0] as `0x${string}`) : undefined;
+}
+
+function isUserRejectedMessage(message: string): boolean {
+  return USER_REJECTED_PATTERNS.some((pattern) => pattern.test(message));
+}
+
+function isUserRejectedError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const err = error as {
+    code?: number;
+    message?: string;
+    shortMessage?: string;
+  };
+
+  return (
+    err.code === 4001 ||
+    (typeof err.shortMessage === "string" &&
+      isUserRejectedMessage(err.shortMessage)) ||
+    (typeof err.message === "string" && isUserRejectedMessage(err.message))
+  );
 }
 
 /**
@@ -205,14 +244,29 @@ function extractFallbackError(error: unknown): {
 } {
   if (error && typeof error === "object") {
     const err = error as {
+      code?: number;
       shortMessage?: string;
       message?: string;
       name?: string;
     };
 
+    if (err.code === 4001) {
+      return {
+        message: "Transaction cancelled in wallet.",
+        name: "UserRejectedRequest",
+      };
+    }
+
     // Check for viem/wagmi error messages
     const shortMsg = err.shortMessage;
     if (shortMsg) {
+      if (isUserRejectedMessage(shortMsg)) {
+        return {
+          message: "Transaction cancelled in wallet.",
+          name: "UserRejectedRequest",
+        };
+      }
+
       const isRevert =
         shortMsg.includes("revert") || shortMsg.includes("execution reverted");
       return {
@@ -224,6 +278,13 @@ function extractFallbackError(error: unknown): {
     }
 
     const errMsg = err.message;
+    if (errMsg && isUserRejectedMessage(errMsg)) {
+      return {
+        message: "Transaction cancelled in wallet.",
+        name: "UserRejectedRequest",
+      };
+    }
+
     if (
       errMsg &&
       (errMsg.includes("revert") || errMsg.includes("execution reverted"))
@@ -262,6 +323,14 @@ export function decodeTransactionError(
   abis: Abi | Abi[],
 ): { name: string; message: string } {
   const abiArray = Array.isArray(abis) ? abis : [abis];
+
+  if (isUserRejectedError(error)) {
+    return {
+      message: "Transaction cancelled in wallet.",
+      name: "UserRejectedRequest",
+    };
+  }
+
   const errorData = extractErrorData(error);
 
   // Log error structure for debugging (remove in production if needed)

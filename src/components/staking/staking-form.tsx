@@ -1,11 +1,6 @@
 import { TriangleAlertIcon, WalletMinimalIcon } from "lucide-react";
 import { useState } from "react";
 
-import {
-  AmountField,
-  AmountFieldGroup,
-  AmountFieldInput,
-} from "@/components/staking/amount-field";
 import { ConfirmStake } from "@/components/staking/confirm-stake";
 import { ConfirmUnstake } from "@/components/staking/confirm-unstake";
 import {
@@ -18,7 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatTokenAmount } from "@/lib/format";
+import {
+  formatTokenAmount,
+  formatTokenInput,
+  parseTokenAmount,
+} from "@/lib/format";
+
+const AMOUNT_INPUT_PATTERN = /^\d*\.?\d*$/;
 
 type BalanceDisplayProps = {
   balance: number;
@@ -49,17 +50,30 @@ function BalanceDisplay({
 }
 
 function validateStakeAmount(opts: {
-  stakeAmount: number | null;
+  stakeAmountInWei: bigint | null;
+  stakeAmountInput: string;
   balance: number;
+  balanceRaw: bigint | undefined;
   mode: "stake" | "unstake";
   checked: boolean;
   hasOnChainProvider: boolean;
 }): { isValid: boolean; errorMessage?: string } {
-  const hasStakeAmountError =
-    opts.stakeAmount !== null && opts.stakeAmount > opts.balance;
-  const hasValidAmount = opts.stakeAmount !== null && opts.stakeAmount > 0;
+  const hasAmountInput = opts.stakeAmountInput.trim().length > 0;
+  const amountInWei = opts.stakeAmountInWei;
+  const hasValidAmount = amountInWei !== null && amountInWei > 0n;
+  const exceedsBalance =
+    hasValidAmount &&
+    opts.balanceRaw !== undefined &&
+    amountInWei > opts.balanceRaw;
 
-  if (hasStakeAmountError) {
+  if (hasAmountInput && opts.stakeAmountInWei === null) {
+    return {
+      errorMessage: "Enter a valid IDOS amount with up to 18 decimals",
+      isValid: false,
+    };
+  }
+
+  if (exceedsBalance) {
     return {
       errorMessage: `Amount exceeds available balance of ${formatTokenAmount(opts.balance)} IDOS`,
       isValid: false,
@@ -68,13 +82,15 @@ function validateStakeAmount(opts: {
 
   const isValid =
     opts.hasOnChainProvider &&
+    opts.balanceRaw !== undefined &&
     (opts.mode === "stake" ? hasValidAmount && opts.checked : hasValidAmount);
 
   return { isValid };
 }
 
 export type StakingFormSubmitData = {
-  amount: number;
+  amount: string;
+  amountInWei: bigint;
   provider: NodeProvider;
   mode: "stake" | "unstake";
 };
@@ -82,6 +98,7 @@ export type StakingFormSubmitData = {
 type ConfirmTransactionProps = {
   mode: "stake" | "unstake";
   amount: number;
+  amountInWei: bigint;
   isValid: boolean;
   pending: boolean;
   provider: NodeProvider;
@@ -89,6 +106,7 @@ type ConfirmTransactionProps = {
 function ConfirmTransaction({
   mode,
   amount,
+  amountInWei,
   isValid,
   pending,
   provider,
@@ -97,6 +115,7 @@ function ConfirmTransaction({
     return (
       <ConfirmStake
         amount={amount}
+        amountInWei={amountInWei}
         isValid={isValid}
         pending={pending}
         provider={provider}
@@ -124,6 +143,7 @@ type StakingFormProps = {
   onSubmit: (data: StakingFormSubmitData) => Promise<boolean>;
   onAmountChange?: (amount: number | null) => void;
   balance: number;
+  balanceRaw: bigint | undefined;
   isBalanceLoading: boolean;
   selectedProvider: NodeProvider;
   onProviderChange: (provider: NodeProvider) => void;
@@ -134,44 +154,67 @@ export function StakingForm({
   onAmountChange,
   pending,
   balance,
+  balanceRaw,
   isBalanceLoading,
   selectedProvider,
   onProviderChange,
 }: StakingFormProps) {
-  const [stakeAmount, _setStakeAmount] = useState<number | null>(null);
+  const [stakeAmountInput, _setStakeAmountInput] = useState("");
   const { providers: onChainProviders, isLoading: isProvidersLoading } =
     useOnChainNodeProviders();
 
-  const setStakeAmount = (value: number | null) => {
-    _setStakeAmount(value);
-    onAmountChange?.(value);
+  const parsedStakeAmountInWei = parseTokenAmount(stakeAmountInput);
+  const parsedStakeAmount =
+    parsedStakeAmountInWei === null ? null : Number(stakeAmountInput);
+  const stakeAmount =
+    parsedStakeAmount !== null && Number.isFinite(parsedStakeAmount)
+      ? parsedStakeAmount
+      : null;
+
+  const setStakeAmountInput = (value: string) => {
+    _setStakeAmountInput(value);
+
+    const parsedValue = parseTokenAmount(value);
+    if (parsedValue === null) {
+      onAmountChange?.(null);
+      return;
+    }
+
+    const numericValue = Number(value);
+    onAmountChange?.(Number.isFinite(numericValue) ? numericValue : null);
   };
   const [checked, setChecked] = useState(false);
 
   const setMaxAmount = () => {
-    setStakeAmount(balance);
+    setStakeAmountInput(formatTokenInput(balanceRaw));
   };
 
   const { isValid, errorMessage } = validateStakeAmount({
     balance,
+    balanceRaw,
     checked,
     hasOnChainProvider: onChainProviders.length > 0,
     mode,
-    stakeAmount,
+    stakeAmountInWei: parsedStakeAmountInWei,
+    stakeAmountInput,
   });
   const hasStakeAmountError = errorMessage !== undefined;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isValid || parsedStakeAmountInWei === null) {
+      return;
+    }
 
     const success = await onSubmit({
-      amount: stakeAmount ?? 0,
+      amount: stakeAmountInput,
+      amountInWei: parsedStakeAmountInWei,
       mode,
       provider: selectedProvider,
     });
 
     if (success) {
-      setStakeAmount(null);
+      setStakeAmountInput("");
       setChecked(false);
     }
   };
@@ -210,13 +253,7 @@ export function StakingForm({
         )
       )}
 
-      <AmountField
-        className="flex flex-col gap-4"
-        onValueChange={(value) => {
-          setStakeAmount(value ?? null);
-        }}
-        value={stakeAmount}
-      >
+      <div className="flex w-full flex-col gap-4">
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
           <BalanceDisplay
             balance={balance}
@@ -233,15 +270,26 @@ export function StakingForm({
           </Label>
         </div>
         <div className="flex w-full flex-col gap-2">
-          <AmountFieldGroup
+          <div
             aria-invalid={hasStakeAmountError}
-            className="h-[72px] rounded-xl border-transparent bg-secondary pr-6 pl-4"
+            className="flex h-[72px] items-center gap-4 rounded-xl border-transparent bg-secondary pr-6 pl-4"
           >
-            <AmountFieldInput
+            <input
               aria-invalid={hasStakeAmountError}
-              className="text-xl"
+              autoComplete="off"
+              className="h-full w-full min-w-0 flex-1 bg-transparent py-[calc(--spacing(1.5)-1px)] text-xl tabular-nums outline-none"
               id="amount-to-stake"
+              inputMode="decimal"
+              onChange={(event) => {
+                const value = event.target.value.replaceAll(",", "");
+                if (value === "" || AMOUNT_INPUT_PATTERN.test(value)) {
+                  setStakeAmountInput(value);
+                }
+              }}
               placeholder="100.00 IDOS"
+              spellCheck={false}
+              type="text"
+              value={stakeAmountInput}
             />
             <Button
               className="h-fit w-fit text-success-foreground hover:border-primary"
@@ -251,7 +299,7 @@ export function StakingForm({
             >
               MAX
             </Button>
-          </AmountFieldGroup>
+          </div>
 
           {hasStakeAmountError ? (
             <p className="text-xs text-destructive-foreground">
@@ -259,7 +307,7 @@ export function StakingForm({
             </p>
           ) : null}
         </div>
-      </AmountField>
+      </div>
 
       {mode === "stake" ? (
         <Label className="w-full gap-3 text-foreground">
@@ -285,6 +333,7 @@ export function StakingForm({
 
       <ConfirmTransaction
         amount={stakeAmount ?? 0}
+        amountInWei={parsedStakeAmountInWei ?? 0n}
         isValid={isValid}
         mode={mode}
         pending={pending}

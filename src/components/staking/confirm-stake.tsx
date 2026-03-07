@@ -1,5 +1,4 @@
 import { useAppKitAccount } from "@reown/appkit/react";
-import { parseUnits } from "viem";
 import { useReadContract } from "wagmi";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import type { NodeProvider } from "./node-provider-selector";
 
 type ConfirmStakeProps = {
   amount: number;
+  amountInWei: bigint;
   isValid: boolean;
   pending: boolean;
   provider: NodeProvider;
@@ -33,6 +33,7 @@ type ConfirmStakeProps = {
 
 export function ConfirmStake({
   amount,
+  amountInWei,
   isValid,
   pending,
   provider,
@@ -47,7 +48,6 @@ export function ConfirmStake({
       refetchOnMount: "always",
     },
   });
-  const amountInWei = parseUnits(amount.toString(), 18);
   const allowanceQuery = allowanceParams(
     address as `0x${string}` | undefined,
     IDOS_NODE_STAKING_ABI_ADDRESS,
