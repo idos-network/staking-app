@@ -17,7 +17,7 @@ import {
 } from "@/lib/abi";
 import { decodeTransactionError } from "@/lib/decode-error";
 import { fromWei } from "@/lib/format";
-import { balanceOfParams } from "@/lib/queries/query-options";
+import { allowanceParams, balanceOfParams } from "@/lib/queries/query-options";
 import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export function Stake({
@@ -39,6 +39,12 @@ export function Stake({
   const { data: balance, isLoading: isBalanceLoading } = useReadContract(
     balanceOfParams(address as `0x${string}` | undefined),
   );
+  const { refetch: refetchAllowance } = useReadContract(
+    allowanceParams(
+      address as `0x${string}` | undefined,
+      IDOS_NODE_STAKING_ABI_ADDRESS,
+    ),
+  );
 
   // Calculate available balance
   const availableBalance = fromWei(balance);
@@ -58,16 +64,21 @@ export function Stake({
     const amountInWei = parseUnits(data.amount.toString(), 18);
 
     try {
-      const approvalTx = await writeContract.mutateAsync({
-        abi: IDOS_TOKEN_ABI,
-        address: IDOS_TOKEN_ABI_ADDRESS,
-        args: [IDOS_NODE_STAKING_ABI_ADDRESS, amountInWei],
-        functionName: "approve",
-      });
+      const { data: allowance } = await refetchAllowance();
+      const currentAllowance = allowance ?? 0n;
 
-      await waitForTransactionReceipt(config, {
-        hash: approvalTx,
-      });
+      if (currentAllowance < amountInWei) {
+        const approvalTx = await writeContract.mutateAsync({
+          abi: IDOS_TOKEN_ABI,
+          address: IDOS_TOKEN_ABI_ADDRESS,
+          args: [IDOS_NODE_STAKING_ABI_ADDRESS, amountInWei],
+          functionName: "approve",
+        });
+
+        await waitForTransactionReceipt(config, {
+          hash: approvalTx,
+        });
+      }
 
       const stakeTx = await writeContract.mutateAsync({
         abi: IDOS_NODE_STAKING_ABI,

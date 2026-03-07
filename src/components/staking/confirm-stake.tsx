@@ -1,4 +1,5 @@
 import { useAppKitAccount } from "@reown/appkit/react";
+import { parseUnits } from "viem";
 import { useReadContract } from "wagmi";
 
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { IDOS_NODE_STAKING_ABI_ADDRESS } from "@/lib/abi";
 import {
   formatEthereumAddress,
   formatTokenAmount,
   fromWei,
 } from "@/lib/format";
-import { balanceOfParams } from "@/lib/queries/query-options";
+import { allowanceParams, balanceOfParams } from "@/lib/queries/query-options";
 
 import type { NodeProvider } from "./node-provider-selector";
 
@@ -45,9 +47,31 @@ export function ConfirmStake({
       refetchOnMount: "always",
     },
   });
+  const amountInWei = parseUnits(amount.toString(), 18);
+  const allowanceQuery = allowanceParams(
+    address as `0x${string}` | undefined,
+    IDOS_NODE_STAKING_ABI_ADDRESS,
+  );
+  const { data: allowance, isFetching: isAllowanceFetching } = useReadContract({
+    ...allowanceQuery,
+    query: {
+      refetchOnMount: "always",
+    },
+  });
 
   // Calculate values
   const availableBalance = fromWei(balance);
+  const requiresApproval = (allowance ?? 0n) < amountInWei;
+  let transactionMessage =
+    "Your current IDOS allowance already covers this amount, so you'll only be asked to sign the staking transaction";
+
+  if (isAllowanceFetching) {
+    transactionMessage =
+      "Checking your current IDOS allowance before preparing the transaction";
+  } else if (requiresApproval) {
+    transactionMessage =
+      "You'll be asked to sign two transactions only if needed: an IDOS approval and then the staking transaction";
+  }
 
   return (
     <Dialog>
@@ -105,10 +129,7 @@ export function ConfirmStake({
               </li>
             </ul>
           </div>
-          <p className="text-sm text-muted-foreground">
-            You'll be asked to sign two transactions: an allowance for IDOS, and
-            the staking transaction
-          </p>
+          <p className="text-sm text-muted-foreground">{transactionMessage}</p>
         </div>
 
         <DialogFooter className="border-none bg-popover pt-2 pb-6">
