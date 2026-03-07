@@ -35,6 +35,33 @@ export function balanceOfQueryOptions(
 }
 
 /**
+ * Contract parameters for fetching token allowance
+ */
+export function allowanceParams(
+  owner: `0x${string}` | undefined,
+  spender: `0x${string}` | undefined,
+) {
+  return {
+    abi: IDOS_TOKEN_ABI,
+    address: IDOS_TOKEN_ABI_ADDRESS as `0x${string}`,
+    args: owner && spender ? ([owner, spender] as const) : undefined,
+    chainId: APP_CHAIN_ID,
+    functionName: "allowance" as const,
+  };
+}
+
+/**
+ * Query options for fetching token allowance (for use with queryClient)
+ */
+export function allowanceQueryOptions(
+  config: Config,
+  owner: `0x${string}` | undefined,
+  spender: `0x${string}` | undefined,
+) {
+  return readContractQueryOptions(config, allowanceParams(owner, spender));
+}
+
+/**
  * Contract parameters for fetching user stake (active + slashed)
  */
 export function getUserStakeParams(address: `0x${string}` | undefined) {
