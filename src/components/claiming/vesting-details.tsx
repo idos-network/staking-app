@@ -1,12 +1,6 @@
-import { CalendarDays, ExternalLink, Lock } from "lucide-react";
+import { CalendarDays, Info } from "lucide-react";
 
-import { Separator } from "@/components/ui/separator";
-import { APP_BLOCK_EXPLORER_URL } from "@/lib/abi";
-import {
-  formatEthereumAddress,
-  formatTokenAmount,
-  fromWei,
-} from "@/lib/format";
+import { formatTokenAmount, fromWei } from "@/lib/format";
 import type { VestingData } from "@/lib/queries/use-vesting";
 
 function formatTimestamp(unixSeconds: bigint): string {
@@ -22,68 +16,55 @@ function durationToMonths(seconds: bigint): number {
 }
 
 export function VestingDetails({ data }: { data: VestingData }) {
+  const totalMonths = durationToMonths(data.duration);
+  const cliffMonths = durationToMonths(data.cliff - data.start);
+  const total = fromWei(data.totalAllocation);
+  const atCliff = totalMonths > 0 ? (total * cliffMonths) / totalMonths : 0;
+  const perMonth = totalMonths > 0 ? total / totalMonths : 0;
+
   return (
-    <div className="flex flex-col gap-4">
-      <p className="font-semibold">Vesting Schedule</p>
-      <div className="flex flex-col gap-3 rounded-xl bg-secondary px-4 py-4">
-        <div className="grid grid-cols-2 gap-y-3 text-sm">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-muted-foreground">Vesting Start</p>
-            <div className="flex items-center gap-1.5">
-              <CalendarDays className="size-3.5 text-muted-foreground" />
-              <span>{formatTimestamp(data.start)}</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 text-right">
-            <p className="text-sm text-muted-foreground">Cliff Date</p>
-            <p>{formatTimestamp(data.cliff)}</p>
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-muted-foreground">Vesting End</p>
-            <div className="flex items-center gap-1.5">
-              <CalendarDays className="size-3.5 text-muted-foreground" />
-              <span>{formatTimestamp(data.end)}</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 text-right">
-            <p className="text-sm text-muted-foreground">Vesting Type</p>
-            <p>Linear (post-cliff)</p>
-          </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm text-muted-foreground">Duration</p>
-            <p>{durationToMonths(data.duration)} months</p>
+    <div className="rounded-lg bg-muted px-4 py-3">
+      <div className="grid grid-cols-2 gap-y-3 text-sm">
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-muted-foreground">Vesting Start</p>
+          <div className="flex items-center gap-1.5">
+            <CalendarDays className="size-3.5 text-muted-foreground" />
+            <span>{formatTimestamp(data.start)}</span>
           </div>
         </div>
-
-        <Separator />
-
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Vesting Contract</p>
-          <a
-            className="flex items-center gap-1 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
-            href={`${APP_BLOCK_EXPLORER_URL}/address/${data.contractAddress}`}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {formatEthereumAddress(data.contractAddress)}
-            <ExternalLink className="size-3" />
-          </a>
+        <div className="flex flex-col gap-1 text-right">
+          <p className="text-xs text-muted-foreground">Cliff Date</p>
+          <p>{formatTimestamp(data.cliff)}</p>
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-muted-foreground">Vesting End</p>
+          <div className="flex items-center gap-1.5">
+            <CalendarDays className="size-3.5 text-muted-foreground" />
+            <span>{formatTimestamp(data.end)}</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1 text-right">
+          <p className="text-xs text-muted-foreground">Vesting Type</p>
+          <p>Unlocks gradually after cliff</p>
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-muted-foreground">Duration</p>
+          <p>{totalMonths} months</p>
         </div>
       </div>
-
-      <div className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3">
-        <Lock className="size-4 shrink-0 text-muted-foreground" />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <p className="text-sm">
-            Still locked:{" "}
-            <span className="font-medium">
-              {formatTokenAmount(fromWei(data.locked))} IDOS
-            </span>
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Fully vested by {formatTimestamp(data.end)}
-          </p>
-        </div>
+      <div className="mt-3 flex items-center gap-1.5 text-xs text-accent-foreground">
+        <Info className="size-3.5 shrink-0" />
+        <p>
+          At cliff,{" "}
+          <span className="font-medium text-primary">
+            ~{formatTokenAmount(atCliff)} IDOS
+          </span>{" "}
+          unlocks at once, then{" "}
+          <span className="font-medium text-primary">
+            ~{formatTokenAmount(perMonth)} IDOS
+          </span>{" "}
+          per month.
+        </p>
       </div>
     </div>
   );

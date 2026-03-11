@@ -124,6 +124,59 @@ export type VestingResult = {
   isLoading: boolean;
 };
 
+// TODO: remove before merging — set to true to render the UI with fake data.
+const USE_MOCK_VESTING = true;
+
+function getMockVesting(): VestingResult {
+  const now = BigInt(Math.floor(Date.now() / 1000));
+  const month = 30n * 24n * 60n * 60n;
+  const wei = 10n ** 18n;
+
+  const start1 = now - 2n * month;
+  const duration1 = 18n * month;
+  const total1 = 100_000n * wei;
+
+  const start2 = now - 10n * month;
+  const duration2 = 18n * month;
+  const total2 = 250_000n * wei;
+  const vested2 = (total2 * 10n) / 18n;
+  const claimed2 = 50_000n * wei;
+
+  const contracts: VestingData[] = [
+    {
+      contractAddress: "0x1111111111111111111111111111111111111111",
+      start: start1,
+      cliff: start1 + 6n * month,
+      duration: duration1,
+      end: start1 + duration1,
+      totalAllocation: total1,
+      totalVested: 0n,
+      alreadyClaimed: 0n,
+      claimableNow: 0n,
+      locked: total1,
+    },
+    {
+      contractAddress: "0x2222222222222222222222222222222222222222",
+      start: start2,
+      cliff: start2 + 6n * month,
+      duration: duration2,
+      end: start2 + duration2,
+      totalAllocation: total2,
+      totalVested: vested2,
+      alreadyClaimed: claimed2,
+      claimableNow: vested2 - claimed2,
+      locked: total2 - vested2,
+    },
+  ];
+
+  return {
+    contractAddresses: contracts.map((c) => c.contractAddress),
+    contracts,
+    hasVesting: true,
+    isLoading: false,
+  };
+}
+
 /**
  * Combined hook: finds the user's vesting contracts from the static map
  * and reads all on-chain data in a single multicall.
@@ -134,6 +187,10 @@ export function useVesting(beneficiary: string | undefined): VestingResult {
 
   const { vestingContracts, isLoading: isLoadingData } =
     useMultiVestingData(contractAddresses);
+
+  if (USE_MOCK_VESTING) {
+    return getMockVesting();
+  }
 
   const isLoading =
     isLoadingContracts ||
