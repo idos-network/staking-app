@@ -23,8 +23,9 @@ export function VestingDetails({ data }: { data: VestingData }) {
   const totalMonths = durationToMonths(data.duration);
   const cliffMonths = durationToMonths(data.cliff - data.start);
   const total = fromWei(data.totalAllocation);
+  const totalDays = durationToDays(data.duration);
   const atCliff = totalMonths > 0 ? (total * cliffMonths) / totalMonths : 0;
-  const perMonth = totalMonths > 0 ? total / totalMonths : 0;
+  const perDay = totalDays > 0 ? total / totalDays : 0;
 
   return (
     <div className="rounded-lg bg-muted px-4 py-3">
@@ -67,9 +68,9 @@ export function VestingDetails({ data }: { data: VestingData }) {
           </span>{" "}
           unlocks at once, then{" "}
           <span className="font-medium text-primary">
-            ~{formatTokenAmount(perMonth)} IDOS
+            ~{formatTokenAmount(perDay)} IDOS
           </span>{" "}
-          per month.
+          per day.
         </p>
       </div>
     </div>
