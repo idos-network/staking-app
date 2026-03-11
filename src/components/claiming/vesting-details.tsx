@@ -15,6 +15,10 @@ function durationToMonths(seconds: bigint): number {
   return Math.round(Number(seconds) / (30 * 24 * 60 * 60));
 }
 
+function durationToDays(seconds: bigint): number {
+  return Math.round(Number(seconds) / (24 * 60 * 60));
+}
+
 export function VestingDetails({ data }: { data: VestingData }) {
   const totalMonths = durationToMonths(data.duration);
   const cliffMonths = durationToMonths(data.cliff - data.start);
@@ -49,7 +53,9 @@ export function VestingDetails({ data }: { data: VestingData }) {
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs text-muted-foreground">Duration</p>
-          <p>{totalMonths} months</p>
+          <p>
+            {durationToDays(data.duration)} days (~{totalMonths} months)
+          </p>
         </div>
       </div>
       <div className="mt-3 flex items-center gap-1.5 text-xs text-accent-foreground">

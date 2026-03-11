@@ -15,6 +15,10 @@ function durationToMonths(seconds: bigint): number {
   return Math.round(Number(seconds) / (30 * 24 * 60 * 60));
 }
 
+function durationToDays(seconds: bigint): number {
+  return Math.round(Number(seconds) / (24 * 60 * 60));
+}
+
 /**
  * OZ VestingWallet vesting schedule:
  *   - before cliff: 0
@@ -261,6 +265,19 @@ describe("date relationships", () => {
     expect(durationToMonths(6n * MONTH)).toBe(6);
     expect(durationToMonths(12n * MONTH)).toBe(12);
     expect(durationToMonths(18n * MONTH)).toBe(18);
+  });
+
+  it("durationToDays converts correctly", () => {
+    expect(durationToDays(6n * MONTH)).toBe(180);
+    expect(durationToDays(12n * MONTH)).toBe(360);
+    expect(durationToDays(18n * MONTH)).toBe(540);
+  });
+
+  it("durationToDays and durationToMonths are consistent (days ≈ months * 30)", () => {
+    const data = makeVesting();
+    const days = durationToDays(data.duration);
+    const months = durationToMonths(data.duration);
+    expect(days).toBeCloseTo(months * 30, 0);
   });
 });
 
