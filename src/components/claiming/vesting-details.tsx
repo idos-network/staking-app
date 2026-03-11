@@ -45,7 +45,7 @@ export function VestingDetails({ data }: { data: VestingData }) {
         </div>
         <div className="flex flex-col gap-1 text-right">
           <p className="text-xs text-muted-foreground">Vesting Type</p>
-          <p>Unlocks gradually after cliff</p>
+          <p>Unlocks linearly after cliff</p>
         </div>
         <div className="flex flex-col gap-1">
           <p className="text-xs text-muted-foreground">Duration</p>
