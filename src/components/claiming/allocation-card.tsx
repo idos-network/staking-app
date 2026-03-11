@@ -1,5 +1,10 @@
-import { ExternalLink, Lock } from "lucide-react";
+import { ChevronDown, ExternalLink, Lock } from "lucide-react";
 
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { APP_BLOCK_EXPLORER_URL } from "@/lib/abi";
 import {
   formatEthereumAddress,
@@ -7,6 +12,8 @@ import {
   fromWei,
 } from "@/lib/format";
 import type { VestingData } from "@/lib/queries/use-vesting";
+
+import { VestingDetails } from "./vesting-details";
 
 function formatTimestamp(unixSeconds: bigint): string {
   return new Date(Number(unixSeconds) * 1000).toLocaleDateString("en-US", {
@@ -32,7 +39,7 @@ export function AllocationCard({ data }: { data: VestingData }) {
     totalAllocation > 0 ? Math.round((totalVested / totalAllocation) * 100) : 0;
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-secondary p-4">
+    <Collapsible className="flex flex-col gap-4 rounded-xl bg-secondary p-4">
       <div className="flex items-center justify-end">
         <a
           className="flex items-center gap-1 font-mono text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -83,9 +90,20 @@ export function AllocationCard({ data }: { data: VestingData }) {
         <span>{vestedPct}% vested</span>
         <span className="flex items-center gap-1">
           <Lock className="size-3" />
-          {formatTokenAmount(locked)} locked until {formatTimestamp(data.end)}
+          {BigInt(Math.floor(Date.now() / 1000)) < data.cliff
+            ? `${formatTokenAmount(locked)} in cliff until ${formatTimestamp(data.cliff)}`
+            : `${formatTokenAmount(locked)} vesting until ${formatTimestamp(data.end)}`}
         </span>
       </div>
-    </div>
+
+      <CollapsibleTrigger className="group flex items-center gap-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80">
+        <span>Vesting Schedule</span>
+        <ChevronDown className="size-3.5 transition-transform duration-200 group-aria-expanded:rotate-180" />
+      </CollapsibleTrigger>
+
+      <CollapsiblePanel>
+        <VestingDetails data={data} />
+      </CollapsiblePanel>
+    </Collapsible>
   );
 }
