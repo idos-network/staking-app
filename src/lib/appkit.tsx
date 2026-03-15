@@ -11,8 +11,11 @@ import type { PropsWithChildren } from "react";
 import { WagmiProvider, http } from "wagmi";
 import { arbitrum as wagmiArbitrum } from "wagmi/chains";
 
-const projectId =
-  import.meta.env.VITE_APPKIT_PROJECT_ID || "b56e18d47c72ab683b10814fe9495694";
+const projectId = import.meta.env.VITE_APPKIT_PROJECT_ID;
+
+if (!projectId) {
+  throw new Error("Missing VITE_APPKIT_PROJECT_ID");
+}
 
 const url = import.meta.env.DEV
   ? "http://localhost:5173"

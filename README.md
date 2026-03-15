@@ -31,7 +31,7 @@
    VITE_ZERION_API_KEY=your_zerion_api_key_here
    ```
 
-   `VITE_APPKIT_PROJECT_ID` — WalletConnect project ID. If not provided, the app uses a default for local development.
+   `VITE_APPKIT_PROJECT_ID` — WalletConnect project ID. This is required to initialize Reown AppKit.
 
    `VITE_ZERION_API_KEY` — Zerion API key for real-time token price data. If not provided, the app falls back to CoinGecko. Get one at [developers.zerion.io](https://developers.zerion.io/).
 
