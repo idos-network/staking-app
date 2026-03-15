@@ -1,5 +1,5 @@
-import { useAppKit } from "@reown/appkit/react";
-import { useState } from "react";
+import { useAppKit, useAppKitWallets } from "@reown/appkit/react";
+import { useEffect, useRef, useState } from "react";
 
 import idOSLogo from "@/assets/idOS-logo.svg?url";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,24 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
 
 function WalletScreen() {
   const { open } = useAppKit();
+  const { fetchWallets, isFetchingWallets, isInitialized } = useAppKitWallets();
+  const hasWarmedWallets = useRef(false);
+
+  useEffect(() => {
+    if (!isInitialized || isFetchingWallets || hasWarmedWallets.current) {
+      return;
+    }
+
+    hasWarmedWallets.current = true;
+
+    const timeoutId = window.setTimeout(() => {
+      void fetchWallets();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [fetchWallets, isFetchingWallets, isInitialized]);
 
   return (
     <div className="flex h-svh flex-col place-content-center items-center p-5">
