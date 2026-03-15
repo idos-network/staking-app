@@ -320,7 +320,7 @@ export function StakingForm({
             I have read the{" "}
             <a
               className="text-primary underline transition-colors hover:text-primary/80"
-              href="http://www.idos.network/legal/risk-disclosure-staking"
+              href="https://www.idos.network/legal/risk-disclosure-staking"
               rel="noopener noreferrer"
               target="_blank"
             >

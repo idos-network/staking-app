@@ -276,7 +276,7 @@ export function Staking() {
             for your participation.{" "}
             <a
               className="font-medium text-primary underline transition-colors hover:text-primary/80"
-              href="http://www.idos.network/legal/portal-terms"
+              href="https://www.idos.network/legal/portal-terms"
               rel="noopener noreferrer"
               target="_blank"
             >

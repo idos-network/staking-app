@@ -50,7 +50,7 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
           By continuing you agree to the{" "}
           <a
             className="text-primary underline transition-colors hover:text-primary/80"
-            href="http://www.idos.network/legal/portal-terms"
+            href="https://www.idos.network/legal/portal-terms"
             rel="noopener noreferrer"
             target="_blank"
           >
@@ -68,11 +68,11 @@ function ConsentScreen({ onAccept }: { onAccept: () => void }) {
           and{" "}
           <a
             className="text-primary underline transition-colors hover:text-primary/80"
-            href="https://drive.google.com/file/d/1lzrdgD_dwusE4xsKw_oTUcu8Hq3YU60b/view?usp=sharing"
+            href="https://docs.idos.network/legal-considerations"
             rel="noopener noreferrer"
             target="_blank"
           >
-            Transparency Document
+            Legal Considerations
           </a>
           .
         </p>

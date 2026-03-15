@@ -23,13 +23,19 @@
    bun install
    ```
 
-3. (Optional) Set up environment variables:
-   Create a `.env.local` file in the root directory:
+3. Set up environment variables:
+   Copy the example file and fill in your values:
+
+   ```bash
+   cp .env.example .env.local
+   ```
 
    ```env
    VITE_APPKIT_PROJECT_ID=your_project_id_here
    VITE_ZERION_API_KEY=your_zerion_api_key_here
    ```
+
+   Git ignores local `.env` files by default, but keeps `.env.example` in the repository as the template.
 
    `VITE_APPKIT_PROJECT_ID` — WalletConnect project ID. This is required to initialize Reown AppKit.
 
@@ -123,76 +129,12 @@ All contracts are on **Arbitrum** (mainnet).
 - **Block Explorer Links**: derived automatically from the chain config via `APP_BLOCK_EXPLORER_URL` in `src/lib/abi.ts` (currently Arbiscan for Arbitrum)
 - **Vesting Type Label**: `"Linear (post-cliff)"`
 
-## Deploying to Production
+## Configuration Notes
 
-When deploying against production (mainnet) contracts, all changes are isolated to a few files. Everything revolves around a single chain.
+- Chain and contract addresses live in `src/lib/abi.ts`.
+- WalletConnect / Reown setup and supported wallet networks live in `src/lib/appkit.tsx`.
+- Token pricing uses Zerion when `VITE_ZERION_API_KEY` is set and falls back to CoinGecko otherwise.
 
-### 1. Chain and Contract Addresses (`src/lib/abi.ts`)
+## License
 
-This is the main file to update. All chain and address configuration lives here.
-
-```typescript
-import { arbitrum } from "wagmi/chains";
-
-// Single chain for the entire app
-export const APP_CHAIN_ID = arbitrum.id;
-
-// Production IDOS token
-export const IDOS_TOKEN_ABI_ADDRESS =
-  "0x4C85b9D56dC64276dADC1353ca94331097D351CA";
-
-// Production staking contract
-export const IDOS_NODE_STAKING_ABI_ADDRESS =
-  "0x09117A0dCE34cd32931745Ef2FD9c760C92aad2f";
-
-// Production vesting token (same as IDOS token on mainnet)
-export const VESTING_TOKEN_ADDRESS =
-  "0x4C85b9D56dC64276dADC1353ca94331097D351CA" as `0x${string}`;
-```
-
-### 2. TDE Disbursement Address (`src/lib/abi.ts`)
-
-Update `TDE_DISBURSEMENT_ADDRESS` to the mainnet TDE Disbursement contract. Vesting contracts are discovered dynamically from this contract.
-
-### 3. Block Explorer Links
-
-Block explorer URLs are derived automatically from the chain config via `APP_BLOCK_EXPLORER_URL`. No manual update is needed — changing the chain in step 1 updates all explorer links.
-
-### 4. Supported Networks (`src/lib/appkit.tsx`)
-
-Update the `networks` array to only include production networks:
-
-```typescript
-const networks: [AppKitNetwork, ...AppKitNetwork[]] = [mainnet, arbitrum];
-```
-
-### 5. Token Price (`src/lib/queries/use-token-price.ts`)
-
-Token price is fetched live from Zerion API (primary) with CoinGecko as a fallback. Ensure `VITE_ZERION_API_KEY` is set in production.
-
-### 6. Node Providers (`src/components/staking/node-provider-selector.tsx`)
-
-Verify provider addresses are `allowNode`'d on the staking contract and correct for the target network.
-
-### 7. Production URL (`src/lib/appkit.tsx`)
-
-Update the deployment URL if the domain changes.
-
-### Production Checklist
-
-- [ ] `APP_CHAIN_ID` → verify Arbitrum mainnet (`arbitrum.id`)
-- [ ] `IDOS_TOKEN_ABI_ADDRESS` → verify mainnet address
-- [ ] `IDOS_NODE_STAKING_ABI_ADDRESS` → verify mainnet address
-- [ ] `VESTING_TOKEN_ADDRESS` → verify mainnet address
-- [ ] `TDE_DISBURSEMENT_ADDRESS` → verify mainnet address
-- [ ] Block explorer links → automatic via `APP_BLOCK_EXPLORER_URL` (verify chain is correct)
-- [ ] `appkit.tsx` networks → remove testnets
-- [ ] `VITE_ZERION_API_KEY` → production Zerion API key
-- [ ] Node provider selector → re-enable and verify addresses
-- [ ] ABIs → verify they match the deployed mainnet contracts
-- [ ] `VITE_APPKIT_PROJECT_ID` → production WalletConnect project ID
-- [x] Terms of Service link → `http://www.idos.network/legal/portal-terms`
-- [x] Risk Disclosure link → `http://www.idos.network/legal/risk-disclosure-staking`
-- [x] Privacy Policy link → `https://www.idos.network/legal/privacy-policy`
-- [x] Transparency Document link → Google Drive hosted document
-- [ ] Test all flows end-to-end before going live
+This project is licensed under the MIT License. See `LICENSE` for details.
